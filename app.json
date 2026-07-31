@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "aeropay",
-    "slug": "aeropay",
+    "name": "Aeropay Network",
+    "slug": "aeropay-network",
     "version": "1.0.0",
+    "sdkVersion": "57.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "aeropay",
@@ -17,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.aeropaynetwork"
     },
     "web": {
       "output": "static",
@@ -37,6 +39,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3bd4a2ff-1a98-4a49-8316-619292518182"
+      }
     }
   }
 }
