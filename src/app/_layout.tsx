@@ -14,6 +14,7 @@ export default function TabLayout() {
       <AnimatedSplashOverlay />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="profile" options={{ presentation: 'modal', headerShown: true, title: 'Profile' }} />
       </Stack>
     </ThemeProvider>
   );
