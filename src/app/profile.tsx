@@ -1,22 +1,27 @@
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  Switch, 
-  Appearance, 
-  useColorScheme, 
-  Platform, 
-  Pressable, 
-  TextInput, 
-  Image, 
-  KeyboardAvoidingView, 
-  ScrollView, 
-  Modal 
+import {
+  StyleSheet,
+  Text,
+  View,
+  Switch,
+  Appearance,
+  useColorScheme,
+  Platform,
+  Pressable,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -26,25 +31,25 @@ import * as Sharing from 'expo-sharing';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function SettingItem({ 
-  icon, 
-  title, 
-  subtitle, 
-  value, 
-  onValueChange, 
-  onPress, 
-  colors, 
+function SettingItem({
+  icon,
+  title,
+  subtitle,
+  value,
+  onValueChange,
+  onPress,
+  colors,
   isSwitch = false,
   badgeText,
-  badgeColor = '#10B981'
-}: { 
-  icon: string; 
-  title: string; 
-  subtitle?: string; 
-  value?: boolean; 
-  onValueChange?: (val: boolean) => void; 
-  onPress?: () => void; 
-  colors: any; 
+  badgeColor = '#10B981',
+}: {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  value?: boolean;
+  onValueChange?: (val: boolean) => void;
+  onPress?: () => void;
+  colors: any;
   isSwitch?: boolean;
   badgeText?: string;
   badgeColor?: string;
@@ -56,7 +61,7 @@ function SettingItem({
   }));
 
   return (
-    <AnimatedPressable 
+    <AnimatedPressable
       style={[styles.settingRow, { borderBottomColor: colors.divider }, animatedStyle]}
       onPressIn={() => !isSwitch && (scale.value = withSpring(0.98))}
       onPressOut={() => !isSwitch && (scale.value = withSpring(1))}
@@ -68,14 +73,23 @@ function SettingItem({
         </View>
         <View style={styles.settingTextWrapper}>
           <View style={styles.titleBadgeRow}>
-            <Text style={[styles.settingLabel, { color: colors.text }]} numberOfLines={1}>{title}</Text>
+            <Text style={[styles.settingLabel, { color: colors.text }]} numberOfLines={1}>
+              {title}
+            </Text>
             {badgeText && (
               <View style={[styles.badge, { backgroundColor: badgeColor + '20' }]}>
                 <Text style={[styles.badgeText, { color: badgeColor }]}>{badgeText}</Text>
               </View>
             )}
           </View>
-          {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>{subtitle}</Text>}
+          {subtitle && (
+            <Text
+              style={[styles.settingSubtitle, { color: colors.textSecondary }]}
+              numberOfLines={2}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -143,17 +157,26 @@ export default function ProfileScreen() {
 
   const toggleBiometrics = (value: boolean) => {
     setIsBiometricsEnabled(value);
-    showToast(value ? 'Biometric Authentication Enabled' : 'Biometric Authentication Disabled', value ? 'success' : 'info');
+    showToast(
+      value ? 'Biometric Authentication Enabled' : 'Biometric Authentication Disabled',
+      value ? 'success' : 'info'
+    );
   };
 
   const toggle2FA = (value: boolean) => {
     setIs2FAEnabled(value);
-    showToast(value ? 'Two-Factor Authentication (2FA) Activated' : '2FA Deactivated', value ? 'success' : 'info');
+    showToast(
+      value ? 'Two-Factor Authentication (2FA) Activated' : '2FA Deactivated',
+      value ? 'success' : 'info'
+    );
   };
 
   const toggleNotifications = (value: boolean) => {
     setIsNotificationsEnabled(value);
-    showToast(value ? 'Push Notifications Turned On' : 'Push Notifications Turned Off', value ? 'success' : 'info');
+    showToast(
+      value ? 'Push Notifications Turned On' : 'Push Notifications Turned Off',
+      value ? 'success' : 'info'
+    );
   };
 
   const pickImage = async () => {
@@ -198,11 +221,8 @@ export default function ProfileScreen() {
     showToast('Transfer PIN updated successfully!', 'success');
   };
 
-
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
@@ -214,187 +234,271 @@ export default function ProfileScreen() {
         </Pressable>
       </View>
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.responsiveWrapper}>
-          
-          {/* Profile Hero Card */}
-          <Animated.View entering={FadeInDown.duration(400).springify()} style={[styles.heroCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-            <Pressable onPress={pickImage} style={styles.avatarWrapper}>
-              <View style={[styles.avatarCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8', borderColor: colors.accent }]}>
-                {profileImage ? (
-                  <Image source={{ uri: profileImage }} style={styles.avatarImage} />
-                ) : (
-                  <Ionicons name="person" size={54} color={isDark ? '#CCC' : '#888'} />
-                )}
-              </View>
-              <View style={[styles.cameraBadge, { backgroundColor: colors.accent }]}>
-                <Ionicons name="camera" size={14} color="#FFF" />
-              </View>
-            </Pressable>
-
-            <Text style={[styles.userName, { color: colors.text }]}>{name}</Text>
-            <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{email}</Text>
-
-            {/* KYC Verified Badge */}
-            <Pressable onPress={() => setIsKycModalOpen(true)} style={[styles.kycBadge, { backgroundColor: colors.success + '18' }]}>
-              <Ionicons name="shield-checkmark" size={16} color={colors.success} style={{ marginRight: 6 }} />
-              <Text style={[styles.kycBadgeText, { color: colors.success }]}>KYC Tier 3 Verified</Text>
-            </Pressable>
-
-            <Pressable 
-              style={[styles.editProfileBtn, { borderColor: colors.divider }]} 
-              onPress={() => {
-                setEditName(name);
-                setEditEmail(email);
-                setEditPhone(phone);
-                setIsEditModalOpen(true);
-              }}
+            {/* Profile Hero Card */}
+            <Animated.View
+              entering={FadeInDown.duration(400).springify()}
+              style={[
+                styles.heroCard,
+                { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+              ]}
             >
-              <Ionicons name="pencil" size={14} color={colors.text} style={{ marginRight: 6 }} />
-              <Text style={[styles.editProfileBtnText, { color: colors.text }]}>Edit Profile Details</Text>
-            </Pressable>
-          </Animated.View>
+              <Pressable onPress={pickImage} style={styles.avatarWrapper}>
+                <View
+                  style={[
+                    styles.avatarCircle,
+                    { backgroundColor: isDark ? '#333' : '#E8E8E8', borderColor: colors.accent },
+                  ]}
+                >
+                  {profileImage ? (
+                    <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+                  ) : (
+                    <Ionicons name="person" size={54} color={isDark ? '#CCC' : '#888'} />
+                  )}
+                </View>
+                <View style={[styles.cameraBadge, { backgroundColor: colors.accent }]}>
+                  <Ionicons name="camera" size={14} color="#FFF" />
+                </View>
+              </Pressable>
 
-          {/* Account Stats Bar */}
-          <Animated.View entering={FadeInDown.delay(100).duration(400).springify()} style={styles.statsRow}>
-            <View style={[styles.statBox, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <Text style={[styles.statValue, { color: colors.text }]}>142</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Transfers</Text>
-            </View>
-            <View style={[styles.statBox, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <Text style={[styles.statValue, { color: colors.text }]}>18</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Recipients</Text>
-            </View>
-            <View style={[styles.statBox, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <Text style={[styles.statValue, { color: colors.text }]}>2024</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Member Since</Text>
-            </View>
-          </Animated.View>
+              <Text style={[styles.userName, { color: colors.text }]}>{name}</Text>
+              <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{email}</Text>
 
-          {/* App Preferences */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>APP PREFERENCES</Text>
-            <View style={[styles.settingsGroup, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <SettingItem
-                icon={isDark ? "moon" : "sunny"}
-                title="Dark Mode Theme"
-                subtitle="Toggle dark & light appearance"
-                isSwitch
-                value={isDark}
-                onValueChange={toggleTheme}
-                colors={colors}
-              />
-              <SettingItem
-                icon="notifications-outline"
-                title="Push Notifications"
-                subtitle="Transaction & balance alerts"
-                isSwitch
-                value={isNotificationsEnabled}
-                onValueChange={toggleNotifications}
-                colors={colors}
-              />
-              <SettingItem
-                icon="cash-outline"
-                title="Default Currency"
-                subtitle="USD - United States Dollar"
-                onPress={() => showToast('Default currency set to USD', 'info')}
-                colors={colors}
-              />
-            </View>
-          </View>
-
-          {/* Security & Compliance Section - 100% Functional */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>SECURITY & COMPLIANCE</Text>
-            <View style={[styles.settingsGroup, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <SettingItem
-                icon="finger-print-outline"
-                title="Biometric Authentication"
-                subtitle="Use Face ID / Touch ID for transfers"
-                isSwitch
-                value={isBiometricsEnabled}
-                onValueChange={toggleBiometrics}
-                badgeText="Active"
-                badgeColor={colors.success}
-                colors={colors}
-              />
-              <SettingItem
-                icon="shield-checkmark-outline"
-                title="Identity Verification (KYC)"
-                subtitle="Passport & Liveness checks completed"
-                badgeText="Verified"
-                badgeColor={colors.success}
+              {/* KYC Verified Badge */}
+              <Pressable
                 onPress={() => setIsKycModalOpen(true)}
-                colors={colors}
-              />
-              <SettingItem
-                icon="key-outline"
-                title="Change Transfer PIN"
-                subtitle="Update 4-digit security passcode"
-                onPress={() => setIsPinModalOpen(true)}
-                colors={colors}
-              />
-              <SettingItem
-                icon="lock-closed-outline"
-                title="Two-Factor Auth (2FA)"
-                subtitle="Authenticator App / SMS Verification"
-                isSwitch
-                value={is2FAEnabled}
-                onValueChange={toggle2FA}
-                badgeText="2FA Active"
-                badgeColor={colors.success}
-                colors={colors}
-              />
-              <SettingItem
-                icon="desktop-outline"
-                title="Active Sessions & Log"
-                subtitle="View logged-in devices & activity"
-                onPress={() => setIsSessionsModalOpen(true)}
-                colors={colors}
-              />
+                style={[styles.kycBadge, { backgroundColor: colors.success + '18' }]}
+              >
+                <Ionicons
+                  name="shield-checkmark"
+                  size={16}
+                  color={colors.success}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.kycBadgeText, { color: colors.success }]}>
+                  KYC Tier 3 Verified
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.editProfileBtn, { borderColor: colors.divider }]}
+                onPress={() => {
+                  setEditName(name);
+                  setEditEmail(email);
+                  setEditPhone(phone);
+                  setIsEditModalOpen(true);
+                }}
+              >
+                <Ionicons name="pencil" size={14} color={colors.text} style={{ marginRight: 6 }} />
+                <Text style={[styles.editProfileBtnText, { color: colors.text }]}>
+                  Edit Profile Details
+                </Text>
+              </Pressable>
+            </Animated.View>
+
+            {/* Account Stats Bar */}
+            <Animated.View
+              entering={FadeInDown.delay(100).duration(400).springify()}
+              style={styles.statsRow}
+            >
+              <View
+                style={[
+                  styles.statBox,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <Text style={[styles.statValue, { color: colors.text }]}>142</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Transfers</Text>
+              </View>
+              <View
+                style={[
+                  styles.statBox,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <Text style={[styles.statValue, { color: colors.text }]}>18</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Recipients</Text>
+              </View>
+              <View
+                style={[
+                  styles.statBox,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <Text style={[styles.statValue, { color: colors.text }]}>2024</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                  Member Since
+                </Text>
+              </View>
+            </Animated.View>
+
+            {/* App Preferences */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                APP PREFERENCES
+              </Text>
+              <View
+                style={[
+                  styles.settingsGroup,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <SettingItem
+                  icon={isDark ? 'moon' : 'sunny'}
+                  title="Dark Mode Theme"
+                  subtitle="Toggle dark & light appearance"
+                  isSwitch
+                  value={isDark}
+                  onValueChange={toggleTheme}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="notifications-outline"
+                  title="Push Notifications"
+                  subtitle="Transaction & balance alerts"
+                  isSwitch
+                  value={isNotificationsEnabled}
+                  onValueChange={toggleNotifications}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="cash-outline"
+                  title="Default Currency"
+                  subtitle="USD - United States Dollar"
+                  onPress={() => showToast('Default currency set to USD', 'info')}
+                  colors={colors}
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Support & Legal */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>SUPPORT & LEGAL</Text>
-            <View style={[styles.settingsGroup, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-              <SettingItem
-                icon="help-buoy-outline"
-                title="Help & Live Support"
-                subtitle="24/7 Priority Concierge Support & FAQ"
-                onPress={() => setIsSupportModalOpen(true)}
-                colors={colors}
-              />
-              <SettingItem
-                icon="document-text-outline"
-                title="Terms of Service & Legal"
-                subtitle="Privacy Policy, Compliance & Licensing"
-                onPress={() => setIsLegalModalOpen(true)}
-                colors={colors}
-              />
+            {/* Security & Compliance Section - 100% Functional */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                SECURITY & COMPLIANCE
+              </Text>
+              <View
+                style={[
+                  styles.settingsGroup,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <SettingItem
+                  icon="finger-print-outline"
+                  title="Biometric Authentication"
+                  subtitle="Use Face ID / Touch ID for transfers"
+                  isSwitch
+                  value={isBiometricsEnabled}
+                  onValueChange={toggleBiometrics}
+                  badgeText="Active"
+                  badgeColor={colors.success}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="shield-checkmark-outline"
+                  title="Identity Verification (KYC)"
+                  subtitle="Passport & Liveness checks completed"
+                  badgeText="Verified"
+                  badgeColor={colors.success}
+                  onPress={() => setIsKycModalOpen(true)}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="key-outline"
+                  title="Change Transfer PIN"
+                  subtitle="Update 4-digit security passcode"
+                  onPress={() => setIsPinModalOpen(true)}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="lock-closed-outline"
+                  title="Two-Factor Auth (2FA)"
+                  subtitle="Authenticator App / SMS Verification"
+                  isSwitch
+                  value={is2FAEnabled}
+                  onValueChange={toggle2FA}
+                  badgeText="2FA Active"
+                  badgeColor={colors.success}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="desktop-outline"
+                  title="Active Sessions & Log"
+                  subtitle="View logged-in devices & activity"
+                  onPress={() => setIsSessionsModalOpen(true)}
+                  colors={colors}
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Logout Button */}
-          <Pressable style={[styles.logoutButton, { backgroundColor: 'rgba(211, 47, 47, 0.12)' }]} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color={colors.error} style={{ marginRight: 8 }} />
-            <Text style={[styles.logoutText, { color: colors.error }]}>Log Out of Aeropay</Text>
-          </Pressable>
+            {/* Support & Legal */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                SUPPORT & LEGAL
+              </Text>
+              <View
+                style={[
+                  styles.settingsGroup,
+                  { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+                ]}
+              >
+                <SettingItem
+                  icon="help-buoy-outline"
+                  title="Help & Live Support"
+                  subtitle="24/7 Priority Concierge Support & FAQ"
+                  onPress={() => setIsSupportModalOpen(true)}
+                  colors={colors}
+                />
+                <SettingItem
+                  icon="document-text-outline"
+                  title="Terms of Service & Legal"
+                  subtitle="Privacy Policy, Compliance & Licensing"
+                  onPress={() => setIsLegalModalOpen(true)}
+                  colors={colors}
+                />
+              </View>
+            </View>
 
-          <Text style={[styles.versionText, { color: colors.textSecondary }]}>
-            Aeropay Network v2.4.0 • Build 8821
-          </Text>
+            {/* Logout Button */}
+            <Pressable
+              style={[styles.logoutButton, { backgroundColor: 'rgba(211, 47, 47, 0.12)' }]}
+              onPress={handleLogout}
+            >
+              <Ionicons
+                name="log-out-outline"
+                size={20}
+                color={colors.error}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[styles.logoutText, { color: colors.error }]}>Log Out of Aeropay</Text>
+            </Pressable>
 
+            <Text style={[styles.versionText, { color: colors.textSecondary }]}>
+              Aeropay Network v2.4.0 • Build 8821
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* 1. Edit Profile Modal */}
-      <Modal visible={isEditModalOpen} transparent animationType="slide" onRequestClose={() => setIsEditModalOpen(false)}>
+      <Modal
+        visible={isEditModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsEditModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsEditModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Profile Details</Text>
               <Pressable onPress={() => setIsEditModalOpen(false)}>
@@ -406,7 +510,14 @@ export default function ProfileScreen() {
             <TextInput
               value={editName}
               onChangeText={setEditName}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
             <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>EMAIL ADDRESS</Text>
@@ -414,7 +525,14 @@ export default function ProfileScreen() {
               value={editEmail}
               onChangeText={setEditEmail}
               keyboardType="email-address"
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
             <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>PHONE NUMBER</Text>
@@ -422,10 +540,20 @@ export default function ProfileScreen() {
               value={editPhone}
               onChangeText={setEditPhone}
               keyboardType="phone-pad"
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
-            <Pressable style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleSaveProfile}>
+            <Pressable
+              style={[styles.saveBtn, { backgroundColor: colors.accent }]}
+              onPress={handleSaveProfile}
+            >
               <Text style={styles.saveBtnText}>Save Changes</Text>
             </Pressable>
           </Pressable>
@@ -433,44 +561,83 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* 2. KYC Verification Modal */}
-      <Modal visible={isKycModalOpen} transparent animationType="slide" onRequestClose={() => setIsKycModalOpen(false)}>
+      <Modal
+        visible={isKycModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsKycModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsKycModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Identity Verification (KYC)</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Identity Verification (KYC)
+              </Text>
               <Pressable onPress={() => setIsKycModalOpen(false)}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </Pressable>
             </View>
 
             <View style={styles.kycStatusCard}>
-              <Ionicons name="checkmark-circle" size={48} color={colors.success} style={{ marginBottom: 8 }} />
-              <Text style={[styles.kycStatusTitle, { color: colors.text }]}>Tier 3 Verified Account</Text>
+              <Ionicons
+                name="checkmark-circle"
+                size={48}
+                color={colors.success}
+                style={{ marginBottom: 8 }}
+              />
+              <Text style={[styles.kycStatusTitle, { color: colors.text }]}>
+                Tier 3 Verified Account
+              </Text>
               <Text style={[styles.kycStatusSub, { color: colors.textSecondary }]}>
                 Daily Limit: $100,000 USD • International Money Movement Unlocked
               </Text>
             </View>
 
             <View style={[styles.kycItem, { borderBottomColor: colors.divider }]}>
-              <Ionicons name="document-text-outline" size={20} color={colors.success} style={{ marginRight: 10 }} />
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color={colors.success}
+                style={{ marginRight: 10 }}
+              />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.kycItemTitle, { color: colors.text }]}>Government ID / Passport</Text>
-                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>Verified on 12 Jan 2024</Text>
+                <Text style={[styles.kycItemTitle, { color: colors.text }]}>
+                  Government ID / Passport
+                </Text>
+                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>
+                  Verified on 12 Jan 2024
+                </Text>
               </View>
-              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>Approved</Text>
+              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>
+                Approved
+              </Text>
             </View>
 
             <View style={[styles.kycItem, { borderBottomColor: colors.divider }]}>
-              <Ionicons name="scan-outline" size={20} color={colors.success} style={{ marginRight: 10 }} />
+              <Ionicons
+                name="scan-outline"
+                size={20}
+                color={colors.success}
+                style={{ marginRight: 10 }}
+              />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.kycItemTitle, { color: colors.text }]}>Biometric Liveness Verification</Text>
-                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>Face Matching 99.8% Score</Text>
+                <Text style={[styles.kycItemTitle, { color: colors.text }]}>
+                  Biometric Liveness Verification
+                </Text>
+                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>
+                  Face Matching 99.8% Score
+                </Text>
               </View>
-              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>Approved</Text>
+              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>
+                Approved
+              </Text>
             </View>
 
-            <Pressable 
-              style={[styles.saveBtn, { backgroundColor: colors.accent }]} 
+            <Pressable
+              style={[styles.saveBtn, { backgroundColor: colors.accent }]}
               onPress={() => {
                 setIsKycModalOpen(false);
                 showToast('Identity verification documents are fully up to date!', 'success');
@@ -483,9 +650,17 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* 3. Change Transfer PIN Modal */}
-      <Modal visible={isPinModalOpen} transparent animationType="slide" onRequestClose={() => setIsPinModalOpen(false)}>
+      <Modal
+        visible={isPinModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsPinModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsPinModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>Change Transfer PIN</Text>
               <Pressable onPress={() => setIsPinModalOpen(false)}>
@@ -493,7 +668,9 @@ export default function ProfileScreen() {
               </Pressable>
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>CURRENT 4-DIGIT PIN</Text>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+              CURRENT 4-DIGIT PIN
+            </Text>
             <TextInput
               value={currentPin}
               onChangeText={setCurrentPin}
@@ -502,10 +679,19 @@ export default function ProfileScreen() {
               maxLength={4}
               placeholder="••••"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>NEW 4-DIGIT PIN</Text>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+              NEW 4-DIGIT PIN
+            </Text>
             <TextInput
               value={newPin}
               onChangeText={setNewPin}
@@ -514,10 +700,19 @@ export default function ProfileScreen() {
               maxLength={4}
               placeholder="••••"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>CONFIRM NEW PIN</Text>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+              CONFIRM NEW PIN
+            </Text>
             <TextInput
               value={confirmPin}
               onChangeText={setConfirmPin}
@@ -526,10 +721,20 @@ export default function ProfileScreen() {
               maxLength={4}
               placeholder="••••"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
-            <Pressable style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleChangePinSubmit}>
+            <Pressable
+              style={[styles.saveBtn, { backgroundColor: colors.accent }]}
+              onPress={handleChangePinSubmit}
+            >
               <Text style={styles.saveBtnText}>Update PIN</Text>
             </Pressable>
           </Pressable>
@@ -537,9 +742,17 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* 4. Active Sessions Modal */}
-      <Modal visible={isSessionsModalOpen} transparent animationType="slide" onRequestClose={() => setIsSessionsModalOpen(false)}>
+      <Modal
+        visible={isSessionsModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsSessionsModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsSessionsModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>Active Sessions & Log</Text>
               <Pressable onPress={() => setIsSessionsModalOpen(false)}>
@@ -548,33 +761,56 @@ export default function ProfileScreen() {
             </View>
 
             <View style={[styles.kycItem, { borderBottomColor: colors.divider }]}>
-              <Ionicons name="phone-portrait-outline" size={22} color={colors.accent} style={{ marginRight: 12 }} />
+              <Ionicons
+                name="phone-portrait-outline"
+                size={22}
+                color={colors.accent}
+                style={{ marginRight: 12 }}
+              />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.kycItemTitle, { color: colors.text }]}>iPhone 15 Pro (Current)</Text>
-                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>Kigali, Rwanda • Active Now</Text>
+                <Text style={[styles.kycItemTitle, { color: colors.text }]}>
+                  iPhone 15 Pro (Current)
+                </Text>
+                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>
+                  Kigali, Rwanda • Active Now
+                </Text>
               </View>
-              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>This Device</Text>
+              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12 }}>
+                This Device
+              </Text>
             </View>
 
             <View style={[styles.kycItem, { borderBottomColor: colors.divider }]}>
-              <Ionicons name="desktop-outline" size={22} color={colors.textSecondary} style={{ marginRight: 12 }} />
+              <Ionicons
+                name="desktop-outline"
+                size={22}
+                color={colors.textSecondary}
+                style={{ marginRight: 12 }}
+              />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.kycItemTitle, { color: colors.text }]}>Chrome on macOS</Text>
-                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>Nairobi, Kenya • 2 hours ago</Text>
+                <Text style={[styles.kycItemSub, { color: colors.textSecondary }]}>
+                  Nairobi, Kenya • 2 hours ago
+                </Text>
               </View>
               <Pressable onPress={() => showToast('Session revoked successfully', 'info')}>
                 <Text style={{ color: colors.error, fontWeight: '600', fontSize: 12 }}>Revoke</Text>
               </Pressable>
             </View>
 
-            <Pressable 
-              style={[styles.saveBtn, { backgroundColor: colors.error + '20', borderWidth: 1, borderColor: colors.error }]} 
+            <Pressable
+              style={[
+                styles.saveBtn,
+                { backgroundColor: colors.error + '20', borderWidth: 1, borderColor: colors.error },
+              ]}
               onPress={() => {
                 setIsSessionsModalOpen(false);
                 showToast('Terminated all other active sessions!', 'success');
               }}
             >
-              <Text style={[styles.saveBtnText, { color: colors.error }]}>Log Out of All Other Devices</Text>
+              <Text style={[styles.saveBtnText, { color: colors.error }]}>
+                Log Out of All Other Devices
+              </Text>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -588,20 +824,46 @@ export default function ProfileScreen() {
         onRequestClose={() => setIsLogoutModalOpen(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setIsLogoutModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF' }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF' }]}
+            onPress={() => {}}
+          >
             <View style={{ alignItems: 'center', marginVertical: 12 }}>
-              <View style={[styles.iconBox, { backgroundColor: colors.error + '15', width: 56, height: 56, borderRadius: 28, marginBottom: 12, alignItems: 'center', justifyContent: 'center' }]}>
+              <View
+                style={[
+                  styles.iconBox,
+                  {
+                    backgroundColor: colors.error + '15',
+                    width: 56,
+                    height: 56,
+                    borderRadius: 28,
+                    marginBottom: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                ]}
+              >
                 <Ionicons name="log-out-outline" size={28} color={colors.error} />
               </View>
-              <Text style={[styles.kycStatusTitle, { color: colors.text, textAlign: 'center' }]}>Log Out of Aeropay?</Text>
-              <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'center', marginTop: 6 }]}>
+              <Text style={[styles.kycStatusTitle, { color: colors.text, textAlign: 'center' }]}>
+                Log Out of Aeropay?
+              </Text>
+              <Text
+                style={[
+                  styles.kycStatusSub,
+                  { color: colors.textSecondary, textAlign: 'center', marginTop: 6 },
+                ]}
+              >
                 Are you sure you want to sign out of your account on this device?
               </Text>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
               <Pressable
-                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 }]}
+                style={[
+                  styles.saveBtn,
+                  { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 },
+                ]}
                 onPress={() => setIsLogoutModalOpen(false)}
               >
                 <Text style={[styles.saveBtnText, { color: colors.text }]}>Cancel</Text>
@@ -630,11 +892,27 @@ export default function ProfileScreen() {
         onRequestClose={() => setIsSupportModalOpen(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setIsSupportModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' }]} onPress={() => {}}>
+          <Pressable
+            style={[
+              styles.modalContent,
+              { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' },
+            ]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <View>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>Help & Support</Text>
-                <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'left', paddingHorizontal: 0, marginTop: 2 }]}>
+                <Text
+                  style={[
+                    styles.kycStatusSub,
+                    {
+                      color: colors.textSecondary,
+                      textAlign: 'left',
+                      paddingHorizontal: 0,
+                      marginTop: 2,
+                    },
+                  ]}
+                >
                   24/7 Concierge & Frequently Asked Questions
                 </Text>
               </View>
@@ -645,7 +923,12 @@ export default function ProfileScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 8 }}>
               {/* Online Status Banner */}
-              <View style={[styles.supportStatusBanner, { backgroundColor: colors.success + '15', borderColor: colors.success + '30' }]}>
+              <View
+                style={[
+                  styles.supportStatusBanner,
+                  { backgroundColor: colors.success + '15', borderColor: colors.success + '30' },
+                ]}
+              >
                 <View style={[styles.onlineDot, { backgroundColor: colors.success }]} />
                 <Text style={[styles.supportStatusText, { color: colors.success }]}>
                   Live Support Agent Online • Avg response under 2 mins
@@ -653,19 +936,33 @@ export default function ProfileScreen() {
               </View>
 
               {/* Quick Contact Buttons */}
-              <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 12 }]}>DIRECT SUPPORT CHANNELS</Text>
+              <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 12 }]}>
+                DIRECT SUPPORT CHANNELS
+              </Text>
               <View style={{ gap: 8, marginBottom: 16 }}>
                 <Pressable
                   onPress={() => {
                     setIsSupportModalOpen(false);
                     showToast('Opening Live Support Chat session...', 'info');
                   }}
-                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                  style={[
+                    styles.contactChannelBtn,
+                    { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' },
+                  ]}
                 >
-                  <Ionicons name="chatbubbles-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <Ionicons
+                    name="chatbubbles-outline"
+                    size={20}
+                    color={colors.accent}
+                    style={{ marginRight: 12 }}
+                  />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>Start Live Chat</Text>
-                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>Connect with an agent right now</Text>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>
+                      Start Live Chat
+                    </Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>
+                      Connect with an agent right now
+                    </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
                 </Pressable>
@@ -674,12 +971,24 @@ export default function ProfileScreen() {
                   onPress={() => {
                     showToast('Support email copied: support@aeropay.network', 'success');
                   }}
-                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                  style={[
+                    styles.contactChannelBtn,
+                    { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' },
+                  ]}
                 >
-                  <Ionicons name="mail-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <Ionicons
+                    name="mail-outline"
+                    size={20}
+                    color={colors.accent}
+                    style={{ marginRight: 12 }}
+                  />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>Email Support</Text>
-                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>support@aeropay.network</Text>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>
+                      Email Support
+                    </Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>
+                      support@aeropay.network
+                    </Text>
                   </View>
                   <Ionicons name="copy-outline" size={16} color={colors.textSecondary} />
                 </Pressable>
@@ -688,36 +997,50 @@ export default function ProfileScreen() {
                   onPress={() => {
                     showToast('Calling Aeropay Hotline: +1 (800) 555-2376', 'info');
                   }}
-                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                  style={[
+                    styles.contactChannelBtn,
+                    { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' },
+                  ]}
                 >
-                  <Ionicons name="call-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <Ionicons
+                    name="call-outline"
+                    size={20}
+                    color={colors.accent}
+                    style={{ marginRight: 12 }}
+                  />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>24/7 Hotline</Text>
-                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>+1 (800) 555-2376 (Toll-Free)</Text>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>
+                      24/7 Hotline
+                    </Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>
+                      +1 (800) 555-2376 (Toll-Free)
+                    </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
                 </Pressable>
               </View>
 
               {/* FAQ Accordion */}
-              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>FREQUENTLY ASKED QUESTIONS</Text>
+              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+                FREQUENTLY ASKED QUESTIONS
+              </Text>
               {[
                 {
-                  q: "How fast do transfers reach Mobile Money?",
-                  a: "Transfers to MTN Rwanda, Safaricom M-PESA, and Airtel Money are processed instantly (typically within 30 seconds)."
+                  q: 'How fast do transfers reach Mobile Money?',
+                  a: 'Transfers to MTN Rwanda, Safaricom M-PESA, and Airtel Money are processed instantly (typically within 30 seconds).',
                 },
                 {
-                  q: "What are the exchange rate fees?",
-                  a: "Aeropay operates on transparent mid-market exchange rates locked in real-time with zero hidden markups."
+                  q: 'What are the exchange rate fees?',
+                  a: 'Aeropay operates on transparent mid-market exchange rates locked in real-time with zero hidden markups.',
                 },
                 {
-                  q: "Is my wallet money protected?",
-                  a: "Yes! All balances are held in ring-fenced Tier 1 bank accounts fully compliant with financial regulations and protected by 256-bit encryption."
+                  q: 'Is my wallet money protected?',
+                  a: 'Yes! All balances are held in ring-fenced Tier 1 bank accounts fully compliant with financial regulations and protected by 256-bit encryption.',
                 },
                 {
-                  q: "What happens if a transaction fails?",
-                  a: "Failed transfers are automatically reversed back to your Main Wallet within minutes with zero deduction."
-                }
+                  q: 'What happens if a transaction fails?',
+                  a: 'Failed transfers are automatically reversed back to your Main Wallet within minutes with zero deduction.',
+                },
               ].map((faq, index) => {
                 const isOpen = activeFaqIndex === index;
                 return (
@@ -725,19 +1048,25 @@ export default function ProfileScreen() {
                     key={index}
                     onPress={() => setActiveFaqIndex(isOpen ? null : index)}
                     style={[
-                      styles.faqCard, 
-                      { 
+                      styles.faqCard,
+                      {
                         backgroundColor: isDark ? '#2C2C35' : '#F8FAFC',
-                        borderColor: isOpen ? colors.accent : colors.divider 
-                      }
+                        borderColor: isOpen ? colors.accent : colors.divider,
+                      },
                     ]}
                   >
                     <View style={styles.faqHeader}>
                       <Text style={[styles.faqQuestion, { color: colors.text }]}>{faq.q}</Text>
-                      <Ionicons name={isOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.textSecondary} />
+                      <Ionicons
+                        name={isOpen ? 'chevron-up' : 'chevron-down'}
+                        size={18}
+                        color={colors.textSecondary}
+                      />
                     </View>
                     {isOpen && (
-                      <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>{faq.a}</Text>
+                      <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                        {faq.a}
+                      </Text>
                     )}
                   </Pressable>
                 );
@@ -762,11 +1091,29 @@ export default function ProfileScreen() {
         onRequestClose={() => setIsLegalModalOpen(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setIsLegalModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' }]} onPress={() => {}}>
+          <Pressable
+            style={[
+              styles.modalContent,
+              { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' },
+            ]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <View>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>Terms & Legal Information</Text>
-                <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'left', paddingHorizontal: 0, marginTop: 2 }]}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Terms & Legal Information
+                </Text>
+                <Text
+                  style={[
+                    styles.kycStatusSub,
+                    {
+                      color: colors.textSecondary,
+                      textAlign: 'left',
+                      paddingHorizontal: 0,
+                      marginTop: 2,
+                    },
+                  ]}
+                >
                   Aeropay Network Regulatory & Privacy Framework
                 </Text>
               </View>
@@ -787,10 +1134,15 @@ export default function ProfileScreen() {
                   onPress={() => setLegalTab(tab.id as any)}
                   style={[
                     styles.legalTabBtn,
-                    legalTab === tab.id && { backgroundColor: colors.accent }
+                    legalTab === tab.id && { backgroundColor: colors.accent },
                   ]}
                 >
-                  <Text style={[styles.legalTabText, { color: legalTab === tab.id ? '#FFFFFF' : colors.textSecondary }]}>
+                  <Text
+                    style={[
+                      styles.legalTabText,
+                      { color: legalTab === tab.id ? '#FFFFFF' : colors.textSecondary },
+                    ]}
+                  >
                     {tab.label}
                   </Text>
                 </Pressable>
@@ -800,44 +1152,62 @@ export default function ProfileScreen() {
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
               {legalTab === 'terms' && (
                 <View style={styles.legalSectionContent}>
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>1. General Conditions</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    1. General Conditions
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    By accessing or using the Aeropay Network mobile application, you agree to be bound by these Terms of Service. Aeropay provides instant cross-border remittance, mobile wallet top-ups, and payout settlement services.
+                    By accessing or using the Aeropay Network mobile application, you agree to be
+                    bound by these Terms of Service. Aeropay provides instant cross-border
+                    remittance, mobile wallet top-ups, and payout settlement services.
                   </Text>
 
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>2. Settlement & SLA</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    2. Settlement & SLA
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    Transfers dispatched via mobile money integrations are processed in near real-time. Rate locks are guaranteed for 15 minutes from transaction initiation.
+                    Transfers dispatched via mobile money integrations are processed in near
+                    real-time. Rate locks are guaranteed for 15 minutes from transaction initiation.
                   </Text>
 
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>3. Anti-Money Laundering (AML)</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    3. Anti-Money Laundering (AML)
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    Aeropay complies strictly with FATF guidance, KYC Tier verification, and automated transaction screening to prevent financial fraud.
+                    Aeropay complies strictly with FATF guidance, KYC Tier verification, and
+                    automated transaction screening to prevent financial fraud.
                   </Text>
                 </View>
               )}
 
               {legalTab === 'privacy' && (
                 <View style={styles.legalSectionContent}>
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>Data Encryption & Storage</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    Data Encryption & Storage
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    All user credentials, payment tokens, and sensitive personal information are protected using AES-256 bit encryption at rest and TLS 1.3 in transit.
+                    All user credentials, payment tokens, and sensitive personal information are
+                    protected using AES-256 bit encryption at rest and TLS 1.3 in transit.
                   </Text>
 
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>Information We Collect</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    Information We Collect
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    We collect identification details required by financial authorities (Full Name, National ID/Passport number, Phone number) solely to process transfers securely.
+                    We collect identification details required by financial authorities (Full Name,
+                    National ID/Passport number, Phone number) solely to process transfers securely.
                   </Text>
                 </View>
               )}
 
               {legalTab === 'license' && (
                 <View style={styles.legalSectionContent}>
-                  <Text style={[styles.legalHeading, { color: colors.text }]}>Regulatory Registration</Text>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>
+                    Regulatory Registration
+                  </Text>
                   <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
-                    • Licensed Payment Service Provider (BNR Ref: #PSP-2024-09){'\n'}
-                    • Authorized Electronic Money Institution (FCA Ref: #984102){'\n'}
-                    • Certified PCI-DSS Level 1 Compliant Platform
+                    • Licensed Payment Service Provider (BNR Ref: #PSP-2024-09){'\n'}• Authorized
+                    Electronic Money Institution (FCA Ref: #984102){'\n'}• Certified PCI-DSS Level 1
+                    Compliant Platform
                   </Text>
                 </View>
               )}
@@ -845,11 +1215,21 @@ export default function ProfileScreen() {
 
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Pressable
-                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 }]}
+                style={[
+                  styles.saveBtn,
+                  { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 },
+                ]}
                 onPress={() => showToast('Downloading Official Legal PDF Statement...', 'info')}
               >
-                <Ionicons name="download-outline" size={16} color={colors.text} style={{ marginRight: 6 }} />
-                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>Download PDF</Text>
+                <Ionicons
+                  name="download-outline"
+                  size={16}
+                  color={colors.text}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>
+                  Download PDF
+                </Text>
               </Pressable>
 
               <Pressable
@@ -871,32 +1251,54 @@ export default function ProfileScreen() {
         onRequestClose={() => setIsMyQrModalOpen(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setIsMyQrModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', alignItems: 'center' }]} onPress={() => {}}>
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Pressable
+            style={[
+              styles.modalContent,
+              { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', alignItems: 'center' },
+            ]}
+            onPress={() => {}}
+          >
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 16,
+              }}
+            >
               <Text style={[styles.modalTitle, { color: colors.text }]}>My Aeropay QR Code</Text>
               <Pressable onPress={() => setIsMyQrModalOpen(false)}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </Pressable>
             </View>
 
-            <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'center', marginBottom: 20 }]}>
-              Show or share this QR code so friends can scan and save your contact to send money directly.
+            <Text
+              style={[
+                styles.kycStatusSub,
+                { color: colors.textSecondary, textAlign: 'center', marginBottom: 20 },
+              ]}
+            >
+              Show or share this QR code so friends can scan and save your contact to send money
+              directly.
             </Text>
 
             {/* Styled QR Code Box */}
-            <View style={{ 
-              backgroundColor: '#FFFFFF', 
-              padding: 20, 
-              borderRadius: 24, 
-              alignItems: 'center',
-              justifyContent: 'center',
-              elevation: 4,
-              shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 10,
-              marginBottom: 20
-            }}>
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                padding: 20,
+                borderRadius: 24,
+                alignItems: 'center',
+                justifyContent: 'center',
+                elevation: 4,
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 10,
+                marginBottom: 20,
+              }}
+            >
               <QRCode
                 value={`aeropay://contact?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&provider=MTN%20Mobile%20Money&account=010474808113`}
                 size={180}
@@ -908,7 +1310,9 @@ export default function ProfileScreen() {
             {/* Profile Info Details */}
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
               <Text style={[styles.kycStatusTitle, { color: colors.text }]}>{name}</Text>
-              <Text style={[styles.kycStatusSub, { color: colors.textSecondary }]}>{phone} • MTN MoMo</Text>
+              <Text style={[styles.kycStatusSub, { color: colors.textSecondary }]}>
+                {phone} • MTN MoMo
+              </Text>
               <Text style={{ fontSize: 11, color: colors.accent, fontWeight: '700', marginTop: 4 }}>
                 Aeropay ID: AERO-882104
               </Text>
@@ -917,13 +1321,26 @@ export default function ProfileScreen() {
             {/* Action Buttons */}
             <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
               <Pressable
-                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#F1F5F9', marginTop: 0 }]}
+                style={[
+                  styles.saveBtn,
+                  { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#F1F5F9', marginTop: 0 },
+                ]}
                 onPress={() => {
-                  showToast('Contact payload copied: aeropay://contact?name=Shema%20Arafati', 'success');
+                  showToast(
+                    'Contact payload copied: aeropay://contact?name=Shema%20Arafati',
+                    'success'
+                  );
                 }}
               >
-                <Ionicons name="copy-outline" size={16} color={colors.text} style={{ marginRight: 6 }} />
-                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>Copy Link</Text>
+                <Ionicons
+                  name="copy-outline"
+                  size={16}
+                  color={colors.text}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>
+                  Copy Link
+                </Text>
               </Pressable>
 
               <Pressable
@@ -941,14 +1358,20 @@ export default function ProfileScreen() {
                   }
                 }}
               >
-                <Ionicons name="share-social-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                <Text style={[styles.saveBtnText, { color: '#FFFFFF', fontSize: 14 }]}>Share QR</Text>
+                <Ionicons
+                  name="share-social-outline"
+                  size={16}
+                  color="#FFFFFF"
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.saveBtnText, { color: '#FFFFFF', fontSize: 14 }]}>
+                  Share QR
+                </Text>
               </Pressable>
             </View>
           </Pressable>
         </Pressable>
       </Modal>
-
     </SafeAreaView>
   );
 }

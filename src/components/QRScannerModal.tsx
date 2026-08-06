@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Modal, Pressable, TextInput, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withRepeat, 
-  withTiming, 
-  Easing 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { useToast } from '@/context/ToastContext';
 
@@ -25,11 +25,11 @@ interface QRScannerModalProps {
   title?: string;
 }
 
-export default function QRScannerModal({ 
-  visible, 
-  onClose, 
-  onScanSuccess, 
-  title = "Scan Contact QR Code" 
+export default function QRScannerModal({
+  visible,
+  onClose,
+  onScanSuccess,
+  title = 'Scan Contact QR Code',
 }: QRScannerModalProps) {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
@@ -98,7 +98,9 @@ export default function QRScannerModal({
   };
 
   const handleSimulatedScan = (samplePayload?: string) => {
-    const payload = samplePayload || 'aeropay://contact?name=Eric%20Mugisha&phone=%2B250788445566&provider=MTN%20Mobile%20Money';
+    const payload =
+      samplePayload ||
+      'aeropay://contact?name=Eric%20Mugisha&phone=%2B250788445566&provider=MTN%20Mobile%20Money';
     const contact = parseQRPayload(payload);
     if (contact) {
       showToast(`QR Code Scanned: ${contact.name} (${contact.phone})`, 'success');
@@ -127,13 +129,19 @@ export default function QRScannerModal({
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={[styles.card, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: colors.divider }]}>
-          
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: colors.divider },
+          ]}
+        >
           {/* Header */}
           <View style={styles.header}>
             <View>
               <Text style={[styles.headerTitle, { color: colors.text }]}>{title}</Text>
-              <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Align QR code inside camera frame</Text>
+              <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
+                Align QR code inside camera frame
+              </Text>
             </View>
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <Ionicons name="close" size={24} color={colors.textSecondary} />
@@ -151,7 +159,9 @@ export default function QRScannerModal({
                 <View style={[styles.corner, styles.bottomRight, { borderColor: colors.accent }]} />
 
                 {/* Animated Laser Beam */}
-                <Animated.View style={[styles.scanBeam, { backgroundColor: colors.accent }, scanBeamStyle]} />
+                <Animated.View
+                  style={[styles.scanBeam, { backgroundColor: colors.accent }, scanBeamStyle]}
+                />
 
                 <Ionicons name="qr-code-outline" size={80} color="rgba(255,255,255,0.25)" />
               </View>
@@ -160,7 +170,9 @@ export default function QRScannerModal({
             </View>
           ) : (
             <View style={styles.manualWrapper}>
-              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>PASTE QR PAYLOAD OR PHONE NUMBER</Text>
+              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+                PASTE QR PAYLOAD OR PHONE NUMBER
+              </Text>
               <TextInput
                 value={manualPayload}
                 onChangeText={setManualPayload}
@@ -169,7 +181,10 @@ export default function QRScannerModal({
                 multiline
                 style={[styles.textInput, { color: colors.text, borderColor: colors.divider }]}
               />
-              <Pressable style={[styles.actionBtn, { backgroundColor: colors.accent }]} onPress={handleManualSubmit}>
+              <Pressable
+                style={[styles.actionBtn, { backgroundColor: colors.accent }]}
+                onPress={handleManualSubmit}
+              >
                 <Text style={styles.actionBtnText}>Parse & Import Contact</Text>
               </Pressable>
             </View>
@@ -177,25 +192,29 @@ export default function QRScannerModal({
 
           {/* Quick Action Simulator Controls */}
           <View style={styles.footerRow}>
-            <Pressable 
-              style={[styles.simBtn, { backgroundColor: colors.accent }]} 
+            <Pressable
+              style={[styles.simBtn, { backgroundColor: colors.accent }]}
               onPress={() => handleSimulatedScan()}
             >
               <Ionicons name="camera" size={16} color="#FFF" style={{ marginRight: 6 }} />
               <Text style={styles.simBtnText}>Scan Demo QR</Text>
             </Pressable>
 
-            <Pressable 
-              style={[styles.simBtnOutline, { borderColor: colors.divider }]} 
+            <Pressable
+              style={[styles.simBtnOutline, { borderColor: colors.divider }]}
               onPress={() => setIsManualInput(!isManualInput)}
             >
-              <Ionicons name={isManualInput ? "camera-outline" : "code-working-outline"} size={16} color={colors.text} style={{ marginRight: 6 }} />
+              <Ionicons
+                name={isManualInput ? 'camera-outline' : 'code-working-outline'}
+                size={16}
+                color={colors.text}
+                style={{ marginRight: 6 }}
+              />
               <Text style={[styles.simBtnOutlineText, { color: colors.text }]}>
                 {isManualInput ? 'Camera Scanner' : 'Paste Code'}
               </Text>
             </Pressable>
           </View>
-
         </View>
       </View>
     </Modal>

@@ -51,8 +51,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             {(() => {
               const colors = getToastColors(toast.type);
               return (
-                <View style={[styles.toastCard, { backgroundColor: colors.bg, borderColor: colors.border }]}>
-                  <Ionicons name={colors.icon as any} size={22} color={colors.border} style={styles.toastIcon} />
+                <View
+                  style={[
+                    styles.toastCard,
+                    { backgroundColor: colors.bg, borderColor: colors.border },
+                  ]}
+                >
+                  <Ionicons
+                    name={colors.icon as any}
+                    size={22}
+                    color={colors.border}
+                    style={styles.toastIcon}
+                  />
                   <Text style={[styles.toastText, { color: colors.text }]}>{toast.message}</Text>
                   <Pressable onPress={hideToast} style={styles.closeBtn}>
                     <Ionicons name="close" size={18} color={colors.text} />

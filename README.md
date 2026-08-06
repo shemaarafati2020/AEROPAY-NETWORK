@@ -33,15 +33,15 @@
 
 ## 🛠️ Technology Stack
 
-| Technology | Purpose |
-| :--- | :--- |
-| **Expo SDK 54** | Core mobile platform & native module runtime |
-| **Expo Router v6** | Typed file-based route navigation |
-| **NativeWind v4** | Utility-first TailwindCSS styling for React Native |
-| **React Native Reanimated 4** | High-performance fluid UI micro-animations |
-| **expo-print & expo-sharing** | Dynamic PDF document generation and file sharing |
-| **Husky & ESLint 9** | Automated code quality & pre-commit enforcement |
-| **TypeScript 5.9** | Strict type safety across all components & hooks |
+| Technology                    | Purpose                                            |
+| :---------------------------- | :------------------------------------------------- |
+| **Expo SDK 54**               | Core mobile platform & native module runtime       |
+| **Expo Router v6**            | Typed file-based route navigation                  |
+| **NativeWind v4**             | Utility-first TailwindCSS styling for React Native |
+| **React Native Reanimated 4** | High-performance fluid UI micro-animations         |
+| **expo-print & expo-sharing** | Dynamic PDF document generation and file sharing   |
+| **Husky & ESLint 9**          | Automated code quality & pre-commit enforcement    |
+| **TypeScript 5.9**            | Strict type safety across all components & hooks   |
 
 ---
 
@@ -71,9 +71,11 @@ AEROPAY NETWORK/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
+
 Ensure you have **Node.js (v18+)** and **npm** installed on your system.
 
 ### 2. Installation
+
 Clone the repository and install dependencies:
 
 ```bash
@@ -83,6 +85,7 @@ npm install
 ```
 
 ### 3. Running the App
+
 Start the Expo development server:
 
 ```bash
@@ -108,4 +111,5 @@ npm run lint
 ---
 
 ## 📄 License
+
 This project is licensed under the [MIT License](LICENSE).

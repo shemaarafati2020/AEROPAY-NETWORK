@@ -5,7 +5,12 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useToast } from '@/context/ToastContext';
 import QRScannerModal from '@/components/QRScannerModal';
 
@@ -20,10 +25,42 @@ interface Recipient {
 }
 
 const INITIAL_RECIPIENTS: Recipient[] = [
-  { id: '1', name: 'John Doe', phone: '+250 788 123 456', provider: 'MTN Mobile Money', initials: 'JD', color: '#D32F2F', isFavorite: true },
-  { id: '2', name: 'Mary Smith', phone: '+250 788 654 321', provider: 'Airtel Money', initials: 'MS', color: '#1976D2', isFavorite: true },
-  { id: '3', name: 'Peter Jones', phone: '+250 788 999 888', provider: 'Equity Bank', initials: 'PJ', color: '#388E3C', isFavorite: false },
-  { id: '4', name: 'Alice Uwase', phone: '+250 783 112 233', provider: 'BK Bank', initials: 'AU', color: '#F57C00', isFavorite: false },
+  {
+    id: '1',
+    name: 'John Doe',
+    phone: '+250 788 123 456',
+    provider: 'MTN Mobile Money',
+    initials: 'JD',
+    color: '#D32F2F',
+    isFavorite: true,
+  },
+  {
+    id: '2',
+    name: 'Mary Smith',
+    phone: '+250 788 654 321',
+    provider: 'Airtel Money',
+    initials: 'MS',
+    color: '#1976D2',
+    isFavorite: true,
+  },
+  {
+    id: '3',
+    name: 'Peter Jones',
+    phone: '+250 788 999 888',
+    provider: 'Equity Bank',
+    initials: 'PJ',
+    color: '#388E3C',
+    isFavorite: false,
+  },
+  {
+    id: '4',
+    name: 'Alice Uwase',
+    phone: '+250 783 112 233',
+    provider: 'BK Bank',
+    initials: 'AU',
+    color: '#F57C00',
+    isFavorite: false,
+  },
 ];
 
 const LOCAL_PHONE_CONTACTS = [
@@ -36,9 +73,15 @@ const PROVIDERS = ['MTN Mobile Money', 'Airtel Money', 'Equity Bank', 'BK Bank']
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function RecipientCard({ recipient, colors, onSend, onDelete, onToggleFav }: { 
-  recipient: Recipient; 
-  colors: any; 
+function RecipientCard({
+  recipient,
+  colors,
+  onSend,
+  onDelete,
+  onToggleFav,
+}: {
+  recipient: Recipient;
+  colors: any;
   onSend: (r: Recipient) => void;
   onDelete: (id: string) => void;
   onToggleFav: (id: string) => void;
@@ -51,8 +94,12 @@ function RecipientCard({ recipient, colors, onSend, onDelete, onToggleFav }: {
 
   return (
     <Animated.View entering={FadeInDown.duration(300).springify()}>
-      <AnimatedPressable 
-        style={[styles.card, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }, animatedStyle]}
+      <AnimatedPressable
+        style={[
+          styles.card,
+          { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+          animatedStyle,
+        ]}
         onPressIn={() => (scale.value = withSpring(0.98))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => onSend(recipient)}
@@ -64,11 +111,14 @@ function RecipientCard({ recipient, colors, onSend, onDelete, onToggleFav }: {
         <View style={styles.infoContainer}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={[styles.nameText, { color: colors.text }]}>{recipient.name}</Text>
-            <Pressable onPress={() => onToggleFav(recipient.id)} style={{ padding: 4, marginLeft: 4 }}>
-              <Ionicons 
-                name={recipient.isFavorite ? "star" : "star-outline"} 
-                size={16} 
-                color={recipient.isFavorite ? "#F59E0B" : colors.textSecondary} 
+            <Pressable
+              onPress={() => onToggleFav(recipient.id)}
+              style={{ padding: 4, marginLeft: 4 }}
+            >
+              <Ionicons
+                name={recipient.isFavorite ? 'star' : 'star-outline'}
+                size={16}
+                color={recipient.isFavorite ? '#F59E0B' : colors.textSecondary}
               />
             </Pressable>
           </View>
@@ -77,11 +127,14 @@ function RecipientCard({ recipient, colors, onSend, onDelete, onToggleFav }: {
         </View>
 
         <View style={styles.actionsRow}>
-          <Pressable style={[styles.sendBtn, { backgroundColor: colors.accent }]} onPress={() => onSend(recipient)}>
+          <Pressable
+            style={[styles.sendBtn, { backgroundColor: colors.accent }]}
+            onPress={() => onSend(recipient)}
+          >
             <Ionicons name="send" size={14} color="#FFF" style={{ marginRight: 4 }} />
             <Text style={styles.sendBtnText}>Send</Text>
           </Pressable>
-          
+
           <Pressable onPress={() => onDelete(recipient.id)} style={styles.deleteBtn}>
             <Ionicons name="trash-outline" size={18} color={colors.error} />
           </Pressable>
@@ -99,7 +152,7 @@ export default function RecipientsScreen() {
 
   const [recipients, setRecipients] = useState<Recipient[]>(INITIAL_RECIPIENTS);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
@@ -114,11 +167,22 @@ export default function RecipientsScreen() {
   const filteredRecipients = useMemo(() => {
     if (!searchQuery) return recipients;
     const q = searchQuery.toLowerCase();
-    return recipients.filter(r => r.name.toLowerCase().includes(q) || r.phone.includes(q) || r.provider.toLowerCase().includes(q));
+    return recipients.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.phone.includes(q) ||
+        r.provider.toLowerCase().includes(q)
+    );
   }, [recipients, searchQuery]);
 
-  const favorites = useMemo(() => filteredRecipients.filter(r => r.isFavorite), [filteredRecipients]);
-  const others = useMemo(() => filteredRecipients.filter(r => !r.isFavorite), [filteredRecipients]);
+  const favorites = useMemo(
+    () => filteredRecipients.filter((r) => r.isFavorite),
+    [filteredRecipients]
+  );
+  const others = useMemo(
+    () => filteredRecipients.filter((r) => !r.isFavorite),
+    [filteredRecipients]
+  );
 
   const handleAddRecipient = () => {
     if (!newName.trim() || !newPhone.trim()) {
@@ -127,9 +191,10 @@ export default function RecipientsScreen() {
     }
 
     const nameParts = newName.trim().split(' ');
-    const initials = nameParts.length > 1 
-      ? (nameParts[0][0] + nameParts[1][0]).toUpperCase() 
-      : nameParts[0].slice(0, 2).toUpperCase();
+    const initials =
+      nameParts.length > 1
+        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+        : nameParts[0].slice(0, 2).toUpperCase();
 
     const colorsList = ['#D32F2F', '#1976D2', '#388E3C', '#F57C00', '#7B1FA2', '#0097A7'];
     const randomColor = colorsList[Math.floor(Math.random() * colorsList.length)];
@@ -153,26 +218,32 @@ export default function RecipientsScreen() {
   };
 
   const deleteRecipient = (id: string) => {
-    setRecipients(prev => prev.filter(r => r.id !== id));
+    setRecipients((prev) => prev.filter((r) => r.id !== id));
     showToast('Beneficiary removed.', 'info');
   };
 
   const toggleFavorite = (id: string) => {
-    setRecipients(prev => prev.map(r => {
-      if (r.id === id) {
-        const updated = !r.isFavorite;
-        showToast(updated ? `${r.name} added to Favorites` : `${r.name} removed from Favorites`, 'info');
-        return { ...r, isFavorite: updated };
-      }
-      return r;
-    }));
+    setRecipients((prev) =>
+      prev.map((r) => {
+        if (r.id === id) {
+          const updated = !r.isFavorite;
+          showToast(
+            updated ? `${r.name} added to Favorites` : `${r.name} removed from Favorites`,
+            'info'
+          );
+          return { ...r, isFavorite: updated };
+        }
+        return r;
+      })
+    );
   };
 
   const handleImportContact = (contact: any) => {
     const nameParts = contact.name.split(' ');
-    const initials = nameParts.length > 1 
-      ? (nameParts[0][0] + nameParts[1][0]).toUpperCase() 
-      : nameParts[0].slice(0, 2).toUpperCase();
+    const initials =
+      nameParts.length > 1
+        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+        : nameParts[0].slice(0, 2).toUpperCase();
 
     const colorsList = ['#D32F2F', '#1976D2', '#388E3C', '#F57C00'];
     const randomColor = colorsList[Math.floor(Math.random() * colorsList.length)];
@@ -197,25 +268,30 @@ export default function RecipientsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Beneficiaries</Text>
         <View style={styles.headerActions}>
-          <Pressable 
-            style={[styles.iconActionBtn, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]} 
+          <Pressable
+            style={[
+              styles.iconActionBtn,
+              { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+            ]}
             onPress={() => setIsScanModalOpen(true)}
           >
             <Ionicons name="qr-code-outline" size={18} color={colors.accent} />
           </Pressable>
-          <Pressable 
-            style={[styles.iconActionBtn, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]} 
+          <Pressable
+            style={[
+              styles.iconActionBtn,
+              { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+            ]}
             onPress={() => setIsSyncModalOpen(true)}
           >
             <Ionicons name="sync-outline" size={18} color={colors.accent} />
           </Pressable>
-          <Pressable 
-            style={[styles.addBtn, { backgroundColor: colors.accent }]} 
+          <Pressable
+            style={[styles.addBtn, { backgroundColor: colors.accent }]}
             onPress={() => setIsAddModalOpen(true)}
           >
             <Ionicons name="add" size={18} color="#FFF" style={{ marginRight: 4 }} />
@@ -226,72 +302,97 @@ export default function RecipientsScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        
-        {/* Search Bar */}
-        <View style={[styles.searchContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
-          <Ionicons name="search" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
-          <TextInput
-            placeholder="Search name, phone, or provider..."
-            placeholderTextColor={colors.textSecondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={[styles.searchInput, { color: colors.text }]}
-          />
-          {searchQuery !== '' && (
-            <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
-            </Pressable>
-          )}
-        </View>
-
-        {/* Favorites Section */}
-        {favorites.length > 0 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>FAVORITES</Text>
-            {favorites.map((r) => (
-              <RecipientCard 
-                key={r.id} 
-                recipient={r} 
-                colors={colors} 
-                onSend={handleSendTo} 
-                onDelete={deleteRecipient} 
-                onToggleFav={toggleFavorite} 
-              />
-            ))}
+          {/* Search Bar */}
+          <View
+            style={[
+              styles.searchContainer,
+              { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider },
+            ]}
+          >
+            <Ionicons
+              name="search"
+              size={18}
+              color={colors.textSecondary}
+              style={{ marginRight: 8 }}
+            />
+            <TextInput
+              placeholder="Search name, phone, or provider..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[styles.searchInput, { color: colors.text }]}
+            />
+            {searchQuery !== '' && (
+              <Pressable onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
+              </Pressable>
+            )}
           </View>
-        )}
 
-        {/* All Beneficiaries Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-            {favorites.length > 0 ? 'ALL BENEFICIARIES' : 'BENEFICIARIES'} ({filteredRecipients.length})
-          </Text>
-          
-          {filteredRecipients.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="people-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No beneficiaries found matching "{searchQuery}".</Text>
+          {/* Favorites Section */}
+          {favorites.length > 0 && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>FAVORITES</Text>
+              {favorites.map((r) => (
+                <RecipientCard
+                  key={r.id}
+                  recipient={r}
+                  colors={colors}
+                  onSend={handleSendTo}
+                  onDelete={deleteRecipient}
+                  onToggleFav={toggleFavorite}
+                />
+              ))}
             </View>
-          ) : (
-            others.map((r) => (
-              <RecipientCard 
-                key={r.id} 
-                recipient={r} 
-                colors={colors} 
-                onSend={handleSendTo} 
-                onDelete={deleteRecipient} 
-                onToggleFav={toggleFavorite} 
-              />
-            ))
           )}
-        </View>
+
+          {/* All Beneficiaries Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+              {favorites.length > 0 ? 'ALL BENEFICIARIES' : 'BENEFICIARIES'} (
+              {filteredRecipients.length})
+            </Text>
+
+            {filteredRecipients.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="people-outline"
+                  size={48}
+                  color={colors.textSecondary}
+                  style={{ marginBottom: 12 }}
+                />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  No beneficiaries found matching "{searchQuery}".
+                </Text>
+              </View>
+            ) : (
+              others.map((r) => (
+                <RecipientCard
+                  key={r.id}
+                  recipient={r}
+                  colors={colors}
+                  onSend={handleSendTo}
+                  onDelete={deleteRecipient}
+                  onToggleFav={toggleFavorite}
+                />
+              ))
+            )}
+          </View>
         </View>
       </ScrollView>
 
       {/* Add New Recipient Modal */}
-      <Modal visible={isAddModalOpen} transparent animationType="slide" onRequestClose={() => setIsAddModalOpen(false)}>
+      <Modal
+        visible={isAddModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsAddModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsAddModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>Add New Beneficiary</Text>
               <Pressable onPress={() => setIsAddModalOpen(false)}>
@@ -305,7 +406,14 @@ export default function RecipientsScreen() {
               placeholderTextColor={colors.textSecondary}
               value={newName}
               onChangeText={setNewName}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
             <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>PHONE NUMBER</Text>
@@ -315,7 +423,14 @@ export default function RecipientsScreen() {
               keyboardType="phone-pad"
               value={newPhone}
               onChangeText={setNewPhone}
-              style={[styles.input, { color: colors.text, borderColor: colors.divider, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.divider,
+                  backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                },
+              ]}
             />
 
             <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>PROVIDER</Text>
@@ -325,21 +440,39 @@ export default function RecipientsScreen() {
                   key={p}
                   style={[
                     styles.providerChip,
-                    { backgroundColor: newProvider === p ? colors.accent : (isDark ? '#2C2C2C' : '#F0F0F0') }
+                    {
+                      backgroundColor:
+                        newProvider === p ? colors.accent : isDark ? '#2C2C2C' : '#F0F0F0',
+                    },
                   ]}
                   onPress={() => setNewProvider(p)}
                 >
-                  <Text style={[styles.providerChipText, { color: newProvider === p ? '#FFF' : colors.text }]}>{p}</Text>
+                  <Text
+                    style={[
+                      styles.providerChipText,
+                      { color: newProvider === p ? '#FFF' : colors.text },
+                    ]}
+                  >
+                    {p}
+                  </Text>
                 </Pressable>
               ))}
             </View>
 
             <Pressable onPress={() => setNewIsFav(!newIsFav)} style={styles.favCheckRow}>
-              <Ionicons name={newIsFav ? "checkbox" : "square-outline"} size={22} color={colors.accent} style={{ marginRight: 8 }} />
+              <Ionicons
+                name={newIsFav ? 'checkbox' : 'square-outline'}
+                size={22}
+                color={colors.accent}
+                style={{ marginRight: 8 }}
+              />
               <Text style={[styles.favCheckText, { color: colors.text }]}>Add to Favorites</Text>
             </Pressable>
 
-            <Pressable style={[styles.saveBtn, { backgroundColor: colors.accent }]} onPress={handleAddRecipient}>
+            <Pressable
+              style={[styles.saveBtn, { backgroundColor: colors.accent }]}
+              onPress={handleAddRecipient}
+            >
               <Text style={styles.saveBtnText}>Save Beneficiary</Text>
             </Pressable>
           </Pressable>
@@ -347,13 +480,28 @@ export default function RecipientsScreen() {
       </Modal>
 
       {/* Sync Local Contacts Modal */}
-      <Modal visible={isSyncModalOpen} transparent animationType="slide" onRequestClose={() => setIsSyncModalOpen(false)}>
+      <Modal
+        visible={isSyncModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsSyncModalOpen(false)}
+      >
         <Pressable style={styles.modalOverlay} onPress={() => setIsSyncModalOpen(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             <View style={styles.modalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="phone-portrait-outline" size={22} color={colors.accent} style={{ marginRight: 8 }} />
-                <Text style={[styles.modalTitle, { color: colors.text }]}>Import Phone Contacts</Text>
+                <Ionicons
+                  name="phone-portrait-outline"
+                  size={22}
+                  color={colors.accent}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Import Phone Contacts
+                </Text>
               </View>
               <Pressable onPress={() => setIsSyncModalOpen(false)}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
@@ -368,16 +516,29 @@ export default function RecipientsScreen() {
               <View key={idx} style={[styles.syncRow, { borderBottomColor: colors.divider }]}>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.syncName, { color: colors.text }]}>{c.name}</Text>
-                  <Text style={[styles.syncPhone, { color: colors.textSecondary }]}>{c.phone} • {c.provider}</Text>
+                  <Text style={[styles.syncPhone, { color: colors.textSecondary }]}>
+                    {c.phone} • {c.provider}
+                  </Text>
                 </View>
-                <Pressable style={[styles.importBtn, { backgroundColor: colors.accent + '20' }]} onPress={() => handleImportContact(c)}>
-                  <Ionicons name="add-circle" size={18} color={colors.accent} style={{ marginRight: 4 }} />
+                <Pressable
+                  style={[styles.importBtn, { backgroundColor: colors.accent + '20' }]}
+                  onPress={() => handleImportContact(c)}
+                >
+                  <Ionicons
+                    name="add-circle"
+                    size={18}
+                    color={colors.accent}
+                    style={{ marginRight: 4 }}
+                  />
                   <Text style={[styles.importBtnText, { color: colors.accent }]}>Import</Text>
                 </Pressable>
               </View>
             ))}
 
-            <Pressable style={[styles.doneBtn, { backgroundColor: colors.backgroundSelected }]} onPress={() => setIsSyncModalOpen(false)}>
+            <Pressable
+              style={[styles.doneBtn, { backgroundColor: colors.backgroundSelected }]}
+              onPress={() => setIsSyncModalOpen(false)}
+            >
               <Text style={[styles.doneBtnText, { color: colors.text }]}>Done</Text>
             </Pressable>
           </Pressable>
@@ -397,7 +558,6 @@ export default function RecipientsScreen() {
           });
         }}
       />
-
     </SafeAreaView>
   );
 }

@@ -2,9 +2,9 @@ name: CI Workflow
 
 on:
   push:
-    branches: [ main, designUI ]
+    branches: [main, designUI]
   pull_request:
-    branches: [ main, designUI ]
+    branches: [main, designUI]
 
 jobs:
   lint-and-typecheck:
@@ -50,3 +50,6 @@ jobs:
 
       - name: ESLint Check
         run: npm run lint
+
+      - name: Prettier Format Check
+        run: npm run format:check

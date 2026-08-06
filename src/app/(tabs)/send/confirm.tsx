@@ -5,7 +5,12 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useToast } from '@/context/ToastContext';
 
@@ -16,7 +21,7 @@ export default function SendConfirmScreen() {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
   const { showToast } = useToast();
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const scale = useSharedValue(1);
 
@@ -57,7 +62,6 @@ export default function SendConfirmScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
@@ -69,94 +73,125 @@ export default function SendConfirmScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        
-        {/* Main Review Card */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={[
-          styles.summaryCard, 
-          { backgroundColor: colors.backgroundElement, borderColor: colors.divider }
-        ]}>
-          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
-          <Text style={[styles.summaryValue, { color: colors.text }]}>
-            $100.00 <Text style={styles.currency}>USD</Text>
-          </Text>
-
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-          
-          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>RECIPIENT GETS</Text>
-          <Text style={[styles.summaryValue, { color: colors.accent }]}>
-            130,500 <Text style={[styles.currency, { color: colors.accent }]}>RWF</Text>
-          </Text>
-
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-          
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Recipient</Text>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.rowValue, { color: colors.text }]}>John Doe</Text>
-              <Text style={[styles.rowSubValue, { color: colors.textSecondary }]}>MTN MoMo • +250 788 123 456</Text>
-            </View>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Guaranteed Exchange Rate</Text>
-            <Text style={[styles.rowValue, { color: colors.text }]}>$1 = 1,305.00 RWF</Text>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Aeropay Network Fee</Text>
-            <View style={[styles.feeBadge, { backgroundColor: colors.success + '20' }]}>
-              <Ionicons name="sparkles" size={12} color={colors.success} style={{ marginRight: 4 }} />
-              <Text style={[styles.feeBadgeText, { color: colors.success }]}>Zero Fee (Free)</Text>
-            </View>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Estimated Delivery</Text>
-            <Text style={[styles.rowValue, { color: colors.text }]}>Instant (under 5 seconds)</Text>
-          </View>
-
-        </Animated.View>
-
-        {/* Security & Guaranteed Lock Info Banner */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={[
-          styles.infoCard, 
-          { backgroundColor: isDark ? 'rgba(32, 32, 36, 0.6)' : 'rgba(255, 255, 255, 0.8)', borderColor: colors.divider }
-        ]}>
-          <Ionicons name="shield-checkmark-outline" size={22} color={colors.accent} style={{ marginRight: 12 }} />
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.infoTitle, { color: colors.text }]}>Institutional Grade Security</Text>
-            <Text style={[styles.infoSub, { color: colors.textSecondary }]}>
-              Protected by 256-bit encryption & real-time fraud monitoring.
-            </Text>
-          </View>
-        </Animated.View>
-
-        {/* Prominent Action Button with Bottom Navigation Bar Clearance */}
-        <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.actionContainer}>
-          <AnimatedPressable
+          {/* Main Review Card */}
+          <Animated.View
+            entering={FadeInDown.duration(400).springify()}
             style={[
-              styles.sendButton,
-              { backgroundColor: colors.accent },
-              buttonAnimatedStyle
+              styles.summaryCard,
+              { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
             ]}
-            onPressIn={() => (scale.value = withSpring(0.96))}
-            onPressOut={() => (scale.value = withSpring(1))}
-            onPress={handleConfirmTransfer}
-            disabled={isSubmitting}
           >
-            <Ionicons name="paper-plane" size={20} color="#FFFFFF" style={{ marginRight: 10 }} />
-            <Text style={styles.sendButtonText}>
-              {isSubmitting ? 'Processing Transfer...' : 'Confirm & Send Money'}
+            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              $100.00 <Text style={styles.currency}>USD</Text>
             </Text>
-          </AnimatedPressable>
-        </Animated.View>
 
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
+            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+              RECIPIENT GETS
+            </Text>
+            <Text style={[styles.summaryValue, { color: colors.accent }]}>
+              130,500 <Text style={[styles.currency, { color: colors.accent }]}>RWF</Text>
+            </Text>
+
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Recipient</Text>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={[styles.rowValue, { color: colors.text }]}>John Doe</Text>
+                <Text style={[styles.rowSubValue, { color: colors.textSecondary }]}>
+                  MTN MoMo • +250 788 123 456
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>
+                Guaranteed Exchange Rate
+              </Text>
+              <Text style={[styles.rowValue, { color: colors.text }]}>$1 = 1,305.00 RWF</Text>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>
+                Aeropay Network Fee
+              </Text>
+              <View style={[styles.feeBadge, { backgroundColor: colors.success + '20' }]}>
+                <Ionicons
+                  name="sparkles"
+                  size={12}
+                  color={colors.success}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.feeBadgeText, { color: colors.success }]}>
+                  Zero Fee (Free)
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>
+                Estimated Delivery
+              </Text>
+              <Text style={[styles.rowValue, { color: colors.text }]}>
+                Instant (under 5 seconds)
+              </Text>
+            </View>
+          </Animated.View>
+
+          {/* Security & Guaranteed Lock Info Banner */}
+          <Animated.View
+            entering={FadeInDown.delay(100).duration(400)}
+            style={[
+              styles.infoCard,
+              {
+                backgroundColor: isDark ? 'rgba(32, 32, 36, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+                borderColor: colors.divider,
+              },
+            ]}
+          >
+            <Ionicons
+              name="shield-checkmark-outline"
+              size={22}
+              color={colors.accent}
+              style={{ marginRight: 12 }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.infoTitle, { color: colors.text }]}>
+                Institutional Grade Security
+              </Text>
+              <Text style={[styles.infoSub, { color: colors.textSecondary }]}>
+                Protected by 256-bit encryption & real-time fraud monitoring.
+              </Text>
+            </View>
+          </Animated.View>
+
+          {/* Prominent Action Button with Bottom Navigation Bar Clearance */}
+          <Animated.View
+            entering={FadeInDown.delay(200).duration(400)}
+            style={styles.actionContainer}
+          >
+            <AnimatedPressable
+              style={[styles.sendButton, { backgroundColor: colors.accent }, buttonAnimatedStyle]}
+              onPressIn={() => (scale.value = withSpring(0.96))}
+              onPressOut={() => (scale.value = withSpring(1))}
+              onPress={handleConfirmTransfer}
+              disabled={isSubmitting}
+            >
+              <Ionicons name="paper-plane" size={20} color="#FFFFFF" style={{ marginRight: 10 }} />
+              <Text style={styles.sendButtonText}>
+                {isSubmitting ? 'Processing Transfer...' : 'Confirm & Send Money'}
+              </Text>
+            </AnimatedPressable>
+          </Animated.View>
         </View>
       </ScrollView>
     </SafeAreaView>

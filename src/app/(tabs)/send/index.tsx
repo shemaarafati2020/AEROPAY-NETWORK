@@ -5,8 +5,12 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 const ALL_WORLD_CURRENCIES = [
   { code: 'USD', symbol: '$', name: 'US Dollar', rateToRwf: 1305, flag: '🇺🇸' },
@@ -39,7 +43,15 @@ const ALL_WORLD_CURRENCIES = [
 const PRESET_AMOUNTS = ['25', '50', '100', '250', '500'];
 const AVAILABLE_BALANCE = 4250.0;
 
-function KeypadButton({ item, onPress, colors }: { item: string; onPress: (val: string) => void; colors: any }) {
+function KeypadButton({
+  item,
+  onPress,
+  colors,
+}: {
+  item: string;
+  onPress: (val: string) => void;
+  colors: any;
+}) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -52,7 +64,9 @@ function KeypadButton({ item, onPress, colors }: { item: string; onPress: (val: 
       onPressOut={() => (scale.value = withSpring(1))}
       onPress={() => onPress(item)}
     >
-      <Animated.View style={[styles.key, { backgroundColor: colors.backgroundElement }, animatedStyle]}>
+      <Animated.View
+        style={[styles.key, { backgroundColor: colors.backgroundElement }, animatedStyle]}
+      >
         {item === 'del' ? (
           <Ionicons name="backspace-outline" size={24} color={colors.text} />
         ) : (
@@ -67,7 +81,7 @@ export default function SendAmountScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
-  
+
   const [amount, setAmount] = useState('100');
   const [selectedCurrency, setSelectedCurrency] = useState(ALL_WORLD_CURRENCIES[0]);
   const [isCurrencyModalVisible, setIsCurrencyModalVisible] = useState(false);
@@ -111,7 +125,9 @@ export default function SendAmountScreen() {
   };
 
   const numericAmount = parseFloat(amount || '0');
-  const convertedAmount = Math.round(numericAmount * selectedCurrency.rateToRwf).toLocaleString('en-US');
+  const convertedAmount = Math.round(numericAmount * selectedCurrency.rateToRwf).toLocaleString(
+    'en-US'
+  );
   const isOverBalance = numericAmount > AVAILABLE_BALANCE;
   const isValid = numericAmount > 0 && !isOverBalance;
 
@@ -119,147 +135,213 @@ export default function SendAmountScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Send Money</Text>
-          <View style={{ width: 32 }} />
-        </View>
-
-        {/* Amount Input Display - Glassmorphism Box */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={[
-          styles.amountSection, 
-          { 
-            backgroundColor: isDark ? 'rgba(32, 32, 36, 0.75)' : 'rgba(255, 255, 255, 0.88)', 
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)',
-          }
-        ]}>
-          <Text style={[styles.amountLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
-          
-          <View style={styles.amountDisplayRow}>
-            <Text style={[styles.currencySymbol, { color: colors.accent }]}>{selectedCurrency.symbol}</Text>
-            
-            {/* Direct Editable TextInput */}
-            <TextInput
-              value={amount}
-              onChangeText={handleTextChange}
-              keyboardType="decimal-pad"
-              placeholder="0"
-              placeholderTextColor={colors.textSecondary}
-              style={[styles.amountInput, { color: colors.text }]}
-            />
-            
-            {/* Currency Selector Dropdown Button */}
-            <Pressable 
-              onPress={() => setIsCurrencyModalVisible(true)}
-              style={[styles.currencyPicker, { backgroundColor: colors.accent + '15', borderColor: colors.accent }]}
-            >
-              <Text style={styles.flagText}>{selectedCurrency.flag}</Text>
-              <Text style={[styles.currencyText, { color: colors.text }]}>{selectedCurrency.code}</Text>
-              <Ionicons name="chevron-down" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
+          {/* Header */}
+          <View style={styles.header}>
+            <Pressable onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </Pressable>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Send Money</Text>
+            <View style={{ width: 32 }} />
           </View>
 
-          {isOverBalance && (
-            <View style={[styles.warningBanner, { backgroundColor: 'rgba(239, 83, 80, 0.15)' }]}>
-              <Ionicons name="alert-circle" size={16} color={colors.error} style={{ marginRight: 6 }} />
-              <Text style={[styles.warningText, { color: colors.error }]}>
-                Exceeds available balance (${AVAILABLE_BALANCE.toLocaleString()})
-              </Text>
-            </View>
-          )}
-        </Animated.View>
+          {/* Amount Input Display - Glassmorphism Box */}
+          <Animated.View
+            entering={FadeInDown.duration(400).springify()}
+            style={[
+              styles.amountSection,
+              {
+                backgroundColor: isDark ? 'rgba(32, 32, 36, 0.75)' : 'rgba(255, 255, 255, 0.88)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)',
+              },
+            ]}
+          >
+            <Text style={[styles.amountLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
 
-        {/* Quick Amount Presets */}
-        <View style={styles.presetsRow}>
-          {PRESET_AMOUNTS.map((preset) => (
+            <View style={styles.amountDisplayRow}>
+              <Text style={[styles.currencySymbol, { color: colors.accent }]}>
+                {selectedCurrency.symbol}
+              </Text>
+
+              {/* Direct Editable TextInput */}
+              <TextInput
+                value={amount}
+                onChangeText={handleTextChange}
+                keyboardType="decimal-pad"
+                placeholder="0"
+                placeholderTextColor={colors.textSecondary}
+                style={[styles.amountInput, { color: colors.text }]}
+              />
+
+              {/* Currency Selector Dropdown Button */}
+              <Pressable
+                onPress={() => setIsCurrencyModalVisible(true)}
+                style={[
+                  styles.currencyPicker,
+                  { backgroundColor: colors.accent + '15', borderColor: colors.accent },
+                ]}
+              >
+                <Text style={styles.flagText}>{selectedCurrency.flag}</Text>
+                <Text style={[styles.currencyText, { color: colors.text }]}>
+                  {selectedCurrency.code}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={16}
+                  color={colors.accent}
+                  style={{ marginLeft: 4 }}
+                />
+              </Pressable>
+            </View>
+
+            {isOverBalance && (
+              <View style={[styles.warningBanner, { backgroundColor: 'rgba(239, 83, 80, 0.15)' }]}>
+                <Ionicons
+                  name="alert-circle"
+                  size={16}
+                  color={colors.error}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.warningText, { color: colors.error }]}>
+                  Exceeds available balance (${AVAILABLE_BALANCE.toLocaleString()})
+                </Text>
+              </View>
+            )}
+          </Animated.View>
+
+          {/* Quick Amount Presets */}
+          <View style={styles.presetsRow}>
+            {PRESET_AMOUNTS.map((preset) => (
+              <Pressable
+                key={preset}
+                onPress={() => setAmount(preset)}
+                style={[
+                  styles.presetPill,
+                  {
+                    backgroundColor:
+                      amount === preset
+                        ? colors.accent
+                        : isDark
+                          ? 'rgba(38, 38, 42, 0.8)'
+                          : 'rgba(255, 255, 255, 0.9)',
+                    borderColor:
+                      amount === preset
+                        ? colors.accent
+                        : isDark
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(0, 0, 0, 0.08)',
+                  },
+                ]}
+              >
+                <Text
+                  style={[styles.presetText, { color: amount === preset ? '#FFF' : colors.text }]}
+                >
+                  {selectedCurrency.symbol}
+                  {preset}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* Conversion Rate Card - Glassmorphism */}
+          <Animated.View
+            entering={FadeInDown.delay(150).duration(400)}
+            style={[
+              styles.conversionCard,
+              {
+                backgroundColor: isDark ? 'rgba(28, 28, 32, 0.75)' : 'rgba(255, 255, 255, 0.88)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+              },
+            ]}
+          >
+            <View style={styles.conversionRow}>
+              <View>
+                <Text style={[styles.conversionLabel, { color: colors.textSecondary }]}>
+                  Recipient gets
+                </Text>
+                <Text style={[styles.conversionValue, { color: colors.text }]}>
+                  {convertedAmount} RWF
+                </Text>
+              </View>
+              <View style={styles.badgeContainer}>
+                <View style={[styles.badge, { backgroundColor: colors.success + '20' }]}>
+                  <Ionicons
+                    name="sparkles"
+                    size={12}
+                    color={colors.success}
+                    style={{ marginRight: 4 }}
+                  />
+                  <Text style={[styles.badgeText, { color: colors.success }]}>Zero Fees</Text>
+                </View>
+                <Text style={[styles.countdown, { color: colors.textSecondary }]}>
+                  {countdown}s locked
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+
             <Pressable
-              key={preset}
-              onPress={() => setAmount(preset)}
-              style={[
-                styles.presetPill,
-                { 
-                  backgroundColor: amount === preset ? colors.accent : (isDark ? 'rgba(38, 38, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)'), 
-                  borderColor: amount === preset ? colors.accent : (isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)')
-                }
-              ]}
+              onPress={() => setShowRateBreakdown(!showRateBreakdown)}
+              style={styles.rateDetails}
             >
-              <Text style={[styles.presetText, { color: amount === preset ? '#FFF' : colors.text }]}>
-                {selectedCurrency.symbol}{preset}
+              <Text style={[styles.rateText, { color: colors.textSecondary }]}>
+                How this rate works
               </Text>
+              <Ionicons
+                name={showRateBreakdown ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={colors.textSecondary}
+              />
             </Pressable>
-          ))}
-        </View>
 
-        {/* Conversion Rate Card - Glassmorphism */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)} style={[
-          styles.conversionCard, 
-          { 
-            backgroundColor: isDark ? 'rgba(28, 28, 32, 0.75)' : 'rgba(255, 255, 255, 0.88)', 
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)'
-          }
-        ]}>
-          <View style={styles.conversionRow}>
-            <View>
-              <Text style={[styles.conversionLabel, { color: colors.textSecondary }]}>Recipient gets</Text>
-              <Text style={[styles.conversionValue, { color: colors.text }]}>{convertedAmount} RWF</Text>
-            </View>
-            <View style={styles.badgeContainer}>
-              <View style={[styles.badge, { backgroundColor: colors.success + '20' }]}>
-                <Ionicons name="sparkles" size={12} color={colors.success} style={{ marginRight: 4 }} />
-                <Text style={[styles.badgeText, { color: colors.success }]}>Zero Fees</Text>
-              </View>
-              <Text style={[styles.countdown, { color: colors.textSecondary }]}>{countdown}s locked</Text>
-            </View>
+            {showRateBreakdown && (
+              <Animated.View entering={FadeInDown.duration(300)} style={styles.breakdownContainer}>
+                <View style={styles.breakdownRow}>
+                  <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>
+                    Mid-market Exchange Rate
+                  </Text>
+                  <Text style={[styles.breakdownVal, { color: colors.text }]}>
+                    1 {selectedCurrency.code} = {selectedCurrency.rateToRwf} RWF
+                  </Text>
+                </View>
+                <View style={styles.breakdownRow}>
+                  <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>
+                    Aeropay Network Fee
+                  </Text>
+                  <Text style={[styles.breakdownVal, { color: colors.success }]}>$0.00 (Free)</Text>
+                </View>
+                <View style={styles.breakdownRow}>
+                  <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>
+                    Guaranteed Rate Window
+                  </Text>
+                  <Text style={[styles.breakdownVal, { color: colors.text }]}>60 Seconds</Text>
+                </View>
+              </Animated.View>
+            )}
+          </Animated.View>
+
+          {/* Custom On-Screen Keypad */}
+          <View style={styles.keypad}>
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'].map((key) => (
+              <KeypadButton key={key} item={key} onPress={handleKeyPress} colors={colors} />
+            ))}
           </View>
 
-          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-          
-          <Pressable onPress={() => setShowRateBreakdown(!showRateBreakdown)} style={styles.rateDetails}>
-            <Text style={[styles.rateText, { color: colors.textSecondary }]}>How this rate works</Text>
-            <Ionicons name={showRateBreakdown ? "chevron-up" : "chevron-down"} size={16} color={colors.textSecondary} />
+          {/* Submit Button */}
+          <Pressable
+            disabled={!isValid}
+            style={[
+              styles.nextButton,
+              { backgroundColor: isValid ? colors.accent : isDark ? '#333' : '#E0E0E0' },
+            ]}
+            onPress={() => router.push('/(tabs)/send/recipient')}
+          >
+            <Text
+              style={[styles.nextButtonText, { color: isValid ? '#FFFFFF' : colors.textSecondary }]}
+            >
+              Next
+            </Text>
           </Pressable>
-
-          {showRateBreakdown && (
-            <Animated.View entering={FadeInDown.duration(300)} style={styles.breakdownContainer}>
-              <View style={styles.breakdownRow}>
-                <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>Mid-market Exchange Rate</Text>
-                <Text style={[styles.breakdownVal, { color: colors.text }]}>1 {selectedCurrency.code} = {selectedCurrency.rateToRwf} RWF</Text>
-              </View>
-              <View style={styles.breakdownRow}>
-                <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>Aeropay Network Fee</Text>
-                <Text style={[styles.breakdownVal, { color: colors.success }]}>$0.00 (Free)</Text>
-              </View>
-              <View style={styles.breakdownRow}>
-                <Text style={[styles.breakdownLabel, { color: colors.textSecondary }]}>Guaranteed Rate Window</Text>
-                <Text style={[styles.breakdownVal, { color: colors.text }]}>60 Seconds</Text>
-              </View>
-            </Animated.View>
-          )}
-        </Animated.View>
-
-        {/* Custom On-Screen Keypad */}
-        <View style={styles.keypad}>
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'].map((key) => (
-            <KeypadButton key={key} item={key} onPress={handleKeyPress} colors={colors} />
-          ))}
-        </View>
-
-        {/* Submit Button */}
-        <Pressable 
-          disabled={!isValid}
-          style={[
-            styles.nextButton, 
-            { backgroundColor: isValid ? colors.accent : (isDark ? '#333' : '#E0E0E0') }
-          ]}
-          onPress={() => router.push('/(tabs)/send/recipient')}
-        >
-          <Text style={[styles.nextButtonText, { color: isValid ? '#FFFFFF' : colors.textSecondary }]}>Next</Text>
-        </Pressable>
-
         </View>
       </ScrollView>
 
@@ -280,8 +362,18 @@ export default function SendAmountScreen() {
             </View>
 
             {/* Currency Search Input */}
-            <View style={[styles.modalSearchContainer, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
-              <Ionicons name="search" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
+            <View
+              style={[
+                styles.modalSearchContainer,
+                { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' },
+              ]}
+            >
+              <Ionicons
+                name="search"
+                size={18}
+                color={colors.textSecondary}
+                style={{ marginRight: 8 }}
+              />
               <TextInput
                 placeholder="Search country or currency..."
                 placeholderTextColor={colors.textSecondary}
@@ -303,7 +395,9 @@ export default function SendAmountScreen() {
                   style={[
                     styles.currencyRow,
                     { borderBottomColor: colors.divider },
-                    selectedCurrency.code === curr.code && { backgroundColor: colors.accent + '15' }
+                    selectedCurrency.code === curr.code && {
+                      backgroundColor: colors.accent + '15',
+                    },
                   ]}
                   onPress={() => {
                     setSelectedCurrency(curr);
@@ -313,8 +407,12 @@ export default function SendAmountScreen() {
                 >
                   <Text style={styles.currencyRowFlag}>{curr.flag}</Text>
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[styles.currencyRowCode, { color: colors.text }]}>{curr.code} ({curr.symbol})</Text>
-                    <Text style={[styles.currencyRowName, { color: colors.textSecondary }]}>{curr.name}</Text>
+                    <Text style={[styles.currencyRowCode, { color: colors.text }]}>
+                      {curr.code} ({curr.symbol})
+                    </Text>
+                    <Text style={[styles.currencyRowName, { color: colors.textSecondary }]}>
+                      {curr.name}
+                    </Text>
                   </View>
                   {selectedCurrency.code === curr.code && (
                     <Ionicons name="checkmark-circle" size={22} color={colors.accent} />
