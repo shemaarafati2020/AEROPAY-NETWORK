@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useColorScheme, Platform, Text } from 'react-native';
 import { Colors } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const scheme = useColorScheme();
@@ -15,6 +16,9 @@ export default function TabLayout() {
           borderTopColor: colors.divider,
           elevation: 0,
           shadowOpacity: 0,
+          height: Platform.OS === 'ios' ? 88 : 68,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+          paddingTop: 12,
         },
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textSecondary,
@@ -28,35 +32,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>⌂</Text>,
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="fund"
         options={{
           title: 'Fund',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>+</Text>,
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="send"
         options={{
           title: 'Send',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>↗</Text>,
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'paper-plane' : 'paper-plane-outline'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="recipients"
         options={{
           title: 'Recipients',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>👥</Text>,
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'people' : 'people-outline'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="activity"
         options={{
           title: 'Activity',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🕒</Text>,
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'time' : 'time-outline'} size={24} color={color} />,
         }}
       />
     </Tabs>
