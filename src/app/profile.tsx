@@ -114,6 +114,10 @@ export default function ProfileScreen() {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
+  const [legalTab, setLegalTab] = useState<'terms' | 'privacy' | 'license'>('terms');
 
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
@@ -356,14 +360,15 @@ export default function ProfileScreen() {
               <SettingItem
                 icon="help-buoy-outline"
                 title="Help & Live Support"
-                subtitle="24/7 Priority Customer Support"
-                onPress={() => showToast('Connecting to Aeropay Support Agent...', 'info')}
+                subtitle="24/7 Priority Concierge Support & FAQ"
+                onPress={() => setIsSupportModalOpen(true)}
                 colors={colors}
               />
               <SettingItem
                 icon="document-text-outline"
-                title="Terms of Service & Privacy"
-                onPress={() => showToast('Aeropay Network v2.4.0 — Institutional Remittance Platform', 'info')}
+                title="Terms of Service & Legal"
+                subtitle="Privacy Policy, Compliance & Licensing"
+                onPress={() => setIsLegalModalOpen(true)}
                 colors={colors}
               />
             </View>
@@ -608,6 +613,247 @@ export default function ProfileScreen() {
                 }}
               >
                 <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>Log Out</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* HELP & SUPPORT MODAL */}
+      <Modal
+        visible={isSupportModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsSupportModalOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsSupportModalOpen(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' }]} onPress={() => {}}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Help & Support</Text>
+                <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'left', paddingHorizontal: 0, marginTop: 2 }]}>
+                  24/7 Concierge & Frequently Asked Questions
+                </Text>
+              </View>
+              <Pressable onPress={() => setIsSupportModalOpen(false)}>
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 8 }}>
+              {/* Online Status Banner */}
+              <View style={[styles.supportStatusBanner, { backgroundColor: colors.success + '15', borderColor: colors.success + '30' }]}>
+                <View style={[styles.onlineDot, { backgroundColor: colors.success }]} />
+                <Text style={[styles.supportStatusText, { color: colors.success }]}>
+                  Live Support Agent Online • Avg response under 2 mins
+                </Text>
+              </View>
+
+              {/* Quick Contact Buttons */}
+              <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 12 }]}>DIRECT SUPPORT CHANNELS</Text>
+              <View style={{ gap: 8, marginBottom: 16 }}>
+                <Pressable
+                  onPress={() => {
+                    setIsSupportModalOpen(false);
+                    showToast('Opening Live Support Chat session...', 'info');
+                  }}
+                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                >
+                  <Ionicons name="chatbubbles-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>Start Live Chat</Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>Connect with an agent right now</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => {
+                    showToast('Support email copied: support@aeropay.network', 'success');
+                  }}
+                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                >
+                  <Ionicons name="mail-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>Email Support</Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>support@aeropay.network</Text>
+                  </View>
+                  <Ionicons name="copy-outline" size={16} color={colors.textSecondary} />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => {
+                    showToast('Calling Aeropay Hotline: +1 (800) 555-2376', 'info');
+                  }}
+                  style={[styles.contactChannelBtn, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}
+                >
+                  <Ionicons name="call-outline" size={20} color={colors.accent} style={{ marginRight: 12 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.contactChannelTitle, { color: colors.text }]}>24/7 Hotline</Text>
+                    <Text style={[styles.contactChannelDesc, { color: colors.textSecondary }]}>+1 (800) 555-2376 (Toll-Free)</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                </Pressable>
+              </View>
+
+              {/* FAQ Accordion */}
+              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>FREQUENTLY ASKED QUESTIONS</Text>
+              {[
+                {
+                  q: "How fast do transfers reach Mobile Money?",
+                  a: "Transfers to MTN Rwanda, Safaricom M-PESA, and Airtel Money are processed instantly (typically within 30 seconds)."
+                },
+                {
+                  q: "What are the exchange rate fees?",
+                  a: "Aeropay operates on transparent mid-market exchange rates locked in real-time with zero hidden markups."
+                },
+                {
+                  q: "Is my wallet money protected?",
+                  a: "Yes! All balances are held in ring-fenced Tier 1 bank accounts fully compliant with financial regulations and protected by 256-bit encryption."
+                },
+                {
+                  q: "What happens if a transaction fails?",
+                  a: "Failed transfers are automatically reversed back to your Main Wallet within minutes with zero deduction."
+                }
+              ].map((faq, index) => {
+                const isOpen = activeFaqIndex === index;
+                return (
+                  <Pressable
+                    key={index}
+                    onPress={() => setActiveFaqIndex(isOpen ? null : index)}
+                    style={[
+                      styles.faqCard, 
+                      { 
+                        backgroundColor: isDark ? '#2C2C35' : '#F8FAFC',
+                        borderColor: isOpen ? colors.accent : colors.divider 
+                      }
+                    ]}
+                  >
+                    <View style={styles.faqHeader}>
+                      <Text style={[styles.faqQuestion, { color: colors.text }]}>{faq.q}</Text>
+                      <Ionicons name={isOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.textSecondary} />
+                    </View>
+                    {isOpen && (
+                      <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>{faq.a}</Text>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            <Pressable
+              style={[styles.saveBtn, { backgroundColor: colors.accent, marginTop: 12 }]}
+              onPress={() => setIsSupportModalOpen(false)}
+            >
+              <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>Done</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* TERMS OF SERVICE & LEGAL MODAL */}
+      <Modal
+        visible={isLegalModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsLegalModalOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsLegalModalOpen(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', maxHeight: '85%' }]} onPress={() => {}}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Terms & Legal Information</Text>
+                <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'left', paddingHorizontal: 0, marginTop: 2 }]}>
+                  Aeropay Network Regulatory & Privacy Framework
+                </Text>
+              </View>
+              <Pressable onPress={() => setIsLegalModalOpen(false)}>
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            {/* Segmented Control */}
+            <View style={[styles.legalTabRow, { backgroundColor: isDark ? '#2C2C35' : '#F1F5F9' }]}>
+              {[
+                { id: 'terms', label: 'Terms' },
+                { id: 'privacy', label: 'Privacy' },
+                { id: 'license', label: 'Licenses' },
+              ].map((tab) => (
+                <Pressable
+                  key={tab.id}
+                  onPress={() => setLegalTab(tab.id as any)}
+                  style={[
+                    styles.legalTabBtn,
+                    legalTab === tab.id && { backgroundColor: colors.accent }
+                  ]}
+                >
+                  <Text style={[styles.legalTabText, { color: legalTab === tab.id ? '#FFFFFF' : colors.textSecondary }]}>
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
+              {legalTab === 'terms' && (
+                <View style={styles.legalSectionContent}>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>1. General Conditions</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    By accessing or using the Aeropay Network mobile application, you agree to be bound by these Terms of Service. Aeropay provides instant cross-border remittance, mobile wallet top-ups, and payout settlement services.
+                  </Text>
+
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>2. Settlement & SLA</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    Transfers dispatched via mobile money integrations are processed in near real-time. Rate locks are guaranteed for 15 minutes from transaction initiation.
+                  </Text>
+
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>3. Anti-Money Laundering (AML)</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    Aeropay complies strictly with FATF guidance, KYC Tier verification, and automated transaction screening to prevent financial fraud.
+                  </Text>
+                </View>
+              )}
+
+              {legalTab === 'privacy' && (
+                <View style={styles.legalSectionContent}>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>Data Encryption & Storage</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    All user credentials, payment tokens, and sensitive personal information are protected using AES-256 bit encryption at rest and TLS 1.3 in transit.
+                  </Text>
+
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>Information We Collect</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    We collect identification details required by financial authorities (Full Name, National ID/Passport number, Phone number) solely to process transfers securely.
+                  </Text>
+                </View>
+              )}
+
+              {legalTab === 'license' && (
+                <View style={styles.legalSectionContent}>
+                  <Text style={[styles.legalHeading, { color: colors.text }]}>Regulatory Registration</Text>
+                  <Text style={[styles.legalBody, { color: colors.textSecondary }]}>
+                    • Licensed Payment Service Provider (BNR Ref: #PSP-2024-09){'\n'}
+                    • Authorized Electronic Money Institution (FCA Ref: #984102){'\n'}
+                    • Certified PCI-DSS Level 1 Compliant Platform
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 }]}
+                onPress={() => showToast('Downloading Official Legal PDF Statement...', 'info')}
+              >
+                <Ionicons name="download-outline" size={16} color={colors.text} style={{ marginRight: 6 }} />
+                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>Download PDF</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: colors.accent, marginTop: 0 }]}
+                onPress={() => setIsLegalModalOpen(false)}
+              >
+                <Text style={[styles.saveBtnText, { color: '#FFFFFF', fontSize: 14 }]}>Close</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -900,5 +1146,92 @@ const styles = StyleSheet.create({
   kycItemSub: {
     fontSize: 12,
     marginTop: 2,
+  },
+  supportStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  supportStatusText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  contactChannelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 16,
+  },
+  contactChannelTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  contactChannelDesc: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  faqCard: {
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  faqHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  faqQuestion: {
+    fontSize: 13,
+    fontWeight: '700',
+    flex: 1,
+    paddingRight: 8,
+  },
+  faqAnswer: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(150, 150, 150, 0.2)',
+  },
+  legalTabRow: {
+    flexDirection: 'row',
+    padding: 4,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+  legalTabBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  legalTabText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  legalSectionContent: {
+    paddingVertical: 4,
+  },
+  legalHeading: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  legalBody: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 10,
   },
 });
