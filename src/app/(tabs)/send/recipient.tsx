@@ -6,6 +6,7 @@ import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import QRScannerModal from '@/components/QRScannerModal';
 
 interface Recipient {
   id: string;
@@ -33,6 +34,7 @@ export default function SendRecipientScreen() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // Filter saved contacts based on search query
   const filteredRecipients = useMemo(() => {
@@ -77,7 +79,9 @@ export default function SendRecipientScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Select Recipient</Text>
-        <View style={{ width: 32 }} />
+        <Pressable onPress={() => setIsScanModalOpen(true)} style={{ padding: 4 }}>
+          <Ionicons name="qr-code-outline" size={22} color={colors.accent} />
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -105,6 +109,9 @@ export default function SendRecipientScreen() {
             }}
             autoFocus
           />
+          <Pressable onPress={() => setIsScanModalOpen(true)} style={{ padding: 4, marginRight: 4 }}>
+            <Ionicons name="qr-code-outline" size={18} color={colors.accent} />
+          </Pressable>
           {searchQuery.length > 0 && (
             <Pressable onPress={() => { setSearchQuery(''); setSelectedRecipient(null); }}>
               <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
@@ -239,6 +246,25 @@ export default function SendRecipientScreen() {
 
         </View>
       </ScrollView>
+
+      {/* QR SCANNER MODAL */}
+      <QRScannerModal
+        visible={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        title="Scan Recipient QR Code"
+        onScanSuccess={(scanned) => {
+          setSearchQuery(scanned.name);
+          setSelectedRecipient({
+            id: 'scanned-' + Date.now(),
+            name: scanned.name,
+            phone: scanned.phone,
+            provider: scanned.provider || 'MTN Mobile Money',
+            initials: scanned.name.slice(0, 2).toUpperCase(),
+            color: colors.accent,
+            isFavorite: false,
+          });
+        }}
+      />
 
     </SafeAreaView>
   );

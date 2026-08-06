@@ -21,6 +21,8 @@ import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useToast } from '@/context/ToastContext';
+import QRCode from 'react-native-qrcode-svg';
+import * as Sharing from 'expo-sharing';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -109,6 +111,7 @@ export default function ProfileScreen() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
   // Modals
+  const [isMyQrModalOpen, setIsMyQrModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -206,7 +209,7 @@ export default function ProfileScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Account Profile</Text>
-        <Pressable onPress={() => showToast('Referral Code AEROPAY-2026 copied to clipboard!', 'info')} style={styles.shareBtn}>
+        <Pressable onPress={() => setIsMyQrModalOpen(true)} style={styles.shareBtn}>
           <Ionicons name="qr-code-outline" size={22} color={colors.accent} />
         </Pressable>
       </View>
@@ -854,6 +857,88 @@ export default function ProfileScreen() {
                 onPress={() => setIsLegalModalOpen(false)}
               >
                 <Text style={[styles.saveBtnText, { color: '#FFFFFF', fontSize: 14 }]}>Close</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* MY PERSONAL AEROPAY QR CODE MODAL */}
+      <Modal
+        visible={isMyQrModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsMyQrModalOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsMyQrModalOpen(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', alignItems: 'center' }]} onPress={() => {}}>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>My Aeropay QR Code</Text>
+              <Pressable onPress={() => setIsMyQrModalOpen(false)}>
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'center', marginBottom: 20 }]}>
+              Show or share this QR code so friends can scan and save your contact to send money directly.
+            </Text>
+
+            {/* Styled QR Code Box */}
+            <View style={{ 
+              backgroundColor: '#FFFFFF', 
+              padding: 20, 
+              borderRadius: 24, 
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0px 10px 25px rgba(0,0,0,0.12)',
+              marginBottom: 20
+            }}>
+              <QRCode
+                value={`aeropay://contact?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&provider=MTN%20Mobile%20Money&account=010474808113`}
+                size={180}
+                color="#09090B"
+                backgroundColor="#FFFFFF"
+              />
+            </View>
+
+            {/* Profile Info Details */}
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <Text style={[styles.kycStatusTitle, { color: colors.text }]}>{name}</Text>
+              <Text style={[styles.kycStatusSub, { color: colors.textSecondary }]}>{phone} • MTN MoMo</Text>
+              <Text style={{ fontSize: 11, color: colors.accent, fontWeight: '700', marginTop: 4 }}>
+                Aeropay ID: AERO-882104
+              </Text>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#F1F5F9', marginTop: 0 }]}
+                onPress={() => {
+                  showToast('Contact payload copied: aeropay://contact?name=Shema%20Arafati', 'success');
+                }}
+              >
+                <Ionicons name="copy-outline" size={16} color={colors.text} style={{ marginRight: 6 }} />
+                <Text style={[styles.saveBtnText, { color: colors.text, fontSize: 14 }]}>Copy Link</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: colors.accent, marginTop: 0 }]}
+                onPress={async () => {
+                  try {
+                    const isAvailable = await Sharing.isAvailableAsync();
+                    if (isAvailable) {
+                      showToast('Opening Share sheet for QR Code...', 'info');
+                    } else {
+                      showToast('Sharing copied contact code to clipboard', 'info');
+                    }
+                  } catch {
+                    showToast('QR Code shared!', 'success');
+                  }
+                }}
+              >
+                <Ionicons name="share-social-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={[styles.saveBtnText, { color: '#FFFFFF', fontSize: 14 }]}>Share QR</Text>
               </Pressable>
             </View>
           </Pressable>

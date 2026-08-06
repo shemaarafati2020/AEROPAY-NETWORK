@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useToast } from '@/context/ToastContext';
+import QRScannerModal from '@/components/QRScannerModal';
 
 interface Recipient {
   id: string;
@@ -102,6 +103,7 @@ export default function RecipientsScreen() {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // New Recipient Form State
   const [newName, setNewName] = useState('');
@@ -200,6 +202,12 @@ export default function RecipientsScreen() {
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Beneficiaries</Text>
         <View style={styles.headerActions}>
+          <Pressable 
+            style={[styles.iconActionBtn, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]} 
+            onPress={() => setIsScanModalOpen(true)}
+          >
+            <Ionicons name="qr-code-outline" size={18} color={colors.accent} />
+          </Pressable>
           <Pressable 
             style={[styles.iconActionBtn, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]} 
             onPress={() => setIsSyncModalOpen(true)}
@@ -375,6 +383,20 @@ export default function RecipientsScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* QR SCANNER MODAL */}
+      <QRScannerModal
+        visible={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        title="Scan Recipient QR to Add"
+        onScanSuccess={(scanned) => {
+          handleImportContact({
+            name: scanned.name,
+            phone: scanned.phone,
+            provider: scanned.provider || 'MTN Mobile Money',
+          });
+        }}
+      />
 
     </SafeAreaView>
   );
