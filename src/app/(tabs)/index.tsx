@@ -23,8 +23,8 @@ const ACCOUNTS = [
 
 const QUICK_ACTIONS = [
   { id: '1', title: 'Transact', icon: 'swap-horizontal', route: '/(tabs)/send' },
-  { id: '2', title: 'Account Info', icon: 'document-text', route: '/(tabs)/activity' },
-  { id: '3', title: 'Stop Pay', icon: 'close-circle', route: '/(tabs)/fund' },
+  { id: '2', title: 'Statement', icon: 'document-text', route: '/(tabs)/activity' },
+  { id: '3', title: 'Top-Up', icon: 'close-circle', route: '/(tabs)/fund' },
   { id: '4', title: 'Cards', icon: 'card', route: '/(tabs)/fund' },
 ];
 
@@ -66,7 +66,7 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
         ]}>
           <Ionicons name={action.icon as any} size={22} color={colors.accent} />
         </View>
-        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>
+        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
           {action.title}
         </Text>
       </AnimatedPressable>
@@ -141,7 +141,7 @@ export default function HomeScreen() {
           <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
             <Pressable onPress={nextAccount}>
               <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
-                {activeAccount.type} (Tap card to switch)
+                {activeAccount.type}
               </Text>
             </Pressable>
           </Animated.View>
