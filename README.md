@@ -1,56 +1,111 @@
-# Welcome to your Expo app 👋
+# Aeropay Network 💳⚡
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+[![Expo SDK 54](https://img.shields.io/badge/Expo-SDK%2054-000000.svg?style=for-the-badge&logo=expo)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB.svg?style=for-the-badge&logo=react)](https://reactnative.dev)
+[![NativeWind v4](https://img.shields.io/badge/NativeWind-v4-06B6D4.svg?style=for-the-badge&logo=tailwindcss)](https://nativewind.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![CI Status](https://img.shields.io/badge/CI-Passing-16A34A.svg?style=for-the-badge&logo=githubactions)](https://github.com/shemaarafati2020/AEROPAY-NETWORK/actions)
 
-## Get started
+**Aeropay Network** is a state-of-the-art fintech mobile application crafted with Expo SDK 54, Expo Router, NativeWind v4 (TailwindCSS v3), and React Native Reanimated. Designed for seamless multi-account management, instant PDF account statement generation, card security controls, and responsive cross-platform usability.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🌟 Key Features
 
-2. Start the app
+- 💳 **Card & Account Management:**
+  - Interactive credit/debit card carousel with custom account switching.
+  - Connected financial instruments management modal with instant card freeze/unfreeze controls.
+- 📄 **Branded PDF Statement Generator:**
+  - Time-range selector (`3 Months`, `6 Months`, `12 Months`, or `Custom Date`).
+  - Computer-generated official PDF statements featuring the Aeropay logo, verification stamp, balance summary, and categorized transaction log.
+  - Native print & share integration via `expo-print` and `expo-sharing`.
+- 🔔 **Global Toast System:**
+  - Application-wide real-time notification toasts for transactional and security feedback.
+- 🎨 **Utility-First Styling:**
+  - NativeWind v4 + TailwindCSS v3 styling engine with dark and light glassmorphism.
+- 🔐 **Security & Compliance:**
+  - Dedicated Profile view, biometrics authentication toggles, device session management, and regulatory compliance disclosures.
+- ⚡ **Automated Developer Workflow & CI/CD:**
+  - **Husky pre-commit hook** enforcing zero-warning ESLint and strict TypeScript type-checking (`tsc --noEmit`).
+  - **GitHub Actions CI Pipeline** running automated builds and lint checks on push/PR events.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🛠️ Technology Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+| Technology | Purpose |
+| :--- | :--- |
+| **Expo SDK 54** | Core mobile platform & native module runtime |
+| **Expo Router v6** | Typed file-based route navigation |
+| **NativeWind v4** | Utility-first TailwindCSS styling for React Native |
+| **React Native Reanimated 4** | High-performance fluid UI micro-animations |
+| **expo-print & expo-sharing** | Dynamic PDF document generation and file sharing |
+| **Husky & ESLint 9** | Automated code quality & pre-commit enforcement |
+| **TypeScript 5.9** | Strict type safety across all components & hooks |
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 📁 Repository Structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+AEROPAY NETWORK/
+├── .github/workflows/      # Automated CI/CD GitHub Actions (ci.yml)
+├── .husky/                 # Pre-commit git hook validation scripts
+├── src/
+│   ├── app/                # Expo Router file-based screens & layouts
+│   │   ├── (tabs)/         # Bottom navigation tab views (Home, Send, Activity, Profile)
+│   │   └── profile/        # Modal screen for profile & security settings
+│   ├── components/         # Reusable UI components & animated elements
+│   ├── context/            # Global Toast & application context providers
+│   ├── constants/          # Design system tokens, colors, & typography
+│   └── global.css          # TailwindCSS directives entrypoint
+├── babel.config.js         # NativeWind Babel plugin configuration
+├── metro.config.js         # Metro bundler NativeWind CSS integration
+├── tailwind.config.js      # Custom theme colors & utility definitions
+├── declarations.d.ts       # TypeScript module declarations
+└── package.json            # Scripts & project dependencies
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🚀 Getting Started
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 1. Prerequisites
+Ensure you have **Node.js (v18+)** and **npm** installed on your system.
 
-## Learn more
+### 2. Installation
+Clone the repository and install dependencies:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone https://github.com/shemaarafati2020/AEROPAY-NETWORK.git
+cd AEROPAY-NETWORK
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. Running the App
+Start the Expo development server:
 
-## Join the community
+```bash
+npm start
+```
 
-Join our community of developers creating universal apps.
+Use **Expo Go** on your iOS/Android device or press `a` for Android Emulator / `i` for iOS Simulator.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🧪 Quality Scripts & CI
+
+Run manual validation checks locally:
+
+```bash
+# Type-check TypeScript files
+npm run type-check
+
+# Lint with strict zero-warning policy
+npm run lint
+```
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
