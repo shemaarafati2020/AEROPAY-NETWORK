@@ -4,52 +4,67 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useState } from 'react';
 import { useToast } from '@/context/ToastContext';
 
 const FUNDING_METHODS = [
-  { 
-    id: 'momo', 
-    title: 'Mobile Money Top-Up', 
-    subtitle: 'Instant via MTN / Airtel Money', 
-    icon: 'phone-portrait-outline', 
+  {
+    id: 'momo',
+    title: 'Mobile Money Top-Up',
+    subtitle: 'Instant via MTN / Airtel Money',
+    icon: 'phone-portrait-outline',
     badge: 'Popular',
     badgeColor: '#10B981',
-    fields: ['Phone Number', 'Provider (MTN/Airtel)']
+    fields: ['Phone Number', 'Provider (MTN/Airtel)'],
   },
-  { 
-    id: 'card', 
-    title: 'Credit or Debit Card', 
-    subtitle: 'Instant deposit, 1.5% fee', 
+  {
+    id: 'card',
+    title: 'Credit or Debit Card',
+    subtitle: 'Instant deposit, 1.5% fee',
     icon: 'card-outline',
     badge: 'Instant',
     badgeColor: '#3B82F6',
-    fields: ['Card Number', 'Expiry & CVV']
+    fields: ['Card Number', 'Expiry & CVV'],
   },
-  { 
-    id: 'bank', 
-    title: 'Bank Transfer (ACH/WIRE)', 
-    subtitle: '1-2 business days, $0 fee', 
+  {
+    id: 'bank',
+    title: 'Bank Transfer (ACH/WIRE)',
+    subtitle: '1-2 business days, $0 fee',
     icon: 'business-outline',
     badge: 'Zero Fee',
     badgeColor: '#8B5CF6',
-    fields: ['Account Number', 'Routing / IBAN']
+    fields: ['Account Number', 'Routing / IBAN'],
   },
-  { 
-    id: 'crypto', 
-    title: 'Connect Web3 Wallet', 
-    subtitle: 'USDC / USDT on Polygon & Base', 
+  {
+    id: 'crypto',
+    title: 'Connect Web3 Wallet',
+    subtitle: 'USDC / USDT on Polygon & Base',
     icon: 'wallet-outline',
     badge: 'On-Chain',
     badgeColor: '#F59E0B',
-    fields: ['Wallet Address']
+    fields: ['Wallet Address'],
   },
 ];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function MethodCard({ method, colors, index, onSelect }: { method: any; colors: any; index: number; onSelect: (m: any) => void }) {
+function MethodCard({
+  method,
+  colors,
+  index,
+  onSelect,
+}: {
+  method: any;
+  colors: any;
+  index: number;
+  onSelect: (m: any) => void;
+}) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -58,8 +73,12 @@ function MethodCard({ method, colors, index, onSelect }: { method: any; colors: 
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
-      <AnimatedPressable 
-        style={[styles.methodCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }, animatedStyle]}
+      <AnimatedPressable
+        style={[
+          styles.methodCard,
+          { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+          animatedStyle,
+        ]}
         onPressIn={() => (scale.value = withSpring(0.97))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => onSelect(method)}
@@ -74,7 +93,9 @@ function MethodCard({ method, colors, index, onSelect }: { method: any; colors: 
               <Text style={[styles.badgeText, { color: method.badgeColor }]}>{method.badge}</Text>
             </View>
           </View>
-          <Text style={[styles.methodSubtitle, { color: colors.textSecondary }]}>{method.subtitle}</Text>
+          <Text style={[styles.methodSubtitle, { color: colors.textSecondary }]}>
+            {method.subtitle}
+          </Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
       </AnimatedPressable>
@@ -121,35 +142,47 @@ export default function FundScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        {/* Wallet Balance Summary Card */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={[styles.balanceCard, { backgroundColor: isDark ? '#7A131A' : '#A51C24' }]}>
-          <Text style={styles.balanceLabel}>Main Wallet Balance</Text>
-          <Text style={styles.balanceValue}>$4,250.00 <Text style={styles.balanceCurrency}>USD</Text></Text>
-          <View style={styles.balanceFooter}>
-            <Ionicons name="shield-checkmark" size={14} color="#FFF" style={{ marginRight: 4 }} />
-            <Text style={styles.balanceFooterText}>FDIC Insured up to $250,000</Text>
-          </View>
-        </Animated.View>
+          {/* Wallet Balance Summary Card */}
+          <Animated.View
+            entering={FadeInDown.duration(400).springify()}
+            style={[styles.balanceCard, { backgroundColor: isDark ? '#7A131A' : '#A51C24' }]}
+          >
+            <Text style={styles.balanceLabel}>Main Wallet Balance</Text>
+            <Text style={styles.balanceValue}>
+              $4,250.00 <Text style={styles.balanceCurrency}>USD</Text>
+            </Text>
+            <View style={styles.balanceFooter}>
+              <Ionicons name="shield-checkmark" size={14} color="#FFF" style={{ marginRight: 4 }} />
+              <Text style={styles.balanceFooterText}>FDIC Insured up to $250,000</Text>
+            </View>
+          </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>SELECT FUNDING METHOD</Text>
-
-        {FUNDING_METHODS.map((method, index) => (
-          <MethodCard 
-            key={method.id} 
-            method={method} 
-            colors={colors} 
-            index={index} 
-            onSelect={(m) => setSelectedMethod(m)} 
-          />
-        ))}
-
-        {/* Security Disclosure Footnote */}
-        <View style={styles.securityFootnote}>
-          <Ionicons name="lock-closed-outline" size={16} color={colors.textSecondary} style={{ marginRight: 6 }} />
-          <Text style={[styles.footnoteText, { color: colors.textSecondary }]}>
-            All transactions are encrypted with 256-bit SSL security.
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+            SELECT FUNDING METHOD
           </Text>
-        </View>
+
+          {FUNDING_METHODS.map((method, index) => (
+            <MethodCard
+              key={method.id}
+              method={method}
+              colors={colors}
+              index={index}
+              onSelect={(m) => setSelectedMethod(m)}
+            />
+          ))}
+
+          {/* Security Disclosure Footnote */}
+          <View style={styles.securityFootnote}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={16}
+              color={colors.textSecondary}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.footnoteText, { color: colors.textSecondary }]}>
+              All transactions are encrypted with 256-bit SSL security.
+            </Text>
+          </View>
         </View>
       </ScrollView>
 
@@ -161,18 +194,31 @@ export default function FundScreen() {
         onRequestClose={handleClose}
       >
         <Pressable style={styles.modalOverlay} onPress={handleClose}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]} onPress={() => {}}>
-            
+          <Pressable
+            style={[styles.modalContent, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => {}}
+          >
             {isSuccess ? (
               <Animated.View entering={FadeInDown.duration(400)} style={styles.successContainer}>
-                <View style={[styles.successIconCircle, { backgroundColor: colors.success + '20' }]}>
+                <View
+                  style={[styles.successIconCircle, { backgroundColor: colors.success + '20' }]}
+                >
                   <Ionicons name="checkmark-circle" size={64} color={colors.success} />
                 </View>
-                <Text style={[styles.successTitle, { color: colors.text }]}>Deposit Initiated!</Text>
-                <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>
-                  Your deposit of <Text style={{ fontWeight: '700', color: colors.text }}>${depositAmount} USD</Text> via {selectedMethod?.title} is being processed.
+                <Text style={[styles.successTitle, { color: colors.text }]}>
+                  Deposit Initiated!
                 </Text>
-                <Pressable style={[styles.actionBtn, { backgroundColor: colors.accent }]} onPress={handleClose}>
+                <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>
+                  Your deposit of{' '}
+                  <Text style={{ fontWeight: '700', color: colors.text }}>
+                    ${depositAmount} USD
+                  </Text>{' '}
+                  via {selectedMethod?.title} is being processed.
+                </Text>
+                <Pressable
+                  style={[styles.actionBtn, { backgroundColor: colors.accent }]}
+                  onPress={handleClose}
+                >
                   <Text style={styles.actionBtnText}>Done</Text>
                 </Pressable>
               </Animated.View>
@@ -180,8 +226,15 @@ export default function FundScreen() {
               <View>
                 <View style={styles.modalHeader}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Ionicons name={selectedMethod?.icon as any} size={22} color={colors.accent} style={{ marginRight: 8 }} />
-                    <Text style={[styles.modalTitle, { color: colors.text }]}>{selectedMethod?.title}</Text>
+                    <Ionicons
+                      name={selectedMethod?.icon as any}
+                      size={22}
+                      color={colors.accent}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={[styles.modalTitle, { color: colors.text }]}>
+                      {selectedMethod?.title}
+                    </Text>
                   </View>
                   <Pressable onPress={handleClose}>
                     <Ionicons name="close" size={24} color={colors.textSecondary} />
@@ -189,8 +242,18 @@ export default function FundScreen() {
                 </View>
 
                 {/* Amount Input */}
-                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>AMOUNT TO DEPOSIT (USD)</Text>
-                <View style={[styles.inputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0', borderColor: colors.divider }]}>
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+                  AMOUNT TO DEPOSIT (USD)
+                </Text>
+                <View
+                  style={[
+                    styles.inputContainer,
+                    {
+                      backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0',
+                      borderColor: colors.divider,
+                    },
+                  ]}
+                >
                   <Text style={[styles.currencySymbol, { color: colors.accent }]}>$</Text>
                   <TextInput
                     value={depositAmount}
@@ -201,8 +264,18 @@ export default function FundScreen() {
                 </View>
 
                 {/* Detail Input */}
-                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{selectedMethod?.fields[0].toUpperCase()}</Text>
-                <View style={[styles.inputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0', borderColor: colors.divider }]}>
+                <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+                  {selectedMethod?.fields[0].toUpperCase()}
+                </Text>
+                <View
+                  style={[
+                    styles.inputContainer,
+                    {
+                      backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0',
+                      borderColor: colors.divider,
+                    },
+                  ]}
+                >
                   <TextInput
                     placeholder={`Enter ${selectedMethod?.fields[0]}...`}
                     placeholderTextColor={colors.textSecondary}
@@ -212,16 +285,17 @@ export default function FundScreen() {
                   />
                 </View>
 
-                <Pressable style={[styles.actionBtn, { backgroundColor: colors.accent }]} onPress={handleDeposit}>
+                <Pressable
+                  style={[styles.actionBtn, { backgroundColor: colors.accent }]}
+                  onPress={handleDeposit}
+                >
                   <Text style={styles.actionBtnText}>Confirm Deposit</Text>
                 </Pressable>
               </View>
             )}
-
           </Pressable>
         </Pressable>
       </Modal>
-
     </SafeAreaView>
   );
 }

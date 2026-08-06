@@ -3,7 +3,6 @@ import { View, Text, Pressable, StyleSheet, Platform, useColorScheme } from 'rea
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
-
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
@@ -11,13 +10,15 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
   return (
     <View style={styles.tabBarWrapper}>
-      <View style={[
-        styles.tabBarContainer,
-        {
-          backgroundColor: isDark ? 'rgba(18, 18, 22, 0.95)' : 'rgba(255, 255, 255, 0.96)',
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
-        }
-      ]}>
+      <View
+        style={[
+          styles.tabBarContainer,
+          {
+            backgroundColor: isDark ? 'rgba(18, 18, 22, 0.95)' : 'rgba(255, 255, 255, 0.96)',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+          },
+        ]}
+      >
         {state.routes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
           const label = options.title !== undefined ? options.title : route.name;
@@ -38,7 +39,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           let iconName = 'ellipse-outline';
           if (route.name === 'index') iconName = isFocused ? 'home' : 'home-outline';
           else if (route.name === 'fund') iconName = isFocused ? 'wallet' : 'wallet-outline';
-          else if (route.name === 'send') iconName = isFocused ? 'paper-plane' : 'paper-plane-outline';
+          else if (route.name === 'send')
+            iconName = isFocused ? 'paper-plane' : 'paper-plane-outline';
           else if (route.name === 'recipients') iconName = isFocused ? 'people' : 'people-outline';
           else if (route.name === 'activity') iconName = isFocused ? 'time' : 'time-outline';
 
@@ -52,22 +54,22 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                   backgroundColor: isDark ? colors.accent + '25' : colors.accent + '15',
                   borderColor: colors.accent,
                   borderWidth: 1,
-                }
+                },
               ]}
             >
-              <Ionicons 
-                name={iconName as any} 
-                size={20} 
-                color={isFocused ? colors.accent : colors.textSecondary} 
+              <Ionicons
+                name={iconName as any}
+                size={20}
+                color={isFocused ? colors.accent : colors.textSecondary}
               />
-              <Text 
+              <Text
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.75}
                 style={[
                   styles.tabLabel,
                   { color: isFocused ? colors.accent : colors.textSecondary },
-                  isFocused && { fontWeight: '700' }
+                  isFocused && { fontWeight: '700' },
                 ]}
               >
                 {label}

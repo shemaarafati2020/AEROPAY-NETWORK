@@ -1,17 +1,26 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Modal, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  TextInput,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { 
-  FadeInDown, 
-  FadeInUp, 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-  withSequence, 
-  withTiming 
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  withTiming,
 } from 'react-native-reanimated';
 import { useState, useMemo } from 'react';
 import * as Print from 'expo-print';
@@ -19,9 +28,27 @@ import * as Sharing from 'expo-sharing';
 import { useToast } from '@/context/ToastContext';
 
 const ACCOUNTS = [
-  { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES', cardHolder: 'SHEMA ARAFATI' },
-  { id: '2', type: 'Savings acc', number: '010998822411', balance: '120,400.00 KES', cardHolder: 'SHEMA ARAFATI' },
-  { id: '3', type: 'USD Wallet', number: '088231149200', balance: '$4,250.00 USD', cardHolder: 'SHEMA ARAFATI' },
+  {
+    id: '1',
+    type: 'Current acc',
+    number: '010474808113',
+    balance: '50,550.00 KES',
+    cardHolder: 'SHEMA ARAFATI',
+  },
+  {
+    id: '2',
+    type: 'Savings acc',
+    number: '010998822411',
+    balance: '120,400.00 KES',
+    cardHolder: 'SHEMA ARAFATI',
+  },
+  {
+    id: '3',
+    type: 'USD Wallet',
+    number: '088231149200',
+    balance: '$4,250.00 USD',
+    cardHolder: 'SHEMA ARAFATI',
+  },
 ];
 
 const QUICK_ACTIONS = [
@@ -32,29 +59,81 @@ const QUICK_ACTIONS = [
 ];
 
 const CONNECTED_CARDS = [
-  { id: 'card1', title: 'Aeropay Platinum Debit', type: 'VISA', number: '•••• •••• •••• 4808', exp: '12/28', isDefault: true, color: '#7A131A' },
-  { id: 'card2', title: 'Aeropay Gold Credit', type: 'MASTERCARD', number: '•••• •••• •••• 9210', exp: '08/27', isDefault: false, color: '#1B2A4A' },
-  { id: 'card3', title: 'KCB Direct Mobile Bank', type: 'BANK', number: '•••• •••• 1134', exp: 'N/A', isDefault: false, color: '#064E3B' },
+  {
+    id: 'card1',
+    title: 'Aeropay Platinum Debit',
+    type: 'VISA',
+    number: '•••• •••• •••• 4808',
+    exp: '12/28',
+    isDefault: true,
+    color: '#7A131A',
+  },
+  {
+    id: 'card2',
+    title: 'Aeropay Gold Credit',
+    type: 'MASTERCARD',
+    number: '•••• •••• •••• 9210',
+    exp: '08/27',
+    isDefault: false,
+    color: '#1B2A4A',
+  },
+  {
+    id: 'card3',
+    title: 'KCB Direct Mobile Bank',
+    type: 'BANK',
+    number: '•••• •••• 1134',
+    exp: 'N/A',
+    isDefault: false,
+    color: '#064E3B',
+  },
 ];
 
 const TRANSACTIONS = [
-  { id: '1', title: 'Safaricom PostPay', date: '15 May 2023', amount: '-2,500.00 KES', type: 'debit', icon: 'receipt-outline' },
-  { id: '2', title: 'Salary Deposit', date: '12 May 2023', amount: '+120,000.00 KES', type: 'credit', icon: 'arrow-down-circle-outline' },
-  { id: '3', title: 'Netflix Subscription', date: '10 May 2023', amount: '-1,200.00 KES', type: 'debit', icon: 'tv-outline' },
-  { id: '4', title: 'KPLC Tokens', date: '08 May 2023', amount: '-1,500.00 KES', type: 'debit', icon: 'flash-outline' },
+  {
+    id: '1',
+    title: 'Safaricom PostPay',
+    date: '15 May 2023',
+    amount: '-2,500.00 KES',
+    type: 'debit',
+    icon: 'receipt-outline',
+  },
+  {
+    id: '2',
+    title: 'Salary Deposit',
+    date: '12 May 2023',
+    amount: '+120,000.00 KES',
+    type: 'credit',
+    icon: 'arrow-down-circle-outline',
+  },
+  {
+    id: '3',
+    title: 'Netflix Subscription',
+    date: '10 May 2023',
+    amount: '-1,200.00 KES',
+    type: 'debit',
+    icon: 'tv-outline',
+  },
+  {
+    id: '4',
+    title: 'KPLC Tokens',
+    date: '08 May 2023',
+    amount: '-1,500.00 KES',
+    type: 'debit',
+    icon: 'flash-outline',
+  },
 ];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function ActionButton({ 
-  action, 
-  colors, 
-  index, 
-  onPress 
-}: { 
-  action: any; 
-  colors: any; 
-  index: number; 
+function ActionButton({
+  action,
+  colors,
+  index,
+  onPress,
+}: {
+  action: any;
+  colors: any;
+  index: number;
   onPress: () => void;
 }) {
   const scale = useSharedValue(1);
@@ -65,28 +144,31 @@ function ActionButton({
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()} className="w-[23%]">
-      <AnimatedPressable 
+      <AnimatedPressable
         className="w-full flex-col items-center justify-center py-3 px-1 rounded-2xl shadow-sm"
         style={[
-          { 
+          {
             backgroundColor: colors.backgroundElement,
             borderColor: colors.divider,
             borderWidth: 1.5,
           },
-          animatedStyle
+          animatedStyle,
         ]}
         onPressIn={() => (scale.value = withSpring(0.93))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={onPress}
       >
-        <View className="w-11 h-11 rounded-full items-center justify-center mb-2" style={{ backgroundColor: colors.accent + '15' }}>
+        <View
+          className="w-11 h-11 rounded-full items-center justify-center mb-2"
+          style={{ backgroundColor: colors.accent + '15' }}
+        >
           <Ionicons name={action.icon as any} size={20} color={colors.accent} />
         </View>
-        <Text 
+        <Text
           className="text-[11px] font-bold text-center font-sans"
-          style={{ color: colors.text }} 
-          numberOfLines={1} 
-          adjustsFontSizeToFit 
+          style={{ color: colors.text }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
           minimumFontScale={0.75}
         >
           {action.title}
@@ -112,10 +194,38 @@ export default function HomeScreen() {
   // Modals
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [notificationsList, setNotificationsList] = useState([
-    { id: '1', title: 'Salary Deposit Received', desc: '+120,000 KES deposited into your Savings Account', time: '10 min ago', unread: true, type: 'credit' },
-    { id: '2', title: 'Remittance Rate Locked', desc: 'USD → RWF rate guaranteed at $1 = 1,305.00 RWF', time: '1 hour ago', unread: true, type: 'info' },
-    { id: '3', title: 'Security Alert', desc: 'New login detected from Web Browser (Nairobi, Kenya)', time: 'Yesterday', unread: false, type: 'warning' },
-    { id: '4', title: 'Card Freeze Status', desc: 'Aeropay Gold Credit card status updated', time: '2 days ago', unread: false, type: 'info' },
+    {
+      id: '1',
+      title: 'Salary Deposit Received',
+      desc: '+120,000 KES deposited into your Savings Account',
+      time: '10 min ago',
+      unread: true,
+      type: 'credit',
+    },
+    {
+      id: '2',
+      title: 'Remittance Rate Locked',
+      desc: 'USD → RWF rate guaranteed at $1 = 1,305.00 RWF',
+      time: '1 hour ago',
+      unread: true,
+      type: 'info',
+    },
+    {
+      id: '3',
+      title: 'Security Alert',
+      desc: 'New login detected from Web Browser (Nairobi, Kenya)',
+      time: 'Yesterday',
+      unread: false,
+      type: 'warning',
+    },
+    {
+      id: '4',
+      title: 'Card Freeze Status',
+      desc: 'Aeropay Gold Credit card status updated',
+      time: '2 days ago',
+      unread: false,
+      type: 'info',
+    },
   ]);
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
   const [statementRange, setStatementRange] = useState<'3' | '6' | '12' | 'custom'>('3');
@@ -133,7 +243,7 @@ export default function HomeScreen() {
 
   const filteredTransactions = useMemo(() => {
     if (!searchQuery) return TRANSACTIONS;
-    return TRANSACTIONS.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    return TRANSACTIONS.filter((t) => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
 
   const cardBackgroundColor = isDark ? '#7A131A' : '#A51C24';
@@ -237,7 +347,8 @@ export default function HomeScreen() {
               </tr>
             </thead>
             <tbody>
-              ${TRANSACTIONS.map((tx) => `
+              ${TRANSACTIONS.map(
+                (tx) => `
                 <tr>
                   <td>${tx.date}</td>
                   <td style="font-weight: 600;">${tx.title}</td>
@@ -245,7 +356,8 @@ export default function HomeScreen() {
                   <td><span class="${tx.type}">${tx.type.toUpperCase()}</span></td>
                   <td style="text-align: right;" class="${tx.type}">${tx.amount}</td>
                 </tr>
-              `).join('')}
+              `
+              ).join('')}
               <tr>
                 <td>01 May 2023</td>
                 <td style="font-weight: 600;">M-PESA Wallet Top-Up</td>
@@ -278,7 +390,10 @@ export default function HomeScreen() {
       showToast(`Statement PDF generated (${rangeLabel})`, 'success');
 
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Aeropay Statement PDF' });
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Aeropay Statement PDF',
+        });
       } else {
         await Print.printAsync({ html: htmlContent });
       }
@@ -296,32 +411,42 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-          
           {/* Header Section */}
           <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.header}>
             <View style={styles.headerLeft}>
               <Pressable onPress={() => router.push('/profile')}>
-                <View style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}>
+                <View
+                  style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}
+                >
                   <Ionicons name="person" size={22} color={isDark ? '#CCC' : '#888'} />
                 </View>
               </Pressable>
             </View>
             <View style={styles.headerRight}>
-              <Pressable onPress={() => setIsNotificationModalOpen(true)} style={styles.iconPadding}>
+              <Pressable
+                onPress={() => setIsNotificationModalOpen(true)}
+                style={styles.iconPadding}
+              >
                 <Ionicons name="notifications-outline" size={26} color={colors.text} />
-                {notificationsList.some(n => n.unread) && (
+                {notificationsList.some((n) => n.unread) && (
                   <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
                 )}
               </Pressable>
             </View>
           </Animated.View>
-          
-          <Animated.Text entering={FadeInDown.delay(100).duration(500)} style={[styles.greeting, { color: colors.text }]}>
+
+          <Animated.Text
+            entering={FadeInDown.delay(100).duration(500)}
+            style={[styles.greeting, { color: colors.text }]}
+          >
             Manage your accounts and cards, all in one place
           </Animated.Text>
 
           {/* Account Tab Switcher */}
-          <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
+          <Animated.View
+            entering={FadeInDown.delay(150).duration(500)}
+            style={styles.accountsTabContainer}
+          >
             <Pressable onPress={nextAccount}>
               <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
                 {activeAccount.type}
@@ -330,8 +455,14 @@ export default function HomeScreen() {
           </Animated.View>
 
           {/* Premium Bank Card */}
-          <Animated.View entering={FadeInDown.delay(200).duration(600).springify()} style={cardAnimatedStyle}>
-            <Pressable onPress={nextAccount} style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
+          <Animated.View
+            entering={FadeInDown.delay(200).duration(600).springify()}
+            style={cardAnimatedStyle}
+          >
+            <Pressable
+              onPress={nextAccount}
+              style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}
+            >
               <View style={styles.cardTopRow}>
                 <Text style={styles.cardHeader}>Aeropay Network</Text>
                 <Ionicons name="wifi-outline" size={22} color="#FFF" style={{ opacity: 0.8 }} />
@@ -341,43 +472,62 @@ export default function HomeScreen() {
                 <Ionicons name="hardware-chip-outline" size={32} color="#FFD700" />
                 <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
               </View>
-              
+
               <View style={styles.cardBottomRow}>
                 <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
                 <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
               </View>
             </Pressable>
-            
+
             {/* Interactive Pagination Dots */}
             <View style={styles.paginationDots}>
               {ACCOUNTS.map((_, i) => (
-                <Pressable key={i} onPress={() => {
-                  cardScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
-                  setActiveAccountIndex(i);
-                }}>
-                  <View style={[
-                    styles.dot, 
-                    i === activeAccountIndex ? styles.dotActive : null,
-                    { backgroundColor: i === activeAccountIndex ? colors.accent : (isDark ? '#444' : '#D9D9D9') }
-                  ]} />
+                <Pressable
+                  key={i}
+                  onPress={() => {
+                    cardScale.value = withSequence(
+                      withTiming(0.95, { duration: 100 }),
+                      withSpring(1)
+                    );
+                    setActiveAccountIndex(i);
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.dot,
+                      i === activeAccountIndex ? styles.dotActive : null,
+                      {
+                        backgroundColor:
+                          i === activeAccountIndex ? colors.accent : isDark ? '#444' : '#D9D9D9',
+                      },
+                    ]}
+                  />
                 </Pressable>
               ))}
             </View>
           </Animated.View>
 
           {/* Balance Display */}
-          <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.balanceContainer}>
-            <Pressable onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={{ alignItems: 'center' }}>
-              <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
+          <Animated.View
+            entering={FadeInDown.delay(300).springify()}
+            style={styles.balanceContainer}
+          >
+            <Pressable
+              onPress={() => setIsBalanceHidden(!isBalanceHidden)}
+              style={{ alignItems: 'center' }}
+            >
+              <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>
+                Available balance
+              </Text>
               <View style={styles.balanceAmountRow}>
                 <Text style={[styles.balanceAmount, { color: colors.text }]}>
                   {isBalanceHidden ? '••••••••' : activeAccount.balance}
                 </Text>
-                <Ionicons 
-                  name={isBalanceHidden ? "eye-outline" : "eye-off-outline"} 
-                  size={22} 
-                  color={colors.textSecondary} 
-                  style={{ marginLeft: 8 }} 
+                <Ionicons
+                  name={isBalanceHidden ? 'eye-outline' : 'eye-off-outline'}
+                  size={22}
+                  color={colors.textSecondary}
+                  style={{ marginLeft: 8 }}
                 />
               </View>
             </Pressable>
@@ -386,11 +536,11 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.quickActionsContainer}>
             {QUICK_ACTIONS.map((action, index) => (
-              <ActionButton 
-                key={action.id} 
-                action={action} 
-                colors={colors} 
-                index={index} 
+              <ActionButton
+                key={action.id}
+                action={action}
+                colors={colors}
+                index={index}
                 onPress={() => handleQuickAction(action.id, action.route)}
               />
             ))}
@@ -401,12 +551,22 @@ export default function HomeScreen() {
           {/* Transaction History Section */}
           <Animated.View entering={FadeInUp.delay(500).springify()}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Transaction history</Text>
-            
+
             <View style={styles.searchRow}>
-              <View style={[styles.searchInputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
-                <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
-                <TextInput 
-                  placeholder="Search transactions..." 
+              <View
+                style={[
+                  styles.searchInputContainer,
+                  { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider },
+                ]}
+              >
+                <Ionicons
+                  name="search"
+                  size={20}
+                  color={colors.textSecondary}
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  placeholder="Search transactions..."
                   placeholderTextColor={colors.textSecondary}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -418,40 +578,88 @@ export default function HomeScreen() {
                   </Pressable>
                 )}
               </View>
-              <Pressable 
+              <Pressable
                 onPress={() => setIsFilterActive(!isFilterActive)}
-                style={[styles.filterButton, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: isFilterActive ? colors.accent : colors.divider }]}
+                style={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF',
+                    borderColor: isFilterActive ? colors.accent : colors.divider,
+                  },
+                ]}
               >
-                <Ionicons name="options-outline" size={24} color={isFilterActive ? colors.accent : colors.textSecondary} />
+                <Ionicons
+                  name="options-outline"
+                  size={24}
+                  color={isFilterActive ? colors.accent : colors.textSecondary}
+                />
               </Pressable>
             </View>
-            
+
             {/* Date Filter Pill */}
             {isFilterActive && (
               <View style={styles.dateTabsContainer}>
-                <Pressable onPress={() => setIsFilterActive(false)} style={[styles.dateTab, styles.dateTabActive, { backgroundColor: colors.backgroundElement, borderColor: colors.accent }]}>
-                  <Text style={[styles.dateTabText, { color: colors.accent }]}>15 Jun - 15 May 2023</Text>
-                  <Ionicons name="close-circle" size={16} color={colors.accent} style={{ marginLeft: 6 }} />
+                <Pressable
+                  onPress={() => setIsFilterActive(false)}
+                  style={[
+                    styles.dateTab,
+                    styles.dateTabActive,
+                    { backgroundColor: colors.backgroundElement, borderColor: colors.accent },
+                  ]}
+                >
+                  <Text style={[styles.dateTabText, { color: colors.accent }]}>
+                    15 Jun - 15 May 2023
+                  </Text>
+                  <Ionicons
+                    name="close-circle"
+                    size={16}
+                    color={colors.accent}
+                    style={{ marginLeft: 6 }}
+                  />
                 </Pressable>
               </View>
             )}
 
             {/* Sub-tabs */}
             <View style={[styles.subTabsContainer, { borderBottomColor: colors.divider }]}>
-              <Pressable 
+              <Pressable
                 onPress={() => setActiveSubTab('completed')}
-                style={[styles.subTab, activeSubTab === 'completed' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+                style={[
+                  styles.subTab,
+                  activeSubTab === 'completed' && [
+                    styles.subTabActive,
+                    { borderBottomColor: colors.accent },
+                  ],
+                ]}
               >
-                <Text style={[activeSubTab === 'completed' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'completed' ? colors.accent : colors.textSecondary }]}>
+                <Text
+                  style={[
+                    activeSubTab === 'completed' ? styles.subTabTextActive : styles.subTabText,
+                    { color: activeSubTab === 'completed' ? colors.accent : colors.textSecondary },
+                  ]}
+                >
                   Completed
                 </Text>
               </Pressable>
-              
-              <Pressable 
+
+              <Pressable
                 onPress={() => setActiveSubTab('in_progress')}
-                style={[styles.subTab, activeSubTab === 'in_progress' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+                style={[
+                  styles.subTab,
+                  activeSubTab === 'in_progress' && [
+                    styles.subTabActive,
+                    { borderBottomColor: colors.accent },
+                  ],
+                ]}
               >
-                <Text style={[activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary }]}>
+                <Text
+                  style={[
+                    activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText,
+                    {
+                      color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary,
+                    },
+                  ]}
+                >
                   In Progress (0)
                 </Text>
               </Pressable>
@@ -460,29 +668,52 @@ export default function HomeScreen() {
             {/* Transactions List */}
             {activeSubTab === 'in_progress' ? (
               <View style={styles.emptyState}>
-                <Ionicons name="time-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
-                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions currently in progress.</Text>
+                <Ionicons
+                  name="time-outline"
+                  size={48}
+                  color={colors.textSecondary}
+                  style={{ marginBottom: 12 }}
+                />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  No transactions currently in progress.
+                </Text>
               </View>
             ) : (
               <View style={styles.transactionsList}>
                 <Text style={[styles.dateHeader, { color: colors.textSecondary }]}>15 May</Text>
                 {filteredTransactions.length === 0 ? (
-                  <Text style={[styles.emptyText, { color: colors.textSecondary, marginVertical: 20 }]}>No transactions found matching "{searchQuery}".</Text>
+                  <Text
+                    style={[styles.emptyText, { color: colors.textSecondary, marginVertical: 20 }]}
+                  >
+                    No transactions found matching "{searchQuery}".
+                  </Text>
                 ) : (
                   filteredTransactions.map((tx) => (
-                    <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
-                      <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
-                        <Ionicons 
-                          name={tx.icon as any} 
-                          size={18} 
-                          color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
+                    <View
+                      key={tx.id}
+                      style={[styles.transactionItem, { borderBottomColor: colors.divider }]}
+                    >
+                      <View
+                        style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}
+                      >
+                        <Ionicons
+                          name={tx.icon as any}
+                          size={18}
+                          color={tx.type === 'debit' ? colors.textSecondary : colors.success}
                         />
                       </View>
                       <View style={styles.txDetails}>
                         <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
-                        <Text style={[styles.txDate, { color: colors.textSecondary }]}>{tx.date}</Text>
+                        <Text style={[styles.txDate, { color: colors.textSecondary }]}>
+                          {tx.date}
+                        </Text>
                       </View>
-                      <Text style={[styles.txAmount, { color: tx.type === 'debit' ? colors.text : colors.success }]}>
+                      <Text
+                        style={[
+                          styles.txAmount,
+                          { color: tx.type === 'debit' ? colors.text : colors.success },
+                        ]}
+                      >
                         {tx.amount}
                       </Text>
                     </View>
@@ -491,7 +722,6 @@ export default function HomeScreen() {
               </View>
             )}
           </Animated.View>
-
         </View>
         <View style={{ height: 80 }} />
       </ScrollView>
@@ -504,20 +734,32 @@ export default function HomeScreen() {
         onRequestClose={() => setIsStatementModalOpen(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider }]}>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <View>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>Export Account Statement</Text>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Export Account Statement
+                </Text>
                 <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
                   Select time range for PDF statement
                 </Text>
               </View>
-              <Pressable onPress={() => setIsStatementModalOpen(false)} style={styles.modalCloseBtn}>
+              <Pressable
+                onPress={() => setIsStatementModalOpen(false)}
+                style={styles.modalCloseBtn}
+              >
                 <Ionicons name="close" size={22} color={colors.textSecondary} />
               </Pressable>
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>Time Range</Text>
+            <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>
+              Time Range
+            </Text>
             <View style={styles.rangeOptionsRow}>
               {[
                 { id: '3', label: '3 Months' },
@@ -531,16 +773,19 @@ export default function HomeScreen() {
                   style={[
                     styles.rangeChip,
                     {
-                      backgroundColor: statementRange === range.id 
-                        ? colors.accent 
-                        : (isDark ? '#2C2C35' : '#F1F5F9'),
-                    }
+                      backgroundColor:
+                        statementRange === range.id
+                          ? colors.accent
+                          : isDark
+                            ? '#2C2C35'
+                            : '#F1F5F9',
+                    },
                   ]}
                 >
                   <Text
                     style={[
                       styles.rangeChipText,
-                      { color: statementRange === range.id ? '#FFFFFF' : colors.text }
+                      { color: statementRange === range.id ? '#FFFFFF' : colors.text },
                     ]}
                   >
                     {range.label}
@@ -552,7 +797,9 @@ export default function HomeScreen() {
             {statementRange === 'custom' && (
               <View style={styles.customDateContainer}>
                 <View style={styles.dateInputWrapper}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>From Date</Text>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+                    From Date
+                  </Text>
                   <TextInput
                     value={customFromDate}
                     onChangeText={setCustomFromDate}
@@ -574,10 +821,18 @@ export default function HomeScreen() {
               </View>
             )}
 
-            <View style={[styles.statementMetaBox, { backgroundColor: isDark ? '#2A2A35' : '#F8FAFC' }]}>
-              <Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} style={{ marginRight: 10 }} />
+            <View
+              style={[styles.statementMetaBox, { backgroundColor: isDark ? '#2A2A35' : '#F8FAFC' }]}
+            >
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={20}
+                color={colors.accent}
+                style={{ marginRight: 10 }}
+              />
               <Text style={[styles.statementMetaText, { color: colors.textSecondary }]}>
-                Includes official Aeropay logo, verification stamp, balance summary, and full transaction history.
+                Includes official Aeropay logo, verification stamp, balance summary, and full
+                transaction history.
               </Text>
             </View>
 
@@ -590,7 +845,12 @@ export default function HomeScreen() {
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
-                  <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Ionicons
+                    name="document-text-outline"
+                    size={20}
+                    color="#FFFFFF"
+                    style={{ marginRight: 8 }}
+                  />
                   <Text style={styles.primaryModalBtnText}>Generate & Share PDF</Text>
                 </>
               )}
@@ -607,10 +867,21 @@ export default function HomeScreen() {
         onRequestClose={() => setIsCardsModalOpen(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider, maxHeight: '85%' }]}>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: isDark ? '#1E1E24' : '#FFFFFF',
+                borderColor: colors.divider,
+                maxHeight: '85%',
+              },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <View>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>Connected Cards & Banks</Text>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Connected Cards & Banks
+                </Text>
                 <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
                   Manage payment cards linked to Aeropay
                 </Text>
@@ -624,7 +895,10 @@ export default function HomeScreen() {
               {CONNECTED_CARDS.map((card) => {
                 const isFrozen = !!frozenCards[card.id];
                 return (
-                  <View key={card.id} style={[styles.connectedCardItem, { backgroundColor: card.color }]}>
+                  <View
+                    key={card.id}
+                    style={[styles.connectedCardItem, { backgroundColor: card.color }]}
+                  >
                     <View style={styles.connectedCardTop}>
                       <Text style={styles.connectedCardTitle}>{card.title}</Text>
                       <View style={styles.cardTypeBadge}>
@@ -638,10 +912,20 @@ export default function HomeScreen() {
                       <Text style={styles.connectedCardExp}>Exp: {card.exp}</Text>
                       <Pressable
                         onPress={() => toggleFreezeCard(card.id, card.title)}
-                        style={[styles.freezeBtn, { backgroundColor: isFrozen ? '#DC2626' : 'rgba(255,255,255,0.2)' }]}
+                        style={[
+                          styles.freezeBtn,
+                          { backgroundColor: isFrozen ? '#DC2626' : 'rgba(255,255,255,0.2)' },
+                        ]}
                       >
-                        <Ionicons name={isFrozen ? "lock-closed" : "lock-open-outline"} size={14} color="#FFF" style={{ marginRight: 4 }} />
-                        <Text style={styles.freezeBtnText}>{isFrozen ? 'Unfreeze' : 'Freeze Card'}</Text>
+                        <Ionicons
+                          name={isFrozen ? 'lock-closed' : 'lock-open-outline'}
+                          size={14}
+                          color="#FFF"
+                          style={{ marginRight: 4 }}
+                        />
+                        <Text style={styles.freezeBtnText}>
+                          {isFrozen ? 'Unfreeze' : 'Freeze Card'}
+                        </Text>
                       </Pressable>
                     </View>
                   </View>
@@ -655,8 +939,15 @@ export default function HomeScreen() {
               }}
               style={[styles.secondaryModalBtn, { borderColor: colors.accent }]}
             >
-              <Ionicons name="add-circle-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
-              <Text style={[styles.secondaryModalBtnText, { color: colors.accent }]}>Link New Card or Bank</Text>
+              <Ionicons
+                name="add-circle-outline"
+                size={20}
+                color={colors.accent}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[styles.secondaryModalBtnText, { color: colors.accent }]}>
+                Link New Card or Bank
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -670,46 +961,81 @@ export default function HomeScreen() {
         onRequestClose={() => setIsNotificationModalOpen(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider, maxHeight: '85%' }]}>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: isDark ? '#1E1E24' : '#FFFFFF',
+                borderColor: colors.divider,
+                maxHeight: '85%',
+              },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <View>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>Notification Center</Text>
                 <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
-                  {notificationsList.filter(n => n.unread).length} unread alerts
+                  {notificationsList.filter((n) => n.unread).length} unread alerts
                 </Text>
               </View>
-              <Pressable onPress={() => setIsNotificationModalOpen(false)} style={styles.modalCloseBtn}>
+              <Pressable
+                onPress={() => setIsNotificationModalOpen(false)}
+                style={styles.modalCloseBtn}
+              >
                 <Ionicons name="close" size={22} color={colors.textSecondary} />
               </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
               {notificationsList.map((item) => (
-                <View 
-                  key={item.id} 
+                <View
+                  key={item.id}
                   style={[
-                    styles.notificationItemCard, 
-                    { 
+                    styles.notificationItemCard,
+                    {
                       backgroundColor: isDark ? '#2C2C35' : '#F8FAFC',
                       borderColor: item.unread ? colors.accent : colors.divider,
                       borderWidth: item.unread ? 1.5 : 1,
-                    }
+                    },
                   ]}
                 >
                   <View style={styles.notificationHeaderRow}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                      <Ionicons 
-                        name={item.type === 'credit' ? "cash-outline" : item.type === 'warning' ? "warning-outline" : "information-circle-outline"} 
-                        size={18} 
-                        color={item.type === 'credit' ? colors.success : item.type === 'warning' ? colors.error : colors.accent} 
+                      <Ionicons
+                        name={
+                          item.type === 'credit'
+                            ? 'cash-outline'
+                            : item.type === 'warning'
+                              ? 'warning-outline'
+                              : 'information-circle-outline'
+                        }
+                        size={18}
+                        color={
+                          item.type === 'credit'
+                            ? colors.success
+                            : item.type === 'warning'
+                              ? colors.error
+                              : colors.accent
+                        }
                         style={{ marginRight: 8 }}
                       />
-                      <Text style={[styles.notificationTitle, { color: colors.text, fontWeight: item.unread ? '700' : '600' }]}>{item.title}</Text>
+                      <Text
+                        style={[
+                          styles.notificationTitle,
+                          { color: colors.text, fontWeight: item.unread ? '700' : '600' },
+                        ]}
+                      >
+                        {item.title}
+                      </Text>
                     </View>
-                    <Text style={[styles.notificationTime, { color: colors.textSecondary }]}>{item.time}</Text>
+                    <Text style={[styles.notificationTime, { color: colors.textSecondary }]}>
+                      {item.time}
+                    </Text>
                   </View>
 
-                  <Text style={[styles.notificationDesc, { color: colors.textSecondary }]}>{item.desc}</Text>
+                  <Text style={[styles.notificationDesc, { color: colors.textSecondary }]}>
+                    {item.desc}
+                  </Text>
                 </View>
               ))}
             </ScrollView>
@@ -717,12 +1043,14 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Pressable
                 onPress={() => {
-                  setNotificationsList(prev => prev.map(n => ({ ...n, unread: false })));
+                  setNotificationsList((prev) => prev.map((n) => ({ ...n, unread: false })));
                   showToast('All notifications marked as read', 'success');
                 }}
                 style={[styles.secondaryModalBtn, { flex: 1, borderColor: colors.divider }]}
               >
-                <Text style={[styles.secondaryModalBtnText, { color: colors.text }]}>Mark All Read</Text>
+                <Text style={[styles.secondaryModalBtnText, { color: colors.text }]}>
+                  Mark All Read
+                </Text>
               </Pressable>
               <Pressable
                 onPress={() => setIsNotificationModalOpen(false)}

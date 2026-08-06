@@ -5,7 +5,12 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 interface ActivityItem {
   id: string;
@@ -23,89 +28,89 @@ interface ActivityItem {
 }
 
 const EXTENDED_ACTIVITY_DATA: ActivityItem[] = [
-  { 
-    id: '1', 
-    type: 'Sent to Mobile', 
-    category: 'transfer', 
-    recipient: 'J. M.', 
-    amount: '-$100.00', 
-    numericAmount: -100.00, 
-    status: 'Delivered', 
+  {
+    id: '1',
+    type: 'Sent to Mobile',
+    category: 'transfer',
+    recipient: 'J. M.',
+    amount: '-$100.00',
+    numericAmount: -100.0,
+    status: 'Delivered',
     date: 'Today, 10:42 AM',
     timestamp: Date.now() - 3600000,
     reference: 'AERO-9X12-8841',
     fee: '$0.00',
-    icon: 'send'
+    icon: 'send',
   },
-  { 
-    id: '2', 
-    type: 'Bank Deposit', 
-    category: 'deposit', 
-    recipient: 'Standard Chart.', 
-    amount: '+$500.00', 
-    numericAmount: 500.00, 
-    status: 'Completed', 
+  {
+    id: '2',
+    type: 'Bank Deposit',
+    category: 'deposit',
+    recipient: 'Standard Chart.',
+    amount: '+$500.00',
+    numericAmount: 500.0,
+    status: 'Completed',
     date: 'Yesterday',
     timestamp: Date.now() - 86400000,
     reference: 'BANK-0092-1142',
     fee: '$0.00',
-    icon: 'arrow-down-circle'
+    icon: 'arrow-down-circle',
   },
-  { 
-    id: '3', 
-    type: 'MoMo Timeout (Reversed)', 
-    category: 'failed', 
-    recipient: 'Safaricom Merchant', 
-    amount: '+$150.00', 
-    numericAmount: 150.00, 
-    status: 'Reversed', 
+  {
+    id: '3',
+    type: 'MoMo Timeout (Reversed)',
+    category: 'failed',
+    recipient: 'Safaricom Merchant',
+    amount: '+$150.00',
+    numericAmount: 150.0,
+    status: 'Reversed',
     date: 'July 30',
     timestamp: Date.now() - 600000000,
     reference: 'REV-8812-7819',
     fee: '$0.00',
-    icon: 'refresh-circle'
+    icon: 'refresh-circle',
   },
-  { 
-    id: '4', 
-    type: 'Airtime Top-Up', 
-    category: 'airtime', 
-    recipient: 'MTN RW (+250788123456)', 
-    amount: '-$5.00', 
-    numericAmount: -5.00, 
-    status: 'Completed', 
+  {
+    id: '4',
+    type: 'Airtime Top-Up',
+    category: 'airtime',
+    recipient: 'MTN RW (+250788123456)',
+    amount: '-$5.00',
+    numericAmount: -5.0,
+    status: 'Completed',
     date: 'July 28',
     timestamp: Date.now() - 800000000,
     reference: 'AIR-9912-3401',
     fee: '$0.00',
-    icon: 'phone-portrait'
+    icon: 'phone-portrait',
   },
-  { 
-    id: '5', 
-    type: 'Bill Payment', 
-    category: 'bill', 
-    recipient: 'Kigali Water EUCL', 
-    amount: '-$12.50', 
-    numericAmount: -12.50, 
-    status: 'Completed', 
+  {
+    id: '5',
+    type: 'Bill Payment',
+    category: 'bill',
+    recipient: 'Kigali Water EUCL',
+    amount: '-$12.50',
+    numericAmount: -12.5,
+    status: 'Completed',
     date: 'July 25',
     timestamp: Date.now() - 1000000000,
     reference: 'BILL-4412-9011',
     fee: '$0.00',
-    icon: 'flash'
+    icon: 'flash',
   },
-  { 
-    id: '6', 
-    type: 'Sent to Mobile', 
-    category: 'transfer', 
-    recipient: 'Alice Uwase', 
-    amount: '-$250.00', 
-    numericAmount: -250.00, 
-    status: 'Delivered', 
+  {
+    id: '6',
+    type: 'Sent to Mobile',
+    category: 'transfer',
+    recipient: 'Alice Uwase',
+    amount: '-$250.00',
+    numericAmount: -250.0,
+    status: 'Delivered',
     date: 'July 20',
     timestamp: Date.now() - 1400000000,
     reference: 'AERO-7741-0091',
     fee: '$0.00',
-    icon: 'send'
+    icon: 'send',
   },
 ];
 
@@ -126,7 +131,17 @@ const SORT_OPTIONS = [
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function TransactionCard({ item, colors, index, onPress }: { item: ActivityItem; colors: any; index: number; onPress: (item: ActivityItem) => void }) {
+function TransactionCard({
+  item,
+  colors,
+  index,
+  onPress,
+}: {
+  item: ActivityItem;
+  colors: any;
+  index: number;
+  onPress: (item: ActivityItem) => void;
+}) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -138,40 +153,53 @@ function TransactionCard({ item, colors, index, onPress }: { item: ActivityItem;
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 80).springify()}>
-      <AnimatedPressable 
-        style={[styles.card, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }, animatedStyle]}
+      <AnimatedPressable
+        style={[
+          styles.card,
+          { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+          animatedStyle,
+        ]}
         onPressIn={() => (scale.value = withSpring(0.98))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => onPress(item)}
       >
-        <View style={[
-          styles.iconBox, 
-          { backgroundColor: isFailed ? 'rgba(245, 158, 11, 0.15)' : isPositive ? colors.success + '15' : colors.accent + '15' }
-        ]}>
-          <Ionicons 
-            name={item.icon as any} 
-            size={22} 
-            color={isFailed ? '#F59E0B' : isPositive ? colors.success : colors.accent} 
+        <View
+          style={[
+            styles.iconBox,
+            {
+              backgroundColor: isFailed
+                ? 'rgba(245, 158, 11, 0.15)'
+                : isPositive
+                  ? colors.success + '15'
+                  : colors.accent + '15',
+            },
+          ]}
+        >
+          <Ionicons
+            name={item.icon as any}
+            size={22}
+            color={isFailed ? '#F59E0B' : isPositive ? colors.success : colors.accent}
           />
         </View>
 
         <View style={styles.cardInfo}>
           <Text style={[styles.cardType, { color: colors.text }]}>{item.type}</Text>
-          <Text style={[styles.cardRecipient, { color: colors.textSecondary }]}>{item.recipient} • {item.date}</Text>
+          <Text style={[styles.cardRecipient, { color: colors.textSecondary }]}>
+            {item.recipient} • {item.date}
+          </Text>
         </View>
 
         <View style={styles.cardRight}>
           <Text style={[styles.cardAmount, { color: isPositive ? colors.success : colors.text }]}>
             {item.amount}
           </Text>
-          <View style={[
-            styles.statusPill, 
-            { backgroundColor: isFailed ? 'rgba(245, 158, 11, 0.15)' : colors.success + '15' }
-          ]}>
-            <Text style={[
-              styles.statusText, 
-              { color: isFailed ? '#F59E0B' : colors.success }
-            ]}>
+          <View
+            style={[
+              styles.statusPill,
+              { backgroundColor: isFailed ? 'rgba(245, 158, 11, 0.15)' : colors.success + '15' },
+            ]}
+          >
+            <Text style={[styles.statusText, { color: isFailed ? '#F59E0B' : colors.success }]}>
               {item.status}
             </Text>
           </View>
@@ -190,7 +218,7 @@ export default function ActivityScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSort, setSelectedSort] = useState('newest');
-  
+
   // Modals
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
   const [selectedTx, setSelectedTx] = useState<ActivityItem | null>(null);
@@ -203,18 +231,19 @@ export default function ActivityScreen() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        item => item.type.toLowerCase().includes(q) || 
-                item.recipient.toLowerCase().includes(q) || 
-                item.reference.toLowerCase().includes(q)
+        (item) =>
+          item.type.toLowerCase().includes(q) ||
+          item.recipient.toLowerCase().includes(q) ||
+          item.reference.toLowerCase().includes(q)
       );
     }
 
     // Category filter
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'bill') {
-        result = result.filter(item => item.category === 'bill' || item.category === 'airtime');
+        result = result.filter((item) => item.category === 'bill' || item.category === 'airtime');
       } else {
-        result = result.filter(item => item.category === selectedCategory);
+        result = result.filter((item) => item.category === selectedCategory);
       }
     }
 
@@ -240,104 +269,157 @@ export default function ActivityScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Transaction History</Text>
-        <Pressable 
-          style={[styles.sortButton, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}
+        <Pressable
+          style={[
+            styles.sortButton,
+            { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+          ]}
           onPress={() => setIsSortModalVisible(true)}
         >
-          <Ionicons name="swap-vertical" size={18} color={colors.accent} style={{ marginRight: 6 }} />
+          <Ionicons
+            name="swap-vertical"
+            size={18}
+            color={colors.accent}
+            style={{ marginRight: 6 }}
+          />
           <Text style={[styles.sortButtonText, { color: colors.text }]}>Sort</Text>
         </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        
-        {/* Monthly Summary Cards */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-              <Ionicons name="arrow-down-circle" size={16} color={colors.success} style={{ marginRight: 4 }} />
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Money In</Text>
-            </View>
-            <Text style={[styles.summaryValue, { color: colors.success }]}>+$650.00</Text>
-          </View>
-
-          <View style={[styles.summaryCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-              <Ionicons name="arrow-up-circle" size={16} color={colors.accent} style={{ marginRight: 4 }} />
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Money Out</Text>
-            </View>
-            <Text style={[styles.summaryValue, { color: colors.text }]}>-$367.50</Text>
-          </View>
-        </Animated.View>
-
-        {/* Search Bar */}
-        <View style={[styles.searchContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
-          <Ionicons name="search" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
-          <TextInput
-            placeholder="Search by recipient, ref, or type..."
-            placeholderTextColor={colors.textSecondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={[styles.searchInput, { color: colors.text }]}
-          />
-          {searchQuery !== '' && (
-            <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
-            </Pressable>
-          )}
-        </View>
-
-        {/* Category Filter Chips */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScrollView}>
-          {CATEGORY_FILTERS.map((cat) => (
-            <Pressable
-              key={cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
+          {/* Monthly Summary Cards */}
+          <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.summaryRow}>
+            <View
               style={[
-                styles.chip,
-                { 
-                  backgroundColor: selectedCategory === cat.id ? colors.accent : colors.backgroundElement,
-                  borderColor: colors.divider
-                }
+                styles.summaryCard,
+                { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
               ]}
             >
-              <Text style={[styles.chipText, { color: selectedCategory === cat.id ? '#FFF' : colors.text }]}>
-                {cat.label}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        {/* Transactions List */}
-        <View style={styles.listSection}>
-          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-            RECENT ACTIVITY ({processedData.length})
-          </Text>
-
-          {processedData.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="receipt-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                No transactions found matching your search or filters.
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Ionicons
+                  name="arrow-down-circle"
+                  size={16}
+                  color={colors.success}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Money In</Text>
+              </View>
+              <Text style={[styles.summaryValue, { color: colors.success }]}>+$650.00</Text>
             </View>
-          ) : (
-            processedData.map((item, index) => (
-              <TransactionCard 
-                key={item.id} 
-                item={item} 
-                colors={colors} 
-                index={index} 
-                onPress={(tx) => setSelectedTx(tx)} 
-              />
-            ))
-          )}
-        </View>
+
+            <View
+              style={[
+                styles.summaryCard,
+                { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+              ]}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Ionicons
+                  name="arrow-up-circle"
+                  size={16}
+                  color={colors.accent}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                  Money Out
+                </Text>
+              </View>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>-$367.50</Text>
+            </View>
+          </Animated.View>
+
+          {/* Search Bar */}
+          <View
+            style={[
+              styles.searchContainer,
+              { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider },
+            ]}
+          >
+            <Ionicons
+              name="search"
+              size={18}
+              color={colors.textSecondary}
+              style={{ marginRight: 8 }}
+            />
+            <TextInput
+              placeholder="Search by recipient, ref, or type..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[styles.searchInput, { color: colors.text }]}
+            />
+            {searchQuery !== '' && (
+              <Pressable onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
+              </Pressable>
+            )}
+          </View>
+
+          {/* Category Filter Chips */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.chipsScrollView}
+          >
+            {CATEGORY_FILTERS.map((cat) => (
+              <Pressable
+                key={cat.id}
+                onPress={() => setSelectedCategory(cat.id)}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor:
+                      selectedCategory === cat.id ? colors.accent : colors.backgroundElement,
+                    borderColor: colors.divider,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.chipText,
+                    { color: selectedCategory === cat.id ? '#FFF' : colors.text },
+                  ]}
+                >
+                  {cat.label}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* Transactions List */}
+          <View style={styles.listSection}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+              RECENT ACTIVITY ({processedData.length})
+            </Text>
+
+            {processedData.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="receipt-outline"
+                  size={48}
+                  color={colors.textSecondary}
+                  style={{ marginBottom: 12 }}
+                />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  No transactions found matching your search or filters.
+                </Text>
+              </View>
+            ) : (
+              processedData.map((item, index) => (
+                <TransactionCard
+                  key={item.id}
+                  item={item}
+                  colors={colors}
+                  index={index}
+                  onPress={(tx) => setSelectedTx(tx)}
+                />
+              ))
+            )}
+          </View>
         </View>
       </ScrollView>
 
@@ -363,7 +445,7 @@ export default function ActivityScreen() {
                 style={[
                   styles.sortRow,
                   { borderBottomColor: colors.divider },
-                  selectedSort === option.id && { backgroundColor: colors.accent + '15' }
+                  selectedSort === option.id && { backgroundColor: colors.accent + '15' },
                 ]}
                 onPress={() => {
                   setSelectedSort(option.id);
@@ -392,47 +474,84 @@ export default function ActivityScreen() {
             {selectedTx && (
               <View>
                 <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: colors.text }]}>Transaction Receipt</Text>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                    Transaction Receipt
+                  </Text>
                   <Pressable onPress={() => setSelectedTx(null)}>
                     <Ionicons name="close" size={24} color={colors.textSecondary} />
                   </Pressable>
                 </View>
 
                 <View style={styles.receiptHero}>
-                  <Text style={[styles.receiptAmount, { color: selectedTx.amount.startsWith('+') ? colors.success : colors.text }]}>
+                  <Text
+                    style={[
+                      styles.receiptAmount,
+                      { color: selectedTx.amount.startsWith('+') ? colors.success : colors.text },
+                    ]}
+                  >
                     {selectedTx.amount}
                   </Text>
-                  <Text style={[styles.receiptType, { color: colors.textSecondary }]}>{selectedTx.type}</Text>
+                  <Text style={[styles.receiptType, { color: colors.textSecondary }]}>
+                    {selectedTx.type}
+                  </Text>
                 </View>
 
-                <View style={[styles.receiptCard, { backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9', borderColor: colors.divider }]}>
+                <View
+                  style={[
+                    styles.receiptCard,
+                    {
+                      backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9',
+                      borderColor: colors.divider,
+                    },
+                  ]}
+                >
                   <View style={styles.receiptRow}>
-                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>Status</Text>
-                    <Text style={[styles.receiptValue, { color: colors.success }]}>{selectedTx.status}</Text>
+                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>
+                      Status
+                    </Text>
+                    <Text style={[styles.receiptValue, { color: colors.success }]}>
+                      {selectedTx.status}
+                    </Text>
                   </View>
 
                   <View style={styles.receiptRow}>
-                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>Recipient / Counterparty</Text>
-                    <Text style={[styles.receiptValue, { color: colors.text }]}>{selectedTx.recipient}</Text>
+                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>
+                      Recipient / Counterparty
+                    </Text>
+                    <Text style={[styles.receiptValue, { color: colors.text }]}>
+                      {selectedTx.recipient}
+                    </Text>
                   </View>
 
                   <View style={styles.receiptRow}>
-                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>Date & Time</Text>
-                    <Text style={[styles.receiptValue, { color: colors.text }]}>{selectedTx.date}</Text>
+                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>
+                      Date & Time
+                    </Text>
+                    <Text style={[styles.receiptValue, { color: colors.text }]}>
+                      {selectedTx.date}
+                    </Text>
                   </View>
 
                   <View style={styles.receiptRow}>
-                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>Transaction Reference</Text>
-                    <Text style={[styles.receiptValue, { color: colors.text }]}>{selectedTx.reference}</Text>
+                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>
+                      Transaction Reference
+                    </Text>
+                    <Text style={[styles.receiptValue, { color: colors.text }]}>
+                      {selectedTx.reference}
+                    </Text>
                   </View>
 
                   <View style={styles.receiptRow}>
-                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>Network Fee</Text>
-                    <Text style={[styles.receiptValue, { color: colors.success }]}>{selectedTx.fee}</Text>
+                    <Text style={[styles.receiptLabel, { color: colors.textSecondary }]}>
+                      Network Fee
+                    </Text>
+                    <Text style={[styles.receiptValue, { color: colors.success }]}>
+                      {selectedTx.fee}
+                    </Text>
                   </View>
                 </View>
 
-                <Pressable 
+                <Pressable
                   style={[styles.actionBtn, { backgroundColor: colors.accent }]}
                   onPress={() => {
                     setSelectedTx(null);
@@ -446,7 +565,6 @@ export default function ActivityScreen() {
           </View>
         </Pressable>
       </Modal>
-
     </SafeAreaView>
   );
 }

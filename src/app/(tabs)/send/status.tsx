@@ -8,27 +8,75 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const SUCCESS_STEPS = [
-  { id: '1', title: 'Initiated', description: 'Transaction started', time: '10:42 AM', state: 'done' },
-  { id: '2', title: 'Converting', description: 'USD → RWF rate locked', time: '10:42 AM', state: 'done' },
-  { id: '3', title: 'Sent to MoMo', description: 'Broadcasting to MTN Rwanda', time: '10:43 AM', state: 'done' },
-  { id: '4', title: 'Delivered', description: 'Funds available to recipient', time: '10:43 AM', state: 'done' },
+  {
+    id: '1',
+    title: 'Initiated',
+    description: 'Transaction started',
+    time: '10:42 AM',
+    state: 'done',
+  },
+  {
+    id: '2',
+    title: 'Converting',
+    description: 'USD → RWF rate locked',
+    time: '10:42 AM',
+    state: 'done',
+  },
+  {
+    id: '3',
+    title: 'Sent to MoMo',
+    description: 'Broadcasting to MTN Rwanda',
+    time: '10:43 AM',
+    state: 'done',
+  },
+  {
+    id: '4',
+    title: 'Delivered',
+    description: 'Funds available to recipient',
+    time: '10:43 AM',
+    state: 'done',
+  },
 ];
 
 const FAILED_STEPS = [
-  { id: '1', title: 'Initiated', description: 'Transaction started', time: '10:42 AM', state: 'done' },
-  { id: '2', title: 'Converting', description: 'USD → RWF rate locked', time: '10:42 AM', state: 'done' },
-  { id: '3', title: 'Network Error', description: 'MTN Gateway API unreachable', time: '10:43 AM', state: 'failed' },
-  { id: '4', title: 'Reversing', description: 'Refunding to Main Wallet', time: '10:43 AM', state: 'warning' },
+  {
+    id: '1',
+    title: 'Initiated',
+    description: 'Transaction started',
+    time: '10:42 AM',
+    state: 'done',
+  },
+  {
+    id: '2',
+    title: 'Converting',
+    description: 'USD → RWF rate locked',
+    time: '10:42 AM',
+    state: 'done',
+  },
+  {
+    id: '3',
+    title: 'Network Error',
+    description: 'MTN Gateway API unreachable',
+    time: '10:43 AM',
+    state: 'failed',
+  },
+  {
+    id: '4',
+    title: 'Reversing',
+    description: 'Refunding to Main Wallet',
+    time: '10:43 AM',
+    state: 'warning',
+  },
 ];
 
 export default function SendStatusScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const params = useLocalSearchParams();
-  
+
   const isFailed = params.failed === 'true';
   const TIMELINE_STEPS = isFailed ? FAILED_STEPS : SUCCESS_STEPS;
-  
+
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
@@ -53,7 +101,6 @@ export default function SendStatusScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      
       {/* Header */}
       <View style={styles.header}>
         <View style={{ width: 24 }} />
@@ -65,82 +112,114 @@ export default function SendStatusScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
-        
-        {/* Amount Header */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.heroAmount}>
-          <Text style={[styles.heroAmountText, { color: isFailed ? colors.error : colors.text }]}>
-            130,500 <Text style={styles.heroCurrency}>RWF</Text>
-          </Text>
-          <Text style={[styles.heroRecipient, { color: colors.textSecondary }]}>To John Doe (+250 788 123 456)</Text>
-        </Animated.View>
-
-        {/* Dynamic Timeline Steps */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={[
-          styles.timelineCard, 
-          { backgroundColor: colors.backgroundElement, borderColor: colors.divider }
-        ]}>
-          {TIMELINE_STEPS.map((step, index) => {
-            const isCompleted = index <= currentStep;
-            const isLast = index === TIMELINE_STEPS.length - 1;
-            const isCurrent = index === currentStep;
-            
-            const dotColor = getStepColor(step.state, isCompleted, isCurrent);
-
-            return (
-              <View key={step.id} style={styles.stepRow}>
-                <View style={styles.stepIndicatorContainer}>
-                  <View style={[styles.stepDot, { backgroundColor: dotColor }]} />
-                  {!isLast && <View style={[styles.stepLine, { backgroundColor: isCompleted ? dotColor : colors.backgroundSelected }]} />}
-                </View>
-                <View style={styles.stepContent}>
-                  <Text style={[
-                    styles.stepTitle, 
-                    { color: isCompleted ? colors.text : colors.textSecondary },
-                    isCurrent && { color: colors.text },
-                    (step.state === 'failed' && isCompleted) && { color: colors.error }
-                  ]}>
-                    {step.title}
-                  </Text>
-                  <Text style={[styles.stepDescription, { color: colors.textSecondary }]}>{step.description}</Text>
-                </View>
-                <View style={styles.stepTimeContainer}>
-                  <Text style={[styles.stepTime, { color: colors.textSecondary }]}>
-                    {isCompleted ? (step.time || 'Just now') : ''}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
-        </Animated.View>
-
-        {isFailed && currentStep === 3 && (
-          <View style={[styles.errorBox, { backgroundColor: 'rgba(239, 83, 80, 0.1)', borderColor: colors.error }]}>
-            <Text style={[styles.errorTitle, { color: colors.error }]}>Transfer Failed</Text>
-            <Text style={[styles.errorDesc, { color: colors.text }]}>
-              We couldn't reach the mobile money provider. Your funds are safe and have been fully refunded to your Main Wallet.
+          {/* Amount Header */}
+          <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.heroAmount}>
+            <Text style={[styles.heroAmountText, { color: isFailed ? colors.error : colors.text }]}>
+              130,500 <Text style={styles.heroCurrency}>RWF</Text>
             </Text>
-          </View>
-        )}
+            <Text style={[styles.heroRecipient, { color: colors.textSecondary }]}>
+              To John Doe (+250 788 123 456)
+            </Text>
+          </Animated.View>
 
-        <View style={styles.referenceContainer}>
-          <Text style={[styles.referenceText, { color: colors.textSecondary }]}>Ref: AERO-8X92-K4F1</Text>
-          <Text style={[styles.referenceText, { color: colors.textSecondary, marginTop: 4, fontSize: 11 }]}>Idempotency-Key: req_9x12nf821ms</Text>
-          <Pressable style={styles.supportButton} onPress={() => router.navigate('/')}>
-            <Text style={[styles.supportText, { color: colors.accent }]}>Need help? Contact Aeropay Support</Text>
-          </Pressable>
-        </View>
-
-        {currentStep === 3 && (
-          <Pressable 
-            style={[styles.doneButton, { backgroundColor: isFailed ? colors.accent : colors.accent }]}
-            onPress={() => router.navigate('/')}
+          {/* Dynamic Timeline Steps */}
+          <Animated.View
+            entering={FadeInDown.delay(100).duration(400)}
+            style={[
+              styles.timelineCard,
+              { backgroundColor: colors.backgroundElement, borderColor: colors.divider },
+            ]}
           >
-            <Text style={styles.doneButtonText}>
-              {isFailed ? 'Return to Dashboard' : 'Done'}
-            </Text>
-          </Pressable>
-        )}
+            {TIMELINE_STEPS.map((step, index) => {
+              const isCompleted = index <= currentStep;
+              const isLast = index === TIMELINE_STEPS.length - 1;
+              const isCurrent = index === currentStep;
 
+              const dotColor = getStepColor(step.state, isCompleted, isCurrent);
+
+              return (
+                <View key={step.id} style={styles.stepRow}>
+                  <View style={styles.stepIndicatorContainer}>
+                    <View style={[styles.stepDot, { backgroundColor: dotColor }]} />
+                    {!isLast && (
+                      <View
+                        style={[
+                          styles.stepLine,
+                          { backgroundColor: isCompleted ? dotColor : colors.backgroundSelected },
+                        ]}
+                      />
+                    )}
+                  </View>
+                  <View style={styles.stepContent}>
+                    <Text
+                      style={[
+                        styles.stepTitle,
+                        { color: isCompleted ? colors.text : colors.textSecondary },
+                        isCurrent && { color: colors.text },
+                        step.state === 'failed' && isCompleted && { color: colors.error },
+                      ]}
+                    >
+                      {step.title}
+                    </Text>
+                    <Text style={[styles.stepDescription, { color: colors.textSecondary }]}>
+                      {step.description}
+                    </Text>
+                  </View>
+                  <View style={styles.stepTimeContainer}>
+                    <Text style={[styles.stepTime, { color: colors.textSecondary }]}>
+                      {isCompleted ? step.time || 'Just now' : ''}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </Animated.View>
+
+          {isFailed && currentStep === 3 && (
+            <View
+              style={[
+                styles.errorBox,
+                { backgroundColor: 'rgba(239, 83, 80, 0.1)', borderColor: colors.error },
+              ]}
+            >
+              <Text style={[styles.errorTitle, { color: colors.error }]}>Transfer Failed</Text>
+              <Text style={[styles.errorDesc, { color: colors.text }]}>
+                We couldn't reach the mobile money provider. Your funds are safe and have been fully
+                refunded to your Main Wallet.
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.referenceContainer}>
+            <Text style={[styles.referenceText, { color: colors.textSecondary }]}>
+              Ref: AERO-8X92-K4F1
+            </Text>
+            <Text
+              style={[
+                styles.referenceText,
+                { color: colors.textSecondary, marginTop: 4, fontSize: 11 },
+              ]}
+            >
+              Idempotency-Key: req_9x12nf821ms
+            </Text>
+            <Pressable style={styles.supportButton} onPress={() => router.navigate('/')}>
+              <Text style={[styles.supportText, { color: colors.accent }]}>
+                Need help? Contact Aeropay Support
+              </Text>
+            </Pressable>
+          </View>
+
+          {currentStep === 3 && (
+            <Pressable
+              style={[
+                styles.doneButton,
+                { backgroundColor: isFailed ? colors.accent : colors.accent },
+              ]}
+              onPress={() => router.navigate('/')}
+            >
+              <Text style={styles.doneButtonText}>{isFailed ? 'Return to Dashboard' : 'Done'}</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
