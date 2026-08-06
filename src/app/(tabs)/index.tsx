@@ -546,6 +546,248 @@ export default function HomeScreen() {
             ))}
           </View>
 
+          {/* Ask AeroPay AI Assistant Prominent Banner Launcher */}
+          <Pressable
+            onPress={() => router.push('/assistant')}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 16,
+              borderRadius: 20,
+              backgroundColor: isDark ? 'rgba(9, 9, 11, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+              borderWidth: 1.5,
+              borderColor: colors.accent,
+              marginTop: 16,
+              marginBottom: 16,
+              elevation: 4,
+              shadowColor: colors.accent,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+              <View
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 21,
+                  backgroundColor: colors.accent,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="sparkles" size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.text }}>
+                    Ask AeroPay AI Copilot
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: colors.accent + '20',
+                      paddingHorizontal: 6,
+                      paddingVertical: 2,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: colors.accent }}>
+                      ONLINE
+                    </Text>
+                  </View>
+                </View>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+                  Check transfers, explain FX fees, or draft a payment
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.accent} />
+          </Pressable>
+
+          {/* USDC Savings Vaults Section */}
+          <View style={{ marginBottom: 20 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 12,
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: '800', color: colors.text }}>
+                USDC Savings Vaults
+              </Text>
+              <Pressable
+                onPress={() => showToast('Vault deposit modal active', 'info')}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="add-circle-outline" size={18} color={colors.accent} />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
+                  New Goal
+                </Text>
+              </Pressable>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ gap: 12 }}>
+              <View
+                style={{
+                  width: 180,
+                  padding: 16,
+                  borderRadius: 18,
+                  backgroundColor: colors.backgroundElement,
+                  borderWidth: 1,
+                  borderColor: colors.divider,
+                  marginRight: 12,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}
+                >
+                  <Ionicons name="school" size={20} color="#3B82F6" />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: colors.success }}>
+                    Auto-Roundup ON
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>
+                  School Fees 2026
+                </Text>
+                <Text
+                  style={{ fontSize: 18, fontWeight: '800', color: colors.accent, marginTop: 4 }}
+                >
+                  $320.50 <Text style={{ fontSize: 12, color: colors.textSecondary }}>/ $500</Text>
+                </Text>
+                <View
+                  style={{
+                    height: 6,
+                    backgroundColor: colors.divider,
+                    borderRadius: 3,
+                    marginTop: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <View
+                    style={{
+                      height: '100%',
+                      width: '64%',
+                      backgroundColor: colors.accent,
+                      borderRadius: 3,
+                    }}
+                  />
+                </View>
+              </View>
+
+              <View
+                style={{
+                  width: 180,
+                  padding: 16,
+                  borderRadius: 18,
+                  backgroundColor: colors.backgroundElement,
+                  borderWidth: 1,
+                  borderColor: colors.divider,
+                  marginRight: 12,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}
+                >
+                  <Ionicons name="home" size={20} color="#10B981" />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#F59E0B' }}>
+                    Locked until Oct
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>
+                  Kigali Apartment
+                </Text>
+                <Text
+                  style={{ fontSize: 18, fontWeight: '800', color: colors.accent, marginTop: 4 }}
+                >
+                  $450.00 <Text style={{ fontSize: 12, color: colors.textSecondary }}>/ $800</Text>
+                </Text>
+                <View
+                  style={{
+                    height: 6,
+                    backgroundColor: colors.divider,
+                    borderRadius: 3,
+                    marginTop: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <View
+                    style={{
+                      height: '100%',
+                      width: '56%',
+                      backgroundColor: '#10B981',
+                      borderRadius: 3,
+                    }}
+                  />
+                </View>
+              </View>
+
+              <View
+                style={{
+                  width: 180,
+                  padding: 16,
+                  borderRadius: 18,
+                  backgroundColor: colors.backgroundElement,
+                  borderWidth: 1,
+                  borderColor: colors.divider,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}
+                >
+                  <Ionicons name="shield-checkmark" size={20} color="#EC4899" />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: colors.success }}>
+                    Auto-Roundup ON
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text }}>
+                  Emergency Fund
+                </Text>
+                <Text
+                  style={{ fontSize: 18, fontWeight: '800', color: colors.accent, marginTop: 4 }}
+                >
+                  $150.00 <Text style={{ fontSize: 12, color: colors.textSecondary }}>/ $1000</Text>
+                </Text>
+                <View
+                  style={{
+                    height: 6,
+                    backgroundColor: colors.divider,
+                    borderRadius: 3,
+                    marginTop: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <View
+                    style={{
+                      height: '100%',
+                      width: '15%',
+                      backgroundColor: '#EC4899',
+                      borderRadius: 3,
+                    }}
+                  />
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+
           <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
           {/* Transaction History Section */}

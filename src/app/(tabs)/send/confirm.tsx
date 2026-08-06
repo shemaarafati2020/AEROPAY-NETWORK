@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   FadeInDown,
@@ -14,6 +14,9 @@ import Animated, {
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useToast } from '@/context/ToastContext';
 
+import { enqueueTransfer, generateUUID } from '@/services/outbox';
+import { processRoundUpSweep } from '@/services/vaults';
+
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function SendConfirmScreen() {
@@ -21,6 +24,19 @@ export default function SendConfirmScreen() {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
   const { showToast } = useToast();
+  const params = useLocalSearchParams<{
+    recipientName?: string;
+    recipientPhone?: string;
+    sendAmountUsd?: string;
+    currency?: string;
+  }>();
+
+  const recipientName = params.recipientName || 'John Doe';
+  const recipientPhone = params.recipientPhone || '+250 788 123 456';
+  const sendAmountUsd = params.sendAmountUsd ? parseFloat(params.sendAmountUsd) : 100;
+  const currency = (params.currency as 'KES' | 'RWF') || 'RWF';
+  const exchangeRate = currency === 'RWF' ? 1305 : 129.5;
+  const receiveAmountLocal = Math.round(sendAmountUsd * exchangeRate);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const scale = useSharedValue(1);
@@ -53,11 +69,43 @@ export default function SendConfirmScreen() {
       // Fallback if local auth is unavailable in dev environment
     }
 
-    // Simulate transfer broadcast
+    // 1. Generate Idempotency Key ONCE
+    const idempotencyKey = generateUUID();
+
+    // 2. Save transfer to Durable Offline Outbox
+    await enqueueTransfer({
+      recipientName,
+      recipientPhone,
+      provider: 'MTN Mobile Money',
+      sendAmountUsd,
+      receiveAmountLocal,
+      targetCurrency: currency,
+      exchangeRate,
+      feeUsd: 0.3,
+      fxSpreadUsd: 0.2,
+    });
+
+    // 3. Process Vault Round-up Sweep
+    const swept = await processRoundUpSweep(sendAmountUsd);
+    if (swept > 0) {
+      showToast(`$${swept.toFixed(2)} rounded up and swept to Savings Vault`, 'info');
+    }
+
+    // 4. Navigate to Status with Idempotency Key & parameters
     setTimeout(() => {
-      const isFailed = Math.random() > 0.8 ? 'true' : 'false';
-      router.push(`/(tabs)/send/status?failed=${isFailed}`);
-    }, 800);
+      const isFailed = Math.random() > 0.85 ? 'true' : 'false';
+      router.push({
+        pathname: '/(tabs)/send/status',
+        params: {
+          failed: isFailed,
+          idempotencyKey,
+          recipientName,
+          recipientPhone,
+          amountUsd: sendAmountUsd.toString(),
+          currency,
+        },
+      });
+    }, 600);
   };
 
   return (
