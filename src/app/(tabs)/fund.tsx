@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useState } from 'react';
+import { useToast } from '@/context/ToastContext';
 
 const FUNDING_METHODS = [
   { 
@@ -85,6 +86,7 @@ export default function FundScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
+  const { showToast } = useToast();
 
   const [selectedMethod, setSelectedMethod] = useState<any>(null);
   const [depositAmount, setDepositAmount] = useState('100');
@@ -93,10 +95,11 @@ export default function FundScreen() {
 
   const handleDeposit = () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
-      Alert.alert('Invalid Amount', 'Please enter a valid deposit amount.');
+      showToast('Please enter a valid deposit amount.', 'error');
       return;
     }
     setIsSuccess(true);
+    showToast(`Successfully deposited $${depositAmount} USD into your wallet!`, 'success');
   };
 
   const handleClose = () => {

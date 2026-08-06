@@ -6,6 +6,7 @@ import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useToast } from '@/context/ToastContext';
 
 interface Recipient {
   id: string;
@@ -93,6 +94,7 @@ export default function RecipientsScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
+  const { showToast } = useToast();
 
   const [recipients, setRecipients] = useState<Recipient[]>(INITIAL_RECIPIENTS);
   const [searchQuery, setSearchQuery] = useState('');
@@ -118,7 +120,7 @@ export default function RecipientsScreen() {
 
   const handleAddRecipient = () => {
     if (!newName.trim() || !newPhone.trim()) {
-      Alert.alert('Required Fields', 'Please enter a name and phone number.');
+      showToast('Please enter a name and phone number.', 'error');
       return;
     }
 
@@ -145,6 +147,23 @@ export default function RecipientsScreen() {
     setNewName('');
     setNewPhone('');
     setNewIsFav(false);
+    showToast(`Beneficiary ${created.name} added successfully!`, 'success');
+  };
+
+  const deleteRecipient = (id: string) => {
+    setRecipients(prev => prev.filter(r => r.id !== id));
+    showToast('Beneficiary removed.', 'info');
+  };
+
+  const toggleFavorite = (id: string) => {
+    setRecipients(prev => prev.map(r => {
+      if (r.id === id) {
+        const updated = !r.isFavorite;
+        showToast(updated ? `${r.name} added to Favorites` : `${r.name} removed from Favorites`, 'info');
+        return { ...r, isFavorite: updated };
+      }
+      return r;
+    }));
   };
 
   const handleImportContact = (contact: any) => {
@@ -167,15 +186,7 @@ export default function RecipientsScreen() {
     };
 
     setRecipients([imported, ...recipients]);
-    Alert.alert('Imported!', `${contact.name} added to your beneficiaries.`);
-  };
-
-  const toggleFavorite = (id: string) => {
-    setRecipients(prev => prev.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r));
-  };
-
-  const deleteRecipient = (id: string) => {
-    setRecipients(prev => prev.filter(r => r.id !== id));
+    showToast(`Imported ${contact.name} to beneficiaries!`, 'success');
   };
 
   const handleSendTo = (recipient: Recipient) => {
