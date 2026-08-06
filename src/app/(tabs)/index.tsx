@@ -23,8 +23,8 @@ const ACCOUNTS = [
 
 const QUICK_ACTIONS = [
   { id: '1', title: 'Transact', icon: 'swap-horizontal', route: '/(tabs)/send' },
-  { id: '2', title: 'Account Info', icon: 'document-text', route: '/(tabs)/activity' },
-  { id: '3', title: 'Stop Pay', icon: 'close-circle', route: '/(tabs)/fund' },
+  { id: '2', title: 'Statement', icon: 'document-text', route: '/(tabs)/activity' },
+  { id: '3', title: 'Top-Up', icon: 'close-circle', route: '/(tabs)/fund' },
   { id: '4', title: 'Cards', icon: 'card', route: '/(tabs)/fund' },
 ];
 
@@ -47,26 +47,21 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()} style={styles.actionItemWrapper}>
       <AnimatedPressable 
-        style={[styles.actionItem, animatedStyle]}
-        onPressIn={() => (scale.value = withSpring(0.9))}
+        style={[
+          styles.actionItem, 
+          { 
+            backgroundColor: colors.backgroundElement,
+            borderColor: colors.divider,
+            borderWidth: 1.5,
+          },
+          animatedStyle
+        ]}
+        onPressIn={() => (scale.value = withSpring(0.93))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => router.push(action.route)}
       >
-        <View style={[
-          styles.actionIconCircle, 
-          { 
-            backgroundColor: colors.backgroundElement, 
-            borderColor: colors.accent,
-            borderWidth: 1.5,
-            shadowColor: colors.accent,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-          }
-        ]}>
-          <Ionicons name={action.icon as any} size={22} color={colors.accent} />
-        </View>
-        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>
+        <Ionicons name={action.icon as any} size={18} color={colors.accent} style={{ marginRight: 6 }} />
+        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
           {action.title}
         </Text>
       </AnimatedPressable>
@@ -141,7 +136,7 @@ export default function HomeScreen() {
           <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
             <Pressable onPress={nextAccount}>
               <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
-                {activeAccount.type} (Tap card to switch)
+                {activeAccount.type}
               </Text>
             </Pressable>
           </Animated.View>
@@ -318,6 +313,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
+    paddingBottom: 20,
   },
   responsiveWrapper: {
     maxWidth: 540,
@@ -376,12 +372,13 @@ const styles = StyleSheet.create({
   bankCard: {
     borderRadius: 20,
     padding: 24,
-    minHeight: 190,
+    height: 200,
+    justifyContent: 'space-between',
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#A51C24',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
     shadowRadius: 15,
     elevation: 8,
   },
@@ -429,8 +426,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 24,
+    marginTop: 12,
+    marginBottom: Spacing.four,
   },
   dot: {
     width: 6,
@@ -448,7 +445,7 @@ const styles = StyleSheet.create({
   availableBalanceText: {
     fontSize: 14,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   balanceAmountRow: {
     flexDirection: 'row',
@@ -458,35 +455,35 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
     fontFamily: 'Inter',
+    letterSpacing: -0.5,
   },
   quickActionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: Spacing.five,
-    paddingHorizontal: Spacing.half,
   },
   actionItemWrapper: {
-    width: '23%',
-    alignItems: 'center',
+    width: '23.5%',
   },
   actionItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
-  },
-  actionIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderRadius: 22,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   actionTitle: {
-    fontSize: 11.5,
-    textAlign: 'center',
+    fontSize: 11,
     fontWeight: '700',
-    lineHeight: 14,
-    width: '100%',
+    fontFamily: 'Inter',
   },
   divider: {
     height: 1,
