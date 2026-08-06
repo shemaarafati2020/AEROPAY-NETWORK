@@ -890,7 +890,11 @@ export default function ProfileScreen() {
               borderRadius: 24, 
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0px 10px 25px rgba(0,0,0,0.12)',
+              elevation: 4,
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 10,
               marginBottom: 20
             }}>
               <QRCode
