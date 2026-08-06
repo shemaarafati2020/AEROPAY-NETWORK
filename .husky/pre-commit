@@ -1,1 +1,9 @@
-npm run type-check && npm run lint
+#!/usr/bin/env sh
+set -e
+
+echo "🔍 Running pre-commit validation (TypeScript & ESLint)..."
+
+npm run type-check
+npm run lint
+
+echo "✨ Pre-commit checks passed successfully! Proceeding with commit..."

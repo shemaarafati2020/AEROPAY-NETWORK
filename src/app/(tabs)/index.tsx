@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
@@ -14,6 +14,9 @@ import Animated, {
   withTiming 
 } from 'react-native-reanimated';
 import { useState, useMemo } from 'react';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import { useToast } from '@/context/ToastContext';
 
 const ACCOUNTS = [
   { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES', cardHolder: 'SHEMA ARAFATI' },
@@ -28,6 +31,12 @@ const QUICK_ACTIONS = [
   { id: '4', title: 'Cards', icon: 'card', route: '/(tabs)/fund' },
 ];
 
+const CONNECTED_CARDS = [
+  { id: 'card1', title: 'Aeropay Platinum Debit', type: 'VISA', number: '•••• •••• •••• 4808', exp: '12/28', isDefault: true, color: '#7A131A' },
+  { id: 'card2', title: 'Aeropay Gold Credit', type: 'MASTERCARD', number: '•••• •••• •••• 9210', exp: '08/27', isDefault: false, color: '#1B2A4A' },
+  { id: 'card3', title: 'KCB Direct Mobile Bank', type: 'BANK', number: '•••• •••• 1134', exp: 'N/A', isDefault: false, color: '#064E3B' },
+];
+
 const TRANSACTIONS = [
   { id: '1', title: 'Safaricom PostPay', date: '15 May 2023', amount: '-2,500.00 KES', type: 'debit', icon: 'receipt-outline' },
   { id: '2', title: 'Salary Deposit', date: '12 May 2023', amount: '+120,000.00 KES', type: 'credit', icon: 'arrow-down-circle-outline' },
@@ -37,7 +46,17 @@ const TRANSACTIONS = [
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function ActionButton({ action, colors, index }: { action: any; colors: any; index: number }) {
+function ActionButton({ 
+  action, 
+  colors, 
+  index, 
+  onPress 
+}: { 
+  action: any; 
+  colors: any; 
+  index: number; 
+  onPress: () => void;
+}) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -58,7 +77,7 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
         ]}
         onPressIn={() => (scale.value = withSpring(0.93))}
         onPressOut={() => (scale.value = withSpring(1))}
-        onPress={() => router.push(action.route)}
+        onPress={onPress}
       >
         <View style={[styles.actionIconContainer, { backgroundColor: colors.accent + '15' }]}>
           <Ionicons name={action.icon as any} size={20} color={colors.accent} />
@@ -80,6 +99,7 @@ export default function HomeScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
+  const { showToast } = useToast();
 
   // Interactive States
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
@@ -87,6 +107,16 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubTab, setActiveSubTab] = useState<'completed' | 'in_progress'>('completed');
   const [isFilterActive, setIsFilterActive] = useState(true);
+
+  // Modals
+  const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
+  const [statementRange, setStatementRange] = useState<'3' | '6' | '12' | 'custom'>('3');
+  const [customFromDate, setCustomFromDate] = useState('2026-02-01');
+  const [customToDate, setCustomToDate] = useState('2026-05-15');
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const [isCardsModalOpen, setIsCardsModalOpen] = useState(false);
+  const [frozenCards, setFrozenCards] = useState<{ [key: string]: boolean }>({});
 
   // Animations
   const cardScale = useSharedValue(1);
@@ -107,6 +137,147 @@ export default function HomeScreen() {
       withSpring(1, { damping: 10 })
     );
     setActiveAccountIndex((prev) => (prev + 1) % ACCOUNTS.length);
+  };
+
+  const handleQuickAction = (actionId: string, route: string) => {
+    if (actionId === '1') {
+      router.push('/(tabs)/send');
+    } else if (actionId === '2') {
+      setIsStatementModalOpen(true);
+    } else if (actionId === '3') {
+      router.push('/(tabs)/fund');
+    } else if (actionId === '4') {
+      setIsCardsModalOpen(true);
+    } else {
+      router.push(route as any);
+    }
+  };
+
+  const toggleFreezeCard = (cardId: string, title: string) => {
+    const nextState = !frozenCards[cardId];
+    setFrozenCards((prev) => ({ ...prev, [cardId]: nextState }));
+    showToast(nextState ? `${title} frozen` : `${title} active`, nextState ? 'info' : 'success');
+  };
+
+  const generatePDFStatement = async () => {
+    setIsGeneratingPDF(true);
+    let rangeLabel = 'Last 3 Months';
+    if (statementRange === '6') rangeLabel = 'Last 6 Months';
+    else if (statementRange === '12') rangeLabel = 'Last 12 Months';
+    else if (statementRange === 'custom') rangeLabel = `${customFromDate} to ${customToDate}`;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 32px; color: #0F172A; background: #FFFFFF; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #800020; padding-bottom: 20px; margin-bottom: 24px; }
+            .brand { font-size: 26px; font-weight: 800; color: #800020; letter-spacing: 1px; }
+            .subtitle { font-size: 13px; color: #64748B; margin-top: 4px; font-weight: 500; }
+            .badge { background: #80002015; color: #800020; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 11px; border: 1px solid #80002030; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 20px; margin-bottom: 28px; }
+            .info-item { display: flex; flex-direction: column; }
+            .label { font-size: 11px; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+            .val { font-size: 15px; color: #0F172A; font-weight: 700; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { background: #F1F5F9; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; padding: 12px 10px; border-bottom: 2px solid #CBD5E1; }
+            td { padding: 14px 10px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; }
+            .debit { color: #DC2626; font-weight: 700; }
+            .credit { color: #16A34A; font-weight: 700; }
+            .footer { margin-top: 45px; text-align: center; border-top: 1px solid #E2E8F0; padding-top: 20px; color: #94A3B8; font-size: 11px; line-height: 1.6; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="brand">AEROPAY NETWORK</div>
+              <div class="subtitle">Official Financial Account Statement</div>
+            </div>
+            <div class="badge">OFFICIAL DOCUMENT</div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Account Holder</span>
+              <span class="val">${activeAccount.cardHolder}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Statement Period</span>
+              <span class="val">${rangeLabel}</span>
+            </div>
+            <div class="info-item" style="margin-top: 8px;">
+              <span class="label">Account Type & Number</span>
+              <span class="val">${activeAccount.type} (${activeAccount.number})</span>
+            </div>
+            <div class="info-item" style="margin-top: 8px;">
+              <span class="label">Available Balance</span>
+              <span class="val" style="color: #800020;">${activeAccount.balance}</span>
+            </div>
+          </div>
+
+          <h3 style="font-size: 13px; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Transaction Record</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${TRANSACTIONS.map((tx) => `
+                <tr>
+                  <td>${tx.date}</td>
+                  <td style="font-weight: 600;">${tx.title}</td>
+                  <td>Financial Transfer</td>
+                  <td><span class="${tx.type}">${tx.type.toUpperCase()}</span></td>
+                  <td style="text-align: right;" class="${tx.type}">${tx.amount}</td>
+                </tr>
+              `).join('')}
+              <tr>
+                <td>01 May 2023</td>
+                <td style="font-weight: 600;">M-PESA Wallet Top-Up</td>
+                <td>Mobile Money</td>
+                <td><span class="credit">CREDIT</span></td>
+                <td style="text-align: right;" class="credit">+35,000.00 KES</td>
+              </tr>
+              <tr>
+                <td>28 Apr 2023</td>
+                <td style="font-weight: 600;">Supermarket Groceries</td>
+                <td>Merchant Payment</td>
+                <td><span class="debit">DEBIT</span></td>
+                <td style="text-align: right;" class="debit">-4,850.00 KES</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>This statement is an official computer-generated document from Aeropay Network Inc.</p>
+            <p>For support or verification, visit aeropay.network or contact compliance@aeropay.network</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      setIsGeneratingPDF(false);
+      setIsStatementModalOpen(false);
+      showToast(`Statement PDF generated (${rangeLabel})`, 'success');
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Aeropay Statement PDF' });
+      } else {
+        await Print.printAsync({ html: htmlContent });
+      }
+    } catch {
+      setIsGeneratingPDF(false);
+      showToast('Failed to generate PDF statement', 'error');
+    }
   };
 
   const cardAnimatedStyle = useAnimatedStyle(() => ({
@@ -205,7 +376,13 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.quickActionsContainer}>
             {QUICK_ACTIONS.map((action, index) => (
-              <ActionButton key={action.id} action={action} colors={colors} index={index} />
+              <ActionButton 
+                key={action.id} 
+                action={action} 
+                colors={colors} 
+                index={index} 
+                onPress={() => handleQuickAction(action.id, action.route)}
+              />
             ))}
           </View>
 
@@ -265,7 +442,7 @@ export default function HomeScreen() {
                 style={[styles.subTab, activeSubTab === 'in_progress' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
               >
                 <Text style={[activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary }]}>
-                  In progress (0)
+                  In Progress (0)
                 </Text>
               </Pressable>
             </View>
@@ -308,6 +485,172 @@ export default function HomeScreen() {
         </View>
         <View style={{ height: 80 }} />
       </ScrollView>
+
+      {/* STATEMENT MODAL */}
+      <Modal
+        visible={isStatementModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsStatementModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider }]}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Export Account Statement</Text>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  Select time range for PDF statement
+                </Text>
+              </View>
+              <Pressable onPress={() => setIsStatementModalOpen(false)} style={styles.modalCloseBtn}>
+                <Ionicons name="close" size={22} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>Time Range</Text>
+            <View style={styles.rangeOptionsRow}>
+              {[
+                { id: '3', label: '3 Months' },
+                { id: '6', label: '6 Months' },
+                { id: '12', label: '12 Months' },
+                { id: 'custom', label: 'Custom' },
+              ].map((range) => (
+                <Pressable
+                  key={range.id}
+                  onPress={() => setStatementRange(range.id as any)}
+                  style={[
+                    styles.rangeChip,
+                    {
+                      backgroundColor: statementRange === range.id 
+                        ? colors.accent 
+                        : (isDark ? '#2C2C35' : '#F1F5F9'),
+                    }
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.rangeChipText,
+                      { color: statementRange === range.id ? '#FFFFFF' : colors.text }
+                    ]}
+                  >
+                    {range.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {statementRange === 'custom' && (
+              <View style={styles.customDateContainer}>
+                <View style={styles.dateInputWrapper}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>From Date</Text>
+                  <TextInput
+                    value={customFromDate}
+                    onChangeText={setCustomFromDate}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textSecondary}
+                    style={[styles.modalInput, { color: colors.text, borderColor: colors.divider }]}
+                  />
+                </View>
+                <View style={styles.dateInputWrapper}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>To Date</Text>
+                  <TextInput
+                    value={customToDate}
+                    onChangeText={setCustomToDate}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textSecondary}
+                    style={[styles.modalInput, { color: colors.text, borderColor: colors.divider }]}
+                  />
+                </View>
+              </View>
+            )}
+
+            <View style={[styles.statementMetaBox, { backgroundColor: isDark ? '#2A2A35' : '#F8FAFC' }]}>
+              <Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} style={{ marginRight: 10 }} />
+              <Text style={[styles.statementMetaText, { color: colors.textSecondary }]}>
+                Includes official Aeropay logo, verification stamp, balance summary, and full transaction history.
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={generatePDFStatement}
+              disabled={isGeneratingPDF}
+              style={[styles.primaryModalBtn, { backgroundColor: colors.accent }]}
+            >
+              {isGeneratingPDF ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.primaryModalBtnText}>Generate & Share PDF</Text>
+                </>
+              )}
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* CONNECTED CARDS MODAL */}
+      <Modal
+        visible={isCardsModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsCardsModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider, maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Connected Cards & Banks</Text>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  Manage payment cards linked to Aeropay
+                </Text>
+              </View>
+              <Pressable onPress={() => setIsCardsModalOpen(false)} style={styles.modalCloseBtn}>
+                <Ionicons name="close" size={22} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
+              {CONNECTED_CARDS.map((card) => {
+                const isFrozen = !!frozenCards[card.id];
+                return (
+                  <View key={card.id} style={[styles.connectedCardItem, { backgroundColor: card.color }]}>
+                    <View style={styles.connectedCardTop}>
+                      <Text style={styles.connectedCardTitle}>{card.title}</Text>
+                      <View style={styles.cardTypeBadge}>
+                        <Text style={styles.cardTypeBadgeText}>{card.type}</Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.connectedCardNumber}>{card.number}</Text>
+
+                    <View style={styles.connectedCardBottom}>
+                      <Text style={styles.connectedCardExp}>Exp: {card.exp}</Text>
+                      <Pressable
+                        onPress={() => toggleFreezeCard(card.id, card.title)}
+                        style={[styles.freezeBtn, { backgroundColor: isFrozen ? '#DC2626' : 'rgba(255,255,255,0.2)' }]}
+                      >
+                        <Ionicons name={isFrozen ? "lock-closed" : "lock-open-outline"} size={14} color="#FFF" style={{ marginRight: 4 }} />
+                        <Text style={styles.freezeBtnText}>{isFrozen ? 'Unfreeze' : 'Freeze Card'}</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              })}
+            </ScrollView>
+
+            <Pressable
+              onPress={() => {
+                showToast('Card linking interface opened', 'info');
+              }}
+              style={[styles.secondaryModalBtn, { borderColor: colors.accent }]}
+            >
+              <Ionicons name="add-circle-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
+              <Text style={[styles.secondaryModalBtnText, { color: colors.accent }]}>Link New Card or Bank</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -626,6 +969,167 @@ const styles = StyleSheet.create({
   },
   txAmount: {
     fontSize: 16,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    borderWidth: 1,
+    width: '100%',
+    maxWidth: 540,
+    alignSelf: 'center',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    fontFamily: 'Inter',
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  rangeOptionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  rangeChip: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginHorizontal: 3,
+  },
+  rangeChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  customDateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  dateInputWrapper: {
+    width: '48%',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13,
+  },
+  statementMetaBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 20,
+  },
+  statementMetaText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  primaryModalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  primaryModalBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  secondaryModalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    marginTop: 10,
+  },
+  secondaryModalBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  connectedCardItem: {
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 12,
+  },
+  connectedCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  connectedCardTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  cardTypeBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  cardTypeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  connectedCardNumber: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginBottom: 14,
+  },
+  connectedCardBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  connectedCardExp: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  freezeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  freezeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11,
     fontWeight: '700',
   },
 });
