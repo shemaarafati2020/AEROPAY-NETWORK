@@ -164,6 +164,7 @@ export default function ProfileScreen() {
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.responsiveWrapper}>
           
           {/* Profile Hero Card */}
           <Animated.View entering={FadeInDown.duration(400).springify()} style={[styles.heroCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
@@ -315,6 +316,7 @@ export default function ProfileScreen() {
             Aeropay Network v2.4.0 • Build 8821
           </Text>
 
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -366,6 +368,11 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

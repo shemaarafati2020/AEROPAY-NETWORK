@@ -15,8 +15,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useState, useMemo } from 'react';
 
-const { width } = Dimensions.get('window');
-
 const ACCOUNTS = [
   { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES', cardHolder: 'SHEMA ARAFATI' },
   { id: '2', type: 'Savings acc', number: '010998822411', balance: '120,400.00 KES', cardHolder: 'SHEMA ARAFATI' },
@@ -114,195 +112,197 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Header Section */}
-        <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Pressable onPress={() => router.push('/profile')}>
-              <View style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}>
-                <Ionicons name="person" size={22} color={isDark ? '#CCC' : '#888'} />
+        <View style={styles.responsiveWrapper}>
+          
+          {/* Header Section */}
+          <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Pressable onPress={() => router.push('/profile')}>
+                <View style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}>
+                  <Ionicons name="person" size={22} color={isDark ? '#CCC' : '#888'} />
+                </View>
+              </Pressable>
+            </View>
+            <View style={styles.headerRight}>
+              <Pressable onPress={() => Alert.alert('Notifications', 'You have no new unread notifications.')} style={styles.iconPadding}>
+                <Ionicons name="notifications-outline" size={26} color={colors.text} />
+                <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
+              </Pressable>
+            </View>
+          </Animated.View>
+          
+          <Animated.Text entering={FadeInDown.delay(100).duration(500)} style={[styles.greeting, { color: colors.text }]}>
+            Manage your accounts and cards, all in one place
+          </Animated.Text>
+
+          {/* Account Tab Switcher */}
+          <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
+            <Pressable onPress={nextAccount}>
+              <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
+                {activeAccount.type} (Tap card to switch)
+              </Text>
+            </Pressable>
+          </Animated.View>
+
+          {/* Premium Bank Card */}
+          <Animated.View entering={FadeInDown.delay(200).duration(600).springify()} style={cardAnimatedStyle}>
+            <Pressable onPress={nextAccount} style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
+              <View style={styles.cardTopRow}>
+                <Text style={styles.cardHeader}>Aeropay Network</Text>
+                <Ionicons name="wifi-outline" size={22} color="#FFF" style={{ opacity: 0.8 }} />
+              </View>
+
+              <View style={styles.chipContainer}>
+                <Ionicons name="hardware-chip-outline" size={32} color="#FFD700" />
+              </View>
+              
+              <View style={styles.cardCenter}>
+                <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
+                <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
+              </View>
+
+              <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
+            </Pressable>
+            
+            {/* Interactive Pagination Dots */}
+            <View style={styles.paginationDots}>
+              {ACCOUNTS.map((_, i) => (
+                <Pressable key={i} onPress={() => {
+                  cardScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
+                  setActiveAccountIndex(i);
+                }}>
+                  <View style={[
+                    styles.dot, 
+                    i === activeAccountIndex ? styles.dotActive : null,
+                    { backgroundColor: i === activeAccountIndex ? colors.accent : (isDark ? '#444' : '#D9D9D9') }
+                  ]} />
+                </Pressable>
+              ))}
+            </View>
+          </Animated.View>
+
+          {/* Balance Display */}
+          <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.balanceContainer}>
+            <Pressable onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={{ alignItems: 'center' }}>
+              <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
+              <View style={styles.balanceAmountRow}>
+                <Text style={[styles.balanceAmount, { color: colors.text }]}>
+                  {isBalanceHidden ? '••••••••' : activeAccount.balance}
+                </Text>
+                <Ionicons 
+                  name={isBalanceHidden ? "eye-outline" : "eye-off-outline"} 
+                  size={22} 
+                  color={colors.textSecondary} 
+                  style={{ marginLeft: 8 }} 
+                />
               </View>
             </Pressable>
-          </View>
-          <View style={styles.headerRight}>
-            <Pressable onPress={() => Alert.alert('Notifications', 'You have no new unread notifications.')} style={styles.iconPadding}>
-              <Ionicons name="notifications-outline" size={26} color={colors.text} />
-              <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
-            </Pressable>
-          </View>
-        </Animated.View>
-        
-        <Animated.Text entering={FadeInDown.delay(100).duration(500)} style={[styles.greeting, { color: colors.text }]}>
-          Manage your accounts and cards, all in one place
-        </Animated.Text>
+          </Animated.View>
 
-        {/* Account Tab Switcher */}
-        <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
-          <Pressable onPress={nextAccount}>
-            <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
-              {activeAccount.type} (Tap card to switch)
-            </Text>
-          </Pressable>
-        </Animated.View>
-
-        {/* Premium Bank Card */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600).springify()} style={cardAnimatedStyle}>
-          <Pressable onPress={nextAccount} style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
-            <View style={styles.cardTopRow}>
-              <Text style={styles.cardHeader}>Aeropay Network</Text>
-              <Ionicons name="wifi-outline" size={22} color="#FFF" style={{ opacity: 0.8 }} />
-            </View>
-
-            <View style={styles.chipContainer}>
-              <Ionicons name="hardware-chip-outline" size={32} color="#FFD700" />
-            </View>
-            
-            <View style={styles.cardCenter}>
-              <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
-              <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
-            </View>
-
-            <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
-          </Pressable>
-          
-          {/* Interactive Pagination Dots */}
-          <View style={styles.paginationDots}>
-            {ACCOUNTS.map((_, i) => (
-              <Pressable key={i} onPress={() => {
-                cardScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
-                setActiveAccountIndex(i);
-              }}>
-                <View style={[
-                  styles.dot, 
-                  i === activeAccountIndex ? styles.dotActive : null,
-                  { backgroundColor: i === activeAccountIndex ? colors.accent : (isDark ? '#444' : '#D9D9D9') }
-                ]} />
-              </Pressable>
+          {/* Quick Actions */}
+          <View style={styles.quickActionsContainer}>
+            {QUICK_ACTIONS.map((action, index) => (
+              <ActionButton key={action.id} action={action} colors={colors} index={index} />
             ))}
           </View>
-        </Animated.View>
 
-        {/* Balance Display */}
-        <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.balanceContainer}>
-          <Pressable onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={{ alignItems: 'center' }}>
-            <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
-            <View style={styles.balanceAmountRow}>
-              <Text style={[styles.balanceAmount, { color: colors.text }]}>
-                {isBalanceHidden ? '••••••••' : activeAccount.balance}
-              </Text>
-              <Ionicons 
-                name={isBalanceHidden ? "eye-outline" : "eye-off-outline"} 
-                size={22} 
-                color={colors.textSecondary} 
-                style={{ marginLeft: 8 }} 
-              />
-            </View>
-          </Pressable>
-        </Animated.View>
+          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
-        {/* Quick Actions */}
-        <View style={styles.quickActionsContainer}>
-          {QUICK_ACTIONS.map((action, index) => (
-            <ActionButton key={action.id} action={action} colors={colors} index={index} />
-          ))}
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: colors.divider }]} />
-
-        {/* Transaction History Section */}
-        <Animated.View entering={FadeInUp.delay(500).springify()}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Transaction history</Text>
-          
-          <View style={styles.searchRow}>
-            <View style={[styles.searchInputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
-              <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
-              <TextInput 
-                placeholder="Search transactions..." 
-                placeholderTextColor={colors.textSecondary}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                style={[styles.searchInput, { color: colors.text }]}
-              />
-              {searchQuery !== '' && (
-                <Pressable onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
-                </Pressable>
-              )}
-            </View>
-            <Pressable 
-              onPress={() => setIsFilterActive(!isFilterActive)}
-              style={[styles.filterButton, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: isFilterActive ? colors.accent : colors.divider }]}
-            >
-              <Ionicons name="options-outline" size={24} color={isFilterActive ? colors.accent : colors.textSecondary} />
-            </Pressable>
-          </View>
-          
-          {/* Date Filter Pill */}
-          {isFilterActive && (
-            <View style={styles.dateTabsContainer}>
-              <Pressable onPress={() => setIsFilterActive(false)} style={[styles.dateTab, styles.dateTabActive, { backgroundColor: colors.backgroundElement, borderColor: colors.accent }]}>
-                <Text style={[styles.dateTabText, { color: colors.accent }]}>15 Jun - 15 May 2023</Text>
-                <Ionicons name="close-circle" size={16} color={colors.accent} style={{ marginLeft: 6 }} />
+          {/* Transaction History Section */}
+          <Animated.View entering={FadeInUp.delay(500).springify()}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Transaction history</Text>
+            
+            <View style={styles.searchRow}>
+              <View style={[styles.searchInputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
+                <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
+                <TextInput 
+                  placeholder="Search transactions..." 
+                  placeholderTextColor={colors.textSecondary}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  style={[styles.searchInput, { color: colors.text }]}
+                />
+                {searchQuery !== '' && (
+                  <Pressable onPress={() => setSearchQuery('')}>
+                    <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+                  </Pressable>
+                )}
+              </View>
+              <Pressable 
+                onPress={() => setIsFilterActive(!isFilterActive)}
+                style={[styles.filterButton, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: isFilterActive ? colors.accent : colors.divider }]}
+              >
+                <Ionicons name="options-outline" size={24} color={isFilterActive ? colors.accent : colors.textSecondary} />
               </Pressable>
             </View>
-          )}
-
-          {/* Sub-tabs */}
-          <View style={[styles.subTabsContainer, { borderBottomColor: colors.divider }]}>
-            <Pressable 
-              onPress={() => setActiveSubTab('completed')}
-              style={[styles.subTab, activeSubTab === 'completed' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
-            >
-              <Text style={[activeSubTab === 'completed' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'completed' ? colors.accent : colors.textSecondary }]}>
-                Completed
-              </Text>
-            </Pressable>
             
-            <Pressable 
-              onPress={() => setActiveSubTab('in_progress')}
-              style={[styles.subTab, activeSubTab === 'in_progress' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
-            >
-              <Text style={[activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary }]}>
-                In progress (0)
-              </Text>
-            </Pressable>
-          </View>
+            {/* Date Filter Pill */}
+            {isFilterActive && (
+              <View style={styles.dateTabsContainer}>
+                <Pressable onPress={() => setIsFilterActive(false)} style={[styles.dateTab, styles.dateTabActive, { backgroundColor: colors.backgroundElement, borderColor: colors.accent }]}>
+                  <Text style={[styles.dateTabText, { color: colors.accent }]}>15 Jun - 15 May 2023</Text>
+                  <Ionicons name="close-circle" size={16} color={colors.accent} style={{ marginLeft: 6 }} />
+                </Pressable>
+              </View>
+            )}
 
-          {/* Transactions List */}
-          {activeSubTab === 'in_progress' ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="time-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions currently in progress.</Text>
+            {/* Sub-tabs */}
+            <View style={[styles.subTabsContainer, { borderBottomColor: colors.divider }]}>
+              <Pressable 
+                onPress={() => setActiveSubTab('completed')}
+                style={[styles.subTab, activeSubTab === 'completed' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+              >
+                <Text style={[activeSubTab === 'completed' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'completed' ? colors.accent : colors.textSecondary }]}>
+                  Completed
+                </Text>
+              </Pressable>
+              
+              <Pressable 
+                onPress={() => setActiveSubTab('in_progress')}
+                style={[styles.subTab, activeSubTab === 'in_progress' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+              >
+                <Text style={[activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary }]}>
+                  In progress (0)
+                </Text>
+              </Pressable>
             </View>
-          ) : (
-            <View style={styles.transactionsList}>
-              <Text style={[styles.dateHeader, { color: colors.textSecondary }]}>15 May</Text>
-              {filteredTransactions.length === 0 ? (
-                <Text style={[styles.emptyText, { color: colors.textSecondary, marginVertical: 20 }]}>No transactions found matching "{searchQuery}".</Text>
-              ) : (
-                filteredTransactions.map((tx) => (
-                  <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
-                    <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
-                      <Ionicons 
-                        name={tx.icon as any} 
-                        size={18} 
-                        color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
-                      />
+
+            {/* Transactions List */}
+            {activeSubTab === 'in_progress' ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="time-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions currently in progress.</Text>
+              </View>
+            ) : (
+              <View style={styles.transactionsList}>
+                <Text style={[styles.dateHeader, { color: colors.textSecondary }]}>15 May</Text>
+                {filteredTransactions.length === 0 ? (
+                  <Text style={[styles.emptyText, { color: colors.textSecondary, marginVertical: 20 }]}>No transactions found matching "{searchQuery}".</Text>
+                ) : (
+                  filteredTransactions.map((tx) => (
+                    <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
+                      <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
+                        <Ionicons 
+                          name={tx.icon as any} 
+                          size={18} 
+                          color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
+                        />
+                      </View>
+                      <View style={styles.txDetails}>
+                        <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
+                        <Text style={[styles.txDate, { color: colors.textSecondary }]}>{tx.date}</Text>
+                      </View>
+                      <Text style={[styles.txAmount, { color: tx.type === 'debit' ? colors.text : colors.success }]}>
+                        {tx.amount}
+                      </Text>
                     </View>
-                    <View style={styles.txDetails}>
-                      <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
-                      <Text style={[styles.txDate, { color: colors.textSecondary }]}>{tx.date}</Text>
-                    </View>
-                    <Text style={[styles.txAmount, { color: tx.type === 'debit' ? colors.text : colors.success }]}>
-                      {tx.amount}
-                    </Text>
-                  </View>
-                ))
-              )}
-            </View>
-          )}
-        </Animated.View>
-        
+                  ))
+                )}
+              </View>
+            )}
+          </Animated.View>
+
+        </View>
         <View style={{ height: 80 }} />
       </ScrollView>
     </SafeAreaView>
@@ -316,6 +316,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
+  },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -460,7 +465,7 @@ const styles = StyleSheet.create({
   },
   actionItem: {
     alignItems: 'center',
-    width: (width - 64) / 4,
+    width: '23%',
   },
   actionIconCircle: {
     width: 56,

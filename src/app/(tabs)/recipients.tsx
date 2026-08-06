@@ -206,6 +206,7 @@ export default function RecipientsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.responsiveWrapper}>
         
         {/* Search Bar */}
         <View style={[styles.searchContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
@@ -265,7 +266,7 @@ export default function RecipientsScreen() {
             ))
           )}
         </View>
-
+        </View>
       </ScrollView>
 
       {/* Add New Recipient Modal */}
@@ -371,6 +372,11 @@ export default function RecipientsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

@@ -254,6 +254,7 @@ export default function ActivityScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.responsiveWrapper}>
         
         {/* Monthly Summary Cards */}
         <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.summaryRow}>
@@ -337,7 +338,7 @@ export default function ActivityScreen() {
             ))
           )}
         </View>
-
+        </View>
       </ScrollView>
 
       {/* Sort Options Modal */}
@@ -453,6 +454,11 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
