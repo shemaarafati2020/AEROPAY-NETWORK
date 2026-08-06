@@ -119,6 +119,7 @@ export default function SendAmountScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.responsiveWrapper}>
         
         {/* Header */}
         <View style={styles.header}>
@@ -129,8 +130,14 @@ export default function SendAmountScreen() {
           <View style={{ width: 32 }} />
         </View>
 
-        {/* Amount Input Display */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.amountSection}>
+        {/* Amount Input Display - Glassmorphism Box */}
+        <Animated.View entering={FadeInDown.duration(400).springify()} style={[
+          styles.amountSection, 
+          { 
+            backgroundColor: isDark ? 'rgba(32, 32, 36, 0.75)' : 'rgba(255, 255, 255, 0.88)', 
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)',
+          }
+        ]}>
           <Text style={[styles.amountLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
           
           <View style={styles.amountDisplayRow}>
@@ -149,16 +156,16 @@ export default function SendAmountScreen() {
             {/* Currency Selector Dropdown Button */}
             <Pressable 
               onPress={() => setIsCurrencyModalVisible(true)}
-              style={[styles.currencyPicker, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}
+              style={[styles.currencyPicker, { backgroundColor: colors.accent + '15', borderColor: colors.accent }]}
             >
               <Text style={styles.flagText}>{selectedCurrency.flag}</Text>
               <Text style={[styles.currencyText, { color: colors.text }]}>{selectedCurrency.code}</Text>
-              <Ionicons name="chevron-down" size={16} color={colors.textSecondary} style={{ marginLeft: 4 }} />
+              <Ionicons name="chevron-down" size={16} color={colors.accent} style={{ marginLeft: 4 }} />
             </Pressable>
           </View>
 
           {isOverBalance && (
-            <View style={[styles.warningBanner, { backgroundColor: 'rgba(239, 83, 80, 0.1)' }]}>
+            <View style={[styles.warningBanner, { backgroundColor: 'rgba(239, 83, 80, 0.15)' }]}>
               <Ionicons name="alert-circle" size={16} color={colors.error} style={{ marginRight: 6 }} />
               <Text style={[styles.warningText, { color: colors.error }]}>
                 Exceeds available balance (${AVAILABLE_BALANCE.toLocaleString()})
@@ -175,7 +182,10 @@ export default function SendAmountScreen() {
               onPress={() => setAmount(preset)}
               style={[
                 styles.presetPill,
-                { backgroundColor: amount === preset ? colors.accent : colors.backgroundElement, borderColor: colors.divider }
+                { 
+                  backgroundColor: amount === preset ? colors.accent : (isDark ? 'rgba(38, 38, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)'), 
+                  borderColor: amount === preset ? colors.accent : (isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)')
+                }
               ]}
             >
               <Text style={[styles.presetText, { color: amount === preset ? '#FFF' : colors.text }]}>
@@ -185,8 +195,14 @@ export default function SendAmountScreen() {
           ))}
         </View>
 
-        {/* Conversion Rate Card */}
-        <Animated.View entering={FadeInDown.delay(150).duration(400)} style={[styles.conversionCard, { backgroundColor: colors.backgroundElement, borderColor: colors.divider }]}>
+        {/* Conversion Rate Card - Glassmorphism */}
+        <Animated.View entering={FadeInDown.delay(150).duration(400)} style={[
+          styles.conversionCard, 
+          { 
+            backgroundColor: isDark ? 'rgba(28, 28, 32, 0.75)' : 'rgba(255, 255, 255, 0.88)', 
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)'
+          }
+        ]}>
           <View style={styles.conversionRow}>
             <View>
               <Text style={[styles.conversionLabel, { color: colors.textSecondary }]}>Recipient gets</Text>
@@ -244,7 +260,8 @@ export default function SendAmountScreen() {
         >
           <Text style={[styles.nextButtonText, { color: isValid ? '#FFFFFF' : colors.textSecondary }]}>Next</Text>
         </Pressable>
-        
+
+        </View>
       </ScrollView>
 
       {/* World Currencies Dropdown Modal */}
@@ -317,9 +334,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
+  },
   scrollContent: {
     paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
+    paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
@@ -337,12 +359,20 @@ const styles = StyleSheet.create({
   },
   amountSection: {
     alignItems: 'center',
-    marginTop: Spacing.three,
+    marginTop: Spacing.two,
     marginBottom: Spacing.four,
+    paddingVertical: Spacing.four,
+    paddingHorizontal: Spacing.three,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
   },
   amountLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     letterSpacing: 1.5,
     marginBottom: 8,
   },
@@ -350,35 +380,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   currencySymbol: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '700',
     marginRight: 4,
   },
   amountInput: {
-    fontSize: 44,
+    fontSize: 40,
     fontWeight: '800',
     fontFamily: 'Inter',
-    minWidth: 100,
+    minWidth: 80,
     textAlign: 'center',
     paddingHorizontal: 4,
   },
   currencyPicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    marginLeft: 6,
   },
   flagText: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: 15,
+    marginRight: 4,
   },
   currencyText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   warningBanner: {
@@ -399,20 +430,24 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.four,
   },
   presetPill: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
+    borderRadius: 18,
+    borderWidth: 1.5,
   },
   presetText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   conversionCard: {
-    borderRadius: 16,
+    borderRadius: 24,
     padding: Spacing.four,
-    borderWidth: 1,
+    borderWidth: 1.5,
     marginBottom: Spacing.four,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
   },
   conversionRow: {
     flexDirection: 'row',
@@ -420,11 +455,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   conversionLabel: {
-    fontSize: 13,
-    marginBottom: 4,
+    fontSize: 12,
+    marginBottom: 2,
   },
   conversionValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
@@ -457,7 +492,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rateText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
   breakdownContainer: {
@@ -482,28 +517,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: Spacing.four,
+    marginBottom: Spacing.three,
   },
   keyWrapper: {
-    width: (width - 64) / 3,
-    padding: 6,
+    width: '31%',
+    marginVertical: 4,
   },
   key: {
-    height: 56,
+    height: 48,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(150,150,150,0.12)',
   },
   keyText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
   },
   nextButton: {
-    paddingVertical: 16,
-    borderRadius: 30,
+    paddingVertical: 15,
+    borderRadius: 28,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
     marginBottom: Spacing.two,
   },
   nextButtonText: {
