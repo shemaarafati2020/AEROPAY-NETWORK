@@ -64,10 +64,10 @@ function ActionButton({
   }));
 
   return (
-    <Animated.View entering={FadeInDown.delay(index * 100).springify()} style={styles.actionItemWrapper}>
+    <Animated.View entering={FadeInDown.delay(index * 100).springify()} className="w-[23%]">
       <AnimatedPressable 
+        className="w-full flex-col items-center justify-center py-3 px-1 rounded-2xl shadow-sm"
         style={[
-          styles.actionItem, 
           { 
             backgroundColor: colors.backgroundElement,
             borderColor: colors.divider,
@@ -79,11 +79,12 @@ function ActionButton({
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={onPress}
       >
-        <View style={[styles.actionIconContainer, { backgroundColor: colors.accent + '15' }]}>
+        <View className="w-11 h-11 rounded-full items-center justify-center mb-2" style={{ backgroundColor: colors.accent + '15' }}>
           <Ionicons name={action.icon as any} size={20} color={colors.accent} />
         </View>
         <Text 
-          style={[styles.actionTitle, { color: colors.text }]} 
+          className="text-[11px] font-bold text-center font-sans"
+          style={{ color: colors.text }} 
           numberOfLines={1} 
           adjustsFontSizeToFit 
           minimumFontScale={0.75}
