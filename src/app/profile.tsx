@@ -64,16 +64,16 @@ function SettingItem({
         <View style={[styles.iconBox, { backgroundColor: colors.accent + '15' }]}>
           <Ionicons name={icon as any} size={20} color={colors.accent} />
         </View>
-        <View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[styles.settingLabel, { color: colors.text }]}>{title}</Text>
+        <View style={styles.settingTextWrapper}>
+          <View style={styles.titleBadgeRow}>
+            <Text style={[styles.settingLabel, { color: colors.text }]} numberOfLines={1}>{title}</Text>
             {badgeText && (
-              <View style={[styles.badge, { backgroundColor: badgeColor + '20', marginLeft: 8 }]}>
+              <View style={[styles.badge, { backgroundColor: badgeColor + '20' }]}>
                 <Text style={[styles.badgeText, { color: badgeColor }]}>{badgeText}</Text>
               </View>
             )}
           </View>
-          {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+          {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>{subtitle}</Text>}
         </View>
       </View>
 
@@ -515,6 +515,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 10,
   },
   iconBox: {
     width: 38,
@@ -522,20 +523,32 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
+  },
+  settingTextWrapper: {
+    flex: 1,
+    flexShrink: 1,
+  },
+  titleBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
   },
   settingLabel: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
+    flexShrink: 1,
   },
   settingSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     marginTop: 2,
+    lineHeight: 14,
   },
   badge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   badgeText: {
     fontSize: 10,
