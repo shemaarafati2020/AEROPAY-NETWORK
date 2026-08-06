@@ -1,18 +1,26 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput, Alert, Appearance } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { 
+  FadeInDown, 
+  FadeInUp, 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring, 
+  withSequence, 
+  withTiming 
+} from 'react-native-reanimated';
 import { useState, useMemo } from 'react';
 
 const { width } = Dimensions.get('window');
 
 const ACCOUNTS = [
-  { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES' },
-  { id: '2', type: 'Savings acc', number: '010998822411', balance: '120,400.00 KES' },
-  { id: '3', type: 'USD Wallet', number: '088231149200', balance: '$4,250.00 USD' },
+  { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES', cardHolder: 'SHEMA ARAFATI' },
+  { id: '2', type: 'Savings acc', number: '010998822411', balance: '120,400.00 KES', cardHolder: 'SHEMA ARAFATI' },
+  { id: '3', type: 'USD Wallet', number: '088231149200', balance: '$4,250.00 USD', cardHolder: 'SHEMA ARAFATI' },
 ];
 
 const QUICK_ACTIONS = [
@@ -23,10 +31,10 @@ const QUICK_ACTIONS = [
 ];
 
 const TRANSACTIONS = [
-  { id: '1', title: 'Safaricom PostPay', date: '15 May 2023', amount: '-2,500.00', type: 'debit' },
-  { id: '2', title: 'Salary Deposit', date: '12 May 2023', amount: '+120,000.00', type: 'credit' },
-  { id: '3', title: 'Netflix Subscription', date: '10 May 2023', amount: '-1,200.00', type: 'debit' },
-  { id: '4', title: 'KPLC Tokens', date: '08 May 2023', amount: '-1,500.00', type: 'debit' },
+  { id: '1', title: 'Safaricom PostPay', date: '15 May 2023', amount: '-2,500.00 KES', type: 'debit', icon: 'receipt-outline' },
+  { id: '2', title: 'Salary Deposit', date: '12 May 2023', amount: '+120,000.00 KES', type: 'credit', icon: 'arrow-down-circle-outline' },
+  { id: '3', title: 'Netflix Subscription', date: '10 May 2023', amount: '-1,200.00 KES', type: 'debit', icon: 'tv-outline' },
+  { id: '4', title: 'KPLC Tokens', date: '08 May 2023', amount: '-1,500.00 KES', type: 'debit', icon: 'flash-outline' },
 ];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -42,7 +50,7 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
     <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
       <AnimatedPressable 
         style={[styles.actionItem, animatedStyle]}
-        onPressIn={() => (scale.value = withSpring(0.95))}
+        onPressIn={() => (scale.value = withSpring(0.9))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => router.push(action.route)}
       >
@@ -54,7 +62,7 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
             borderWidth: 1.5,
             shadowColor: colors.accent,
             shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
+            shadowOpacity: 0.15,
             shadowRadius: 8,
           }
         ]}>
@@ -78,6 +86,9 @@ export default function HomeScreen() {
   const [activeSubTab, setActiveSubTab] = useState<'completed' | 'in_progress'>('completed');
   const [isFilterActive, setIsFilterActive] = useState(true);
 
+  // Animations
+  const cardScale = useSharedValue(1);
+
   const activeAccount = ACCOUNTS[activeAccountIndex];
 
   const filteredTransactions = useMemo(() => {
@@ -89,19 +100,27 @@ export default function HomeScreen() {
   const backgroundColor = isDark ? '#121212' : '#F8F9FA';
 
   const nextAccount = () => {
+    cardScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1, { damping: 10 })
+    );
     setActiveAccountIndex((prev) => (prev + 1) % ACCOUNTS.length);
   };
+
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cardScale.value }],
+  }));
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Header Section */}
-        <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.header}>
+        <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => router.push('/profile')}>
               <View style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}>
-                <Ionicons name="person" size={24} color={isDark ? '#CCC' : '#888'} />
+                <Ionicons name="person" size={22} color={isDark ? '#CCC' : '#888'} />
               </View>
             </Pressable>
           </View>
@@ -113,34 +132,46 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
         
-        <Animated.Text entering={FadeInDown.delay(100).duration(600)} style={[styles.greeting, { color: colors.text }]}>
+        <Animated.Text entering={FadeInDown.delay(100).duration(500)} style={[styles.greeting, { color: colors.text }]}>
           Manage your accounts and cards, all in one place
         </Animated.Text>
 
-        {/* Swipeable Accounts Label */}
-        <Animated.View entering={FadeInDown.delay(150).duration(600)} style={styles.accountsTabContainer}>
+        {/* Account Tab Switcher */}
+        <Animated.View entering={FadeInDown.delay(150).duration(500)} style={styles.accountsTabContainer}>
           <Pressable onPress={nextAccount}>
             <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
-              {activeAccount.type} (Tap to switch)
+              {activeAccount.type} (Tap card to switch)
             </Text>
           </Pressable>
         </Animated.View>
 
-        {/* Bank Card (Click to Switch Account) */}
-        <Animated.View entering={FadeInDown.delay(200).duration(800).springify()}>
+        {/* Premium Bank Card */}
+        <Animated.View entering={FadeInDown.delay(200).duration(600).springify()} style={cardAnimatedStyle}>
           <Pressable onPress={nextAccount} style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
-            <Text style={styles.cardHeader}>My account</Text>
+            <View style={styles.cardTopRow}>
+              <Text style={styles.cardHeader}>Aeropay Network</Text>
+              <Ionicons name="wifi-outline" size={22} color="#FFF" style={{ opacity: 0.8 }} />
+            </View>
+
+            <View style={styles.chipContainer}>
+              <Ionicons name="hardware-chip-outline" size={32} color="#FFD700" />
+            </View>
             
             <View style={styles.cardCenter}>
               <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
               <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
             </View>
+
+            <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
           </Pressable>
           
           {/* Interactive Pagination Dots */}
           <View style={styles.paginationDots}>
             {ACCOUNTS.map((_, i) => (
-              <Pressable key={i} onPress={() => setActiveAccountIndex(i)}>
+              <Pressable key={i} onPress={() => {
+                cardScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
+                setActiveAccountIndex(i);
+              }}>
                 <View style={[
                   styles.dot, 
                   i === activeAccountIndex ? styles.dotActive : null,
@@ -151,7 +182,7 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        {/* Balance Display (Clickable to Hide/Show) */}
+        {/* Balance Display */}
         <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.balanceContainer}>
           <Pressable onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={{ alignItems: 'center' }}>
             <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
@@ -161,7 +192,7 @@ export default function HomeScreen() {
               </Text>
               <Ionicons 
                 name={isBalanceHidden ? "eye-outline" : "eye-off-outline"} 
-                size={20} 
+                size={22} 
                 color={colors.textSecondary} 
                 style={{ marginLeft: 8 }} 
               />
@@ -169,7 +200,7 @@ export default function HomeScreen() {
           </Pressable>
         </Animated.View>
 
-        {/* Quick Actions (Circular Icons) */}
+        {/* Quick Actions */}
         <View style={styles.quickActionsContainer}>
           {QUICK_ACTIONS.map((action, index) => (
             <ActionButton key={action.id} action={action} colors={colors} index={index} />
@@ -237,7 +268,7 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {/* Transactions List / Empty State */}
+          {/* Transactions List */}
           {activeSubTab === 'in_progress' ? (
             <View style={styles.emptyState}>
               <Ionicons name="time-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
@@ -253,8 +284,8 @@ export default function HomeScreen() {
                   <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
                     <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
                       <Ionicons 
-                        name={tx.type === 'debit' ? 'arrow-up-outline' : 'arrow-down-outline'} 
-                        size={16} 
+                        name={tx.icon as any} 
+                        size={18} 
                         color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
                       />
                     </View>
@@ -338,19 +369,28 @@ const styles = StyleSheet.create({
   bankCard: {
     borderRadius: 20,
     padding: 24,
-    minHeight: 180,
+    minHeight: 190,
     position: 'relative',
     overflow: 'hidden',
     shadowColor: '#A51C24',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 15,
     elevation: 8,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   cardHeader: {
     color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  chipContainer: {
+    marginTop: 12,
   },
   cardCenter: {
     position: 'absolute',
@@ -369,6 +409,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 1,
+  },
+  cardHolder: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1.5,
+    marginTop: 24,
+    opacity: 0.9,
   },
   paginationDots: {
     flexDirection: 'row',
