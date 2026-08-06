@@ -117,7 +117,7 @@ export default function FundScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        
+        <View style={styles.responsiveWrapper}>
         {/* Wallet Balance Summary Card */}
         <Animated.View entering={FadeInDown.duration(400).springify()} style={[styles.balanceCard, { backgroundColor: isDark ? '#7A131A' : '#A51C24' }]}>
           <Text style={styles.balanceLabel}>Main Wallet Balance</Text>
@@ -146,6 +146,7 @@ export default function FundScreen() {
           <Text style={[styles.footnoteText, { color: colors.textSecondary }]}>
             All transactions are encrypted with 256-bit SSL security.
           </Text>
+        </View>
         </View>
       </ScrollView>
 
@@ -225,6 +226,11 @@ export default function FundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveWrapper: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

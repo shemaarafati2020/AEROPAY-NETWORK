@@ -1,7 +1,27 @@
 import { Tabs } from 'expo-router';
-import { useColorScheme, Platform, Text } from 'react-native';
+import { useColorScheme, Platform } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useEffect } from 'react';
+
+function AnimatedTabIcon({ name, focusedName, color, focused }: { name: any; focusedName: any; color: string; focused: boolean }) {
+  const scale = useSharedValue(focused ? 1.2 : 1);
+
+  useEffect(() => {
+    scale.value = withSpring(focused ? 1.25 : 1, { damping: 12, stiffness: 200 });
+  }, [focused]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Ionicons name={focused ? focusedName : name} size={24} color={color} />
+    </Animated.View>
+  );
+}
 
 export default function TabLayout() {
   const scheme = useColorScheme();
@@ -32,35 +52,45 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon name="home-outline" focusedName="home" color={color} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="fund"
         options={{
           title: 'Fund',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon name="wallet-outline" focusedName="wallet" color={color} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="send"
         options={{
           title: 'Send',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'paper-plane' : 'paper-plane-outline'} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon name="paper-plane-outline" focusedName="paper-plane" color={color} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="recipients"
         options={{
           title: 'Recipients',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'people' : 'people-outline'} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon name="people-outline" focusedName="people" color={color} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="activity"
         options={{
           title: 'Activity',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? 'time' : 'time-outline'} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon name="time-outline" focusedName="time" color={color} focused={focused} />
+          ),
         }}
       />
     </Tabs>
