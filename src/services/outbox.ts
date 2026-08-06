@@ -27,15 +27,39 @@ export interface OutboxItem {
 
 const OUTBOX_STORAGE_KEY = 'aeropay_outbox_queue_v1';
 
+// In-Memory Cache for Zero-Latency Synchronous Reads
+let cachedOutboxQueue: OutboxItem[] | null = null;
+type OutboxListener = (queue: OutboxItem[]) => void;
+const listeners = new Set<OutboxListener>();
+
 export function generateUUID(): string {
   return 'ap-idemp-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 9);
 }
 
+export function subscribeOutboxQueue(listener: OutboxListener): () => void {
+  listeners.add(listener);
+  if (cachedOutboxQueue) {
+    listener(cachedOutboxQueue);
+  } else {
+    getOutboxQueue().then(listener);
+  }
+  return () => listeners.delete(listener);
+}
+
+function notifyListeners(queue: OutboxItem[]) {
+  listeners.forEach((l) => l(queue));
+}
+
 export async function getOutboxQueue(): Promise<OutboxItem[]> {
+  if (cachedOutboxQueue) return cachedOutboxQueue;
   try {
     const raw = await SecureStore.getItemAsync(OUTBOX_STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as OutboxItem[];
+    if (!raw) {
+      cachedOutboxQueue = [];
+    } else {
+      cachedOutboxQueue = JSON.parse(raw) as OutboxItem[];
+    }
+    return cachedOutboxQueue;
   } catch (error) {
     console.error('Failed to read outbox queue:', error);
     return [];
@@ -43,6 +67,8 @@ export async function getOutboxQueue(): Promise<OutboxItem[]> {
 }
 
 export async function saveOutboxQueue(queue: OutboxItem[]): Promise<void> {
+  cachedOutboxQueue = queue;
+  notifyListeners(queue);
   try {
     await SecureStore.setItemAsync(OUTBOX_STORAGE_KEY, JSON.stringify(queue));
   } catch (error) {
@@ -60,8 +86,8 @@ export async function enqueueTransfer(payload: TransferPayload): Promise<OutboxI
     attempts: 0,
   };
 
-  queue.unshift(newItem);
-  await saveOutboxQueue(queue);
+  const updatedQueue = [newItem, ...queue];
+  await saveOutboxQueue(updatedQueue);
   return newItem;
 }
 
@@ -75,13 +101,17 @@ export async function updateOutboxItemStatus(
   const index = queue.findIndex((item) => item.idempotencyKey === idempotencyKey);
   if (index === -1) return null;
 
-  queue[index].status = status;
-  queue[index].attempts += 1;
-  if (error) queue[index].lastError = error;
-  if (txHash) queue[index].txHash = txHash;
+  const updatedQueue = [...queue];
+  updatedQueue[index] = {
+    ...updatedQueue[index],
+    status,
+    attempts: updatedQueue[index].attempts + 1,
+    lastError: error || updatedQueue[index].lastError,
+    txHash: txHash || updatedQueue[index].txHash,
+  };
 
-  await saveOutboxQueue(queue);
-  return queue[index];
+  await saveOutboxQueue(updatedQueue);
+  return updatedQueue[index];
 }
 
 export async function removeOutboxItem(idempotencyKey: string): Promise<void> {
@@ -100,7 +130,6 @@ export async function drainOutboxQueue(
   let failed = 0;
 
   for (const item of pending) {
-    // Prevent excessive retries (>6 attempts)
     if (item.attempts >= 6) {
       await updateOutboxItemStatus(
         item.idempotencyKey,
@@ -115,7 +144,7 @@ export async function drainOutboxQueue(
 
     try {
       // Simulate network request with idempotency header check
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const mockTxHash =
         '0x' +
@@ -137,4 +166,25 @@ export async function drainOutboxQueue(
   }
 
   return { processed, failed };
+}
+
+// Background Auto-Sync Service
+let autoSyncInterval: ReturnType<typeof setInterval> | null = null;
+
+export function startAutoSyncPoller(intervalMs = 30000) {
+  if (autoSyncInterval) return;
+  autoSyncInterval = setInterval(async () => {
+    const queue = await getOutboxQueue();
+    const hasPending = queue.some((i) => i.status === 'queued');
+    if (hasPending) {
+      await drainOutboxQueue();
+    }
+  }, intervalMs);
+}
+
+export function stopAutoSyncPoller() {
+  if (autoSyncInterval) {
+    clearInterval(autoSyncInterval);
+    autoSyncInterval = null;
+  }
 }

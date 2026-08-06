@@ -22,10 +22,16 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useToast } from '@/context/ToastContext';
+import {
+  subscribeOutboxQueue,
+  startAutoSyncPoller,
+  drainOutboxQueue,
+  OutboxItem,
+} from '@/services/outbox';
 
 const ACCOUNTS = [
   {
@@ -235,6 +241,30 @@ export default function HomeScreen() {
 
   const [isCardsModalOpen, setIsCardsModalOpen] = useState(false);
   const [frozenCards, setFrozenCards] = useState<{ [key: string]: boolean }>({});
+  const [outboxQueue, setOutboxQueue] = useState<OutboxItem[]>([]);
+  const [isSyncingOutbox, setIsSyncingOutbox] = useState(false);
+
+  useEffect(() => {
+    startAutoSyncPoller();
+    const unsubscribe = subscribeOutboxQueue((items) => setOutboxQueue(items));
+    return () => unsubscribe();
+  }, []);
+
+  const pendingOutboxCount = useMemo(
+    () => outboxQueue.filter((i) => i.status === 'queued' || i.status === 'failed').length,
+    [outboxQueue]
+  );
+
+  const handleManualOutboxSync = async () => {
+    setIsSyncingOutbox(true);
+    const { processed, failed } = await drainOutboxQueue();
+    setIsSyncingOutbox(false);
+    if (processed > 0) {
+      showToast(`Synced ${processed} offline transaction(s)!`, 'success');
+    } else if (failed > 0) {
+      showToast(`Outbox sync attempted (${failed} retried)`, 'info');
+    }
+  };
 
   // Animations
   const cardScale = useSharedValue(1);
@@ -545,6 +575,55 @@ export default function HomeScreen() {
               />
             ))}
           </View>
+
+          {/* Offline Outbox Pending Banner */}
+          {pendingOutboxCount > 0 && (
+            <Animated.View
+              entering={FadeInDown.duration(400)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 14,
+                borderRadius: 18,
+                backgroundColor: '#F59E0B15',
+                borderWidth: 1.5,
+                borderColor: '#F59E0B',
+                marginTop: 14,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                <Ionicons name="cloud-offline" size={22} color="#F59E0B" />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }}>
+                    {pendingOutboxCount} Pending Offline Transfer(s)
+                  </Text>
+                  <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                    Queued safely with client idempotency key
+                  </Text>
+                </View>
+              </View>
+
+              <Pressable
+                onPress={handleManualOutboxSync}
+                disabled={isSyncingOutbox}
+                style={{
+                  backgroundColor: '#F59E0B',
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 14,
+                }}
+              >
+                {isSyncingOutbox ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFFFFF' }}>
+                    Sync Now
+                  </Text>
+                )}
+              </Pressable>
+            </Animated.View>
+          )}
 
           {/* Ask AeroPay AI Assistant Prominent Banner Launcher */}
           <Pressable

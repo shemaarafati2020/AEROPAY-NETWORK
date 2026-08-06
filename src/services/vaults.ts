@@ -25,6 +25,8 @@ export interface VaultLedgerEntry {
 const VAULTS_STORAGE_KEY = 'aeropay_savings_vaults_v1';
 const VAULT_LEDGER_KEY = 'aeropay_vault_ledger_v1';
 
+let cachedVaults: Vault[] | null = null;
+
 export const INITIAL_VAULTS: Vault[] = [
   {
     id: 'vault-school-fees',
@@ -64,13 +66,16 @@ export const INITIAL_VAULTS: Vault[] = [
 ];
 
 export async function getVaults(): Promise<Vault[]> {
+  if (cachedVaults) return cachedVaults;
   try {
     const raw = await SecureStore.getItemAsync(VAULTS_STORAGE_KEY);
     if (!raw) {
+      cachedVaults = INITIAL_VAULTS;
       await SecureStore.setItemAsync(VAULTS_STORAGE_KEY, JSON.stringify(INITIAL_VAULTS));
       return INITIAL_VAULTS;
     }
-    return JSON.parse(raw) as Vault[];
+    cachedVaults = JSON.parse(raw) as Vault[];
+    return cachedVaults;
   } catch (err) {
     console.error('Failed to fetch vaults:', err);
     return INITIAL_VAULTS;
@@ -78,6 +83,7 @@ export async function getVaults(): Promise<Vault[]> {
 }
 
 export async function saveVaults(vaults: Vault[]): Promise<void> {
+  cachedVaults = vaults;
   try {
     await SecureStore.setItemAsync(VAULTS_STORAGE_KEY, JSON.stringify(vaults));
   } catch (err) {
@@ -107,8 +113,8 @@ export async function createVault(params: {
     updatedAt: Date.now(),
   };
 
-  vaults.unshift(newVault);
-  await saveVaults(vaults);
+  const updatedVaults = [newVault, ...vaults];
+  await saveVaults(updatedVaults);
   return newVault;
 }
 
@@ -121,11 +127,14 @@ export async function depositToVault(
   const index = vaults.findIndex((v) => v.id === vaultId);
   if (index === -1) return null;
 
-  vaults[index].balance += amount;
-  vaults[index].updatedAt = Date.now();
-  await saveVaults(vaults);
+  const updatedVaults = [...vaults];
+  updatedVaults[index] = {
+    ...updatedVaults[index],
+    balance: updatedVaults[index].balance + amount,
+    updatedAt: Date.now(),
+  };
+  await saveVaults(updatedVaults);
 
-  // Record ledger entry
   await recordVaultLedger({
     vaultId,
     type: 'deposit',
@@ -133,7 +142,7 @@ export async function depositToVault(
     note,
   });
 
-  return vaults[index];
+  return updatedVaults[index];
 }
 
 export async function withdrawFromVault(
@@ -145,17 +154,22 @@ export async function withdrawFromVault(
   const index = vaults.findIndex((v) => v.id === vaultId);
   if (index === -1) return { success: false, error: 'Vault not found' };
 
-  const vault = vaults[index];
-  if (vault.locked) {
+  const target = vaults[index];
+  if (target.locked) {
     return { success: false, error: 'Vault is currently locked until target date.' };
   }
-  if (vault.balance < amount) {
+  if (target.balance < amount) {
     return { success: false, error: 'Insufficient vault balance.' };
   }
 
-  vault.balance -= amount;
-  vault.updatedAt = Date.now();
-  await saveVaults(vaults);
+  const updatedVaults = [...vaults];
+  updatedVaults[index] = {
+    ...target,
+    balance: target.balance - amount,
+    updatedAt: Date.now(),
+  };
+
+  await saveVaults(updatedVaults);
 
   await recordVaultLedger({
     vaultId,
@@ -164,7 +178,7 @@ export async function withdrawFromVault(
     note,
   });
 
-  return { success: true, vault };
+  return { success: true, vault: updatedVaults[index] };
 }
 
 export function calculateRoundUp(amountUsd: number): number {
