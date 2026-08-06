@@ -12,6 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Verify Fork Policy for Main
+        run: |
+          ACTOR="${{ github.actor }}"
+          OWNER="${{ github.repository_owner }}"
+          IS_FORK="${{ github.event.pull_request.head.repo.fork }}"
+          EVENT_NAME="${{ github.event_name }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+
+          if [ "$TARGET_BRANCH" == "main" ] || [ "$github.ref" == "refs/heads/main" ]; then
+            if [ "$ACTOR" != "$OWNER" ] && [ "$ACTOR" != "shemaarafati2020" ]; then
+              if [ "$EVENT_NAME" == "push" ]; then
+                echo "::error::Direct pushes to main are restricted to repository owner shemaarafati2020."
+                exit 1
+              fi
+              if [ "$EVENT_NAME" == "pull_request" ] && [ "$IS_FORK" != "true" ]; then
+                echo "::error::Direct PRs to main are restricted. Contributors must fork the repository first."
+                exit 1
+              fi
+            fi
+          fi
+
       - name: Checkout Code
         uses: actions/checkout@v4
 

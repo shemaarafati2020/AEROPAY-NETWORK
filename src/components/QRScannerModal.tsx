@@ -289,7 +289,11 @@ const styles = StyleSheet.create({
     right: 15,
     height: 3,
     borderRadius: 2,
-    boxShadow: '0px 0px 8px #DC2626',
+    elevation: 3,
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
   },
   viewfinderText: {
     color: '#9CA3AF',

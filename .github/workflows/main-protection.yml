@@ -1,0 +1,45 @@
+name: Main Branch & Fork Enforcement
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  enforce-fork-and-owner-policy:
+    name: Enforce Fork & Owner Merge Policy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify Contributor & Fork Policy
+        run: |
+          ACTOR="${{ github.actor }}"
+          OWNER="${{ github.repository_owner }}"
+          IS_FORK="${{ github.event.pull_request.head.repo.fork }}"
+          EVENT_NAME="${{ github.event_name }}"
+
+          echo "Event: $EVENT_NAME"
+          echo "Actor: $ACTOR"
+          echo "Owner: $OWNER"
+          echo "Is Fork: $IS_FORK"
+
+          # Allow owner full access
+          if [ "$ACTOR" == "$OWNER" ] || [ "$ACTOR" == "shemaarafati2020" ]; then
+            echo "Access granted for repository owner ($ACTOR)."
+            exit 0
+          fi
+
+          # Block direct pushes to main from non-owners
+          if [ "$EVENT_NAME" == "push" ]; then
+            echo "::error::Direct pushes to the main branch are strictly prohibited for non-owners. You must fork the repository and submit a Pull Request."
+            exit 1
+          fi
+
+          # Block non-fork Pull Requests from non-owners
+          if [ "$EVENT_NAME" == "pull_request" ] && [ "$IS_FORK" != "true" ]; then
+            echo "::error::Direct branch PRs are prohibited. You must fork 'shemaarafati2020/AEROPAY-NETWORK' to your own GitHub account and submit a PR from your fork."
+            exit 1
+          fi
+
+          echo "Forked PR verified successfully."
