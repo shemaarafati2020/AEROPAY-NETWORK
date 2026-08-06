@@ -4,6 +4,8 @@ import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { Alert } from 'react-native';
 
 export default function SendConfirmScreen() {
   const scheme = useColorScheme();
@@ -12,11 +14,25 @@ export default function SendConfirmScreen() {
   // Slide to Send state
   const [slideProgress, setSlideProgress] = useState(0);
 
-  const handleSlideComplete = () => {
-    // In a real app, this would trigger the actual transaction and show a loading state
-    setTimeout(() => {
-      router.push('/(tabs)/send/status');
-    }, 500);
+  const handleSlideComplete = async () => {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+    if (hasHardware && isEnrolled) {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Authenticate to complete transfer',
+        fallbackLabel: 'Use PIN',
+      });
+
+      if (!result.success) {
+        Alert.alert('Authentication Failed', 'Please verify your identity to proceed.');
+        return;
+      }
+    }
+
+    // Pass a random query param to randomly simulate success or failure for the demo
+    const isFailed = Math.random() > 0.5 ? 'true' : 'false';
+    router.push(`/(tabs)/send/status?failed=${isFailed}`);
   };
 
   return (

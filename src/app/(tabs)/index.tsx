@@ -1,12 +1,19 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput, Alert, Appearance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useState, useMemo } from 'react';
 
 const { width } = Dimensions.get('window');
+
+const ACCOUNTS = [
+  { id: '1', type: 'Current acc', number: '010474808113', balance: '50,550.00 KES' },
+  { id: '2', type: 'Savings acc', number: '010998822411', balance: '120,400.00 KES' },
+  { id: '3', type: 'USD Wallet', number: '088231149200', balance: '$4,250.00 USD' },
+];
 
 const QUICK_ACTIONS = [
   { id: '1', title: 'Transact', icon: 'swap-horizontal', route: '/(tabs)/send' },
@@ -24,14 +31,12 @@ const TRANSACTIONS = [
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function ActionButton({ action, colors, index }: { action: any; colors: any, index: number }) {
+function ActionButton({ action, colors, index }: { action: any; colors: any; index: number }) {
   const scale = useSharedValue(1);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
@@ -64,11 +69,29 @@ function ActionButton({ action, colors, index }: { action: any; colors: any, ind
 export default function HomeScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
-  // Hardcode the red colors from the screenshot to match perfectly in light mode
   const isDark = scheme === 'dark';
+
+  // Interactive States
+  const [activeAccountIndex, setActiveAccountIndex] = useState(0);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSubTab, setActiveSubTab] = useState<'completed' | 'in_progress'>('completed');
+  const [isFilterActive, setIsFilterActive] = useState(true);
+
+  const activeAccount = ACCOUNTS[activeAccountIndex];
+
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery) return TRANSACTIONS;
+    return TRANSACTIONS.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [searchQuery]);
+
   const cardBackgroundColor = isDark ? '#7A131A' : '#A51C24';
-  const backgroundColor = isDark ? '#121212' : '#F8F9FA'; // Soft off-white for the body
-  
+  const backgroundColor = isDark ? '#121212' : '#F8F9FA';
+
+  const nextAccount = () => {
+    setActiveAccountIndex((prev) => (prev + 1) % ACCOUNTS.length);
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -76,13 +99,17 @@ export default function HomeScreen() {
         {/* Header Section */}
         <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={[styles.profileCircle, { backgroundColor: '#E8E8E8', borderWidth: 0 }]}>
-              <Ionicons name="person" size={24} color="#888" />
-            </View>
+            <Pressable onPress={() => router.push('/profile')}>
+              <View style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}>
+                <Ionicons name="person" size={24} color={isDark ? '#CCC' : '#888'} />
+              </View>
+            </Pressable>
           </View>
           <View style={styles.headerRight}>
-            <Ionicons name="notifications-outline" size={26} color={colors.text} />
-            <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
+            <Pressable onPress={() => Alert.alert('Notifications', 'You have no new unread notifications.')} style={styles.iconPadding}>
+              <Ionicons name="notifications-outline" size={26} color={colors.text} />
+              <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
+            </Pressable>
           </View>
         </Animated.View>
         
@@ -92,35 +119,54 @@ export default function HomeScreen() {
 
         {/* Swipeable Accounts Label */}
         <Animated.View entering={FadeInDown.delay(150).duration(600)} style={styles.accountsTabContainer}>
-          <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>My accounts</Text>
+          <Pressable onPress={nextAccount}>
+            <Text style={[styles.accountsTabText, { color: colors.textSecondary }]}>
+              {activeAccount.type} (Tap to switch)
+            </Text>
+          </Pressable>
         </Animated.View>
 
-        {/* Bank Card */}
+        {/* Bank Card (Click to Switch Account) */}
         <Animated.View entering={FadeInDown.delay(200).duration(800).springify()}>
-          <View style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
+          <Pressable onPress={nextAccount} style={[styles.bankCard, { backgroundColor: cardBackgroundColor }]}>
             <Text style={styles.cardHeader}>My account</Text>
             
             <View style={styles.cardCenter}>
-              <Text style={styles.cardAccountType}>Current acc</Text>
-              <Text style={styles.cardAccountNumber}>010474808113</Text>
+              <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
+              <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
             </View>
-          </View>
+          </Pressable>
           
-          {/* Pagination Dots */}
+          {/* Interactive Pagination Dots */}
           <View style={styles.paginationDots}>
-            <View style={[styles.dot, styles.dotActive, { backgroundColor: colors.accent }]} />
-            <View style={[styles.dot, { backgroundColor: isDark ? '#444' : '#D9D9D9' }]} />
-            <View style={[styles.dot, { backgroundColor: isDark ? '#444' : '#D9D9D9' }]} />
+            {ACCOUNTS.map((_, i) => (
+              <Pressable key={i} onPress={() => setActiveAccountIndex(i)}>
+                <View style={[
+                  styles.dot, 
+                  i === activeAccountIndex ? styles.dotActive : null,
+                  { backgroundColor: i === activeAccountIndex ? colors.accent : (isDark ? '#444' : '#D9D9D9') }
+                ]} />
+              </Pressable>
+            ))}
           </View>
         </Animated.View>
 
-        {/* Balance Display */}
+        {/* Balance Display (Clickable to Hide/Show) */}
         <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.balanceContainer}>
-          <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
-          <View style={styles.balanceAmountRow}>
-            <Text style={[styles.balanceAmount, { color: colors.text }]}>50,550.00 KES</Text>
-            <Ionicons name="chevron-down" size={20} color={colors.textSecondary} style={{ marginLeft: 4 }} />
-          </View>
+          <Pressable onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={{ alignItems: 'center' }}>
+            <Text style={[styles.availableBalanceText, { color: colors.textSecondary }]}>Available balance</Text>
+            <View style={styles.balanceAmountRow}>
+              <Text style={[styles.balanceAmount, { color: colors.text }]}>
+                {isBalanceHidden ? '••••••••' : activeAccount.balance}
+              </Text>
+              <Ionicons 
+                name={isBalanceHidden ? "eye-outline" : "eye-off-outline"} 
+                size={20} 
+                color={colors.textSecondary} 
+                style={{ marginLeft: 8 }} 
+              />
+            </View>
+          </Pressable>
         </Animated.View>
 
         {/* Quick Actions (Circular Icons) */}
@@ -140,56 +186,90 @@ export default function HomeScreen() {
             <View style={[styles.searchInputContainer, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
               <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
               <TextInput 
-                placeholder="Search..." 
+                placeholder="Search transactions..." 
                 placeholderTextColor={colors.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
                 style={[styles.searchInput, { color: colors.text }]}
               />
+              {searchQuery !== '' && (
+                <Pressable onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+                </Pressable>
+              )}
             </View>
-            <View style={[styles.filterButton, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: colors.divider }]}>
-              <Ionicons name="options-outline" size={24} color={colors.accent} />
-            </View>
+            <Pressable 
+              onPress={() => setIsFilterActive(!isFilterActive)}
+              style={[styles.filterButton, { backgroundColor: isDark ? '#2C2C2C' : '#FFFFFF', borderColor: isFilterActive ? colors.accent : colors.divider }]}
+            >
+              <Ionicons name="options-outline" size={24} color={isFilterActive ? colors.accent : colors.textSecondary} />
+            </Pressable>
           </View>
           
-          {/* Date Filter Tabs */}
-          <View style={styles.dateTabsContainer}>
-            <View style={[styles.dateTab, styles.dateTabActive, { backgroundColor: colors.backgroundElement, borderColor: colors.accent }]}>
-              <Text style={[styles.dateTabText, { color: colors.accent }]}>15 Jun - 15 May 2023</Text>
-              <Ionicons name="close-circle" size={16} color={colors.accent} style={{ marginLeft: 6 }} />
+          {/* Date Filter Pill */}
+          {isFilterActive && (
+            <View style={styles.dateTabsContainer}>
+              <Pressable onPress={() => setIsFilterActive(false)} style={[styles.dateTab, styles.dateTabActive, { backgroundColor: colors.backgroundElement, borderColor: colors.accent }]}>
+                <Text style={[styles.dateTabText, { color: colors.accent }]}>15 Jun - 15 May 2023</Text>
+                <Ionicons name="close-circle" size={16} color={colors.accent} style={{ marginLeft: 6 }} />
+              </Pressable>
             </View>
-          </View>
+          )}
 
           {/* Sub-tabs */}
           <View style={[styles.subTabsContainer, { borderBottomColor: colors.divider }]}>
-            <View style={[styles.subTab, styles.subTabActive, { borderBottomColor: colors.accent }]}>
-              <Text style={[styles.subTabTextActive, { color: colors.accent }]}>Completed</Text>
-            </View>
-            <View style={styles.subTab}>
-              <Text style={[styles.subTabText, { color: colors.textSecondary }]}>In progress (0)</Text>
-            </View>
+            <Pressable 
+              onPress={() => setActiveSubTab('completed')}
+              style={[styles.subTab, activeSubTab === 'completed' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+            >
+              <Text style={[activeSubTab === 'completed' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'completed' ? colors.accent : colors.textSecondary }]}>
+                Completed
+              </Text>
+            </Pressable>
+            
+            <Pressable 
+              onPress={() => setActiveSubTab('in_progress')}
+              style={[styles.subTab, activeSubTab === 'in_progress' && [styles.subTabActive, { borderBottomColor: colors.accent }]]}
+            >
+              <Text style={[activeSubTab === 'in_progress' ? styles.subTabTextActive : styles.subTabText, { color: activeSubTab === 'in_progress' ? colors.accent : colors.textSecondary }]}>
+                In progress (0)
+              </Text>
+            </Pressable>
           </View>
 
-          {/* Transactions List */}
-          <View style={styles.transactionsList}>
-            <Text style={[styles.dateHeader, { color: colors.textSecondary }]}>15 May</Text>
-            {TRANSACTIONS.map((tx, i) => (
-              <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
-                <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
-                  <Ionicons 
-                    name={tx.type === 'debit' ? 'arrow-up-outline' : 'arrow-down-outline'} 
-                    size={16} 
-                    color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
-                  />
-                </View>
-                <View style={styles.txDetails}>
-                  <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
-                  <Text style={[styles.txDate, { color: colors.textSecondary }]}>{tx.date}</Text>
-                </View>
-                <Text style={[styles.txAmount, { color: tx.type === 'debit' ? colors.text : colors.success }]}>
-                  {tx.amount}
-                </Text>
-              </View>
-            ))}
-          </View>
+          {/* Transactions List / Empty State */}
+          {activeSubTab === 'in_progress' ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="time-outline" size={48} color={colors.textSecondary} style={{ marginBottom: 12 }} />
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions currently in progress.</Text>
+            </View>
+          ) : (
+            <View style={styles.transactionsList}>
+              <Text style={[styles.dateHeader, { color: colors.textSecondary }]}>15 May</Text>
+              {filteredTransactions.length === 0 ? (
+                <Text style={[styles.emptyText, { color: colors.textSecondary, marginVertical: 20 }]}>No transactions found matching "{searchQuery}".</Text>
+              ) : (
+                filteredTransactions.map((tx) => (
+                  <View key={tx.id} style={[styles.transactionItem, { borderBottomColor: colors.divider }]}>
+                    <View style={[styles.txIcon, { backgroundColor: isDark ? '#2C2C2C' : '#F0F0F0' }]}>
+                      <Ionicons 
+                        name={tx.type === 'debit' ? 'arrow-up-outline' : 'arrow-down-outline'} 
+                        size={16} 
+                        color={tx.type === 'debit' ? colors.textSecondary : colors.success} 
+                      />
+                    </View>
+                    <View style={styles.txDetails}>
+                      <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
+                      <Text style={[styles.txDate, { color: colors.textSecondary }]}>{tx.date}</Text>
+                    </View>
+                    <Text style={[styles.txAmount, { color: tx.type === 'debit' ? colors.text : colors.success }]}>
+                      {tx.amount}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
         </Animated.View>
         
         <View style={{ height: 80 }} />
@@ -225,6 +305,8 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     position: 'relative',
+  },
+  iconPadding: {
     padding: 4,
   },
   notificationBadge: {
@@ -399,8 +481,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
   },
-  dateTabActive: {
-  },
+  dateTabActive: {},
   dateTabText: {
     fontSize: 13,
     fontWeight: '600',
@@ -416,8 +497,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
-  subTabActive: {
-  },
+  subTabActive: {},
   subTabText: {
     fontSize: 14,
     fontWeight: '500',
@@ -428,6 +508,15 @@ const styles = StyleSheet.create({
   },
   transactionsList: {
     paddingBottom: Spacing.five,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
   },
   dateHeader: {
     fontSize: 13,

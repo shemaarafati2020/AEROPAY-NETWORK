@@ -2,19 +2,30 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-const TIMELINE_STEPS = [
-  { id: '1', title: 'Initiated', description: 'Transaction started', time: '10:42 AM' },
-  { id: '2', title: 'Converting', description: 'USDC → RWF locked', time: '10:42 AM' },
-  { id: '3', title: 'Sent to MoMo', description: 'Broadcasting to MTN', time: '10:43 AM' },
-  { id: '4', title: 'Delivered', description: 'Funds available to recipient', time: '' },
+const SUCCESS_STEPS = [
+  { id: '1', title: 'Initiated', description: 'Transaction started', time: '10:42 AM', state: 'done' },
+  { id: '2', title: 'Converting', description: 'USDC → RWF locked', time: '10:42 AM', state: 'done' },
+  { id: '3', title: 'Sent to MoMo', description: 'Broadcasting to MTN', time: '10:43 AM', state: 'done' },
+  { id: '4', title: 'Delivered', description: 'Funds available to recipient', time: '', state: 'done' },
+];
+
+const FAILED_STEPS = [
+  { id: '1', title: 'Initiated', description: 'Transaction started', time: '10:42 AM', state: 'done' },
+  { id: '2', title: 'Converting', description: 'USDC → RWF locked', time: '10:42 AM', state: 'done' },
+  { id: '3', title: 'Network Error', description: 'Safaricom API unreachable', time: '10:43 AM', state: 'failed' },
+  { id: '4', title: 'Reversing', description: 'Refunding to Main Wallet', time: '10:43 AM', state: 'warning' },
 ];
 
 export default function SendStatusScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
+  const params = useLocalSearchParams();
+  
+  const isFailed = params.failed === 'true';
+  const TIMELINE_STEPS = isFailed ? FAILED_STEPS : SUCCESS_STEPS;
   
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -30,6 +41,14 @@ export default function SendStatusScreen() {
     };
   }, []);
 
+  const getStepColor = (stepState: string, isCompleted: boolean, isCurrent: boolean) => {
+    if (stepState === 'failed' && isCompleted) return colors.error;
+    if (stepState === 'warning' && isCompleted) return '#F59E0B'; // Amber
+    if (isCompleted) return colors.success;
+    if (isCurrent) return colors.accent;
+    return colors.backgroundSelected;
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -41,7 +60,9 @@ export default function SendStatusScreen() {
       </View>
 
       <View style={styles.heroAmount}>
-        <Text style={[styles.heroAmountText, { color: colors.text }]}>130,500 <Text style={styles.heroCurrency}>RWF</Text></Text>
+        <Text style={[styles.heroAmountText, { color: isFailed ? colors.error : colors.text }]}>
+          130,500 <Text style={styles.heroCurrency}>RWF</Text>
+        </Text>
         <Text style={[styles.heroRecipient, { color: colors.textSecondary }]}>To J•••• M••••</Text>
       </View>
 
@@ -50,22 +71,21 @@ export default function SendStatusScreen() {
           const isCompleted = index <= currentStep;
           const isLast = index === TIMELINE_STEPS.length - 1;
           const isCurrent = index === currentStep;
+          
+          const dotColor = getStepColor(step.state, isCompleted, isCurrent);
 
           return (
             <View key={step.id} style={styles.stepRow}>
               <View style={styles.stepIndicatorContainer}>
-                <View style={[
-                  styles.stepDot,
-                  { backgroundColor: isCompleted ? colors.success : colors.backgroundSelected },
-                  isCurrent && { backgroundColor: colors.accent }
-                ]} />
-                {!isLast && <View style={[styles.stepLine, { backgroundColor: isCompleted ? colors.success : colors.backgroundSelected }]} />}
+                <View style={[styles.stepDot, { backgroundColor: dotColor }]} />
+                {!isLast && <View style={[styles.stepLine, { backgroundColor: isCompleted ? dotColor : colors.backgroundSelected }]} />}
               </View>
               <View style={styles.stepContent}>
                 <Text style={[
                   styles.stepTitle, 
                   { color: isCompleted ? colors.text : colors.textSecondary },
-                  isCurrent && { color: colors.text }
+                  isCurrent && { color: colors.text },
+                  (step.state === 'failed' && isCompleted) && { color: colors.error }
                 ]}>
                   {step.title}
                 </Text>
@@ -81,19 +101,29 @@ export default function SendStatusScreen() {
         })}
       </View>
 
+      {isFailed && currentStep === 3 && (
+        <View style={[styles.errorBox, { backgroundColor: 'rgba(239, 83, 80, 0.1)', borderColor: colors.error }]}>
+          <Text style={[styles.errorTitle, { color: colors.error }]}>Transfer Failed</Text>
+          <Text style={[styles.errorDesc, { color: colors.text }]}>We couldn't reach the mobile money provider. Your funds are safe and have been fully refunded to your Main Wallet.</Text>
+        </View>
+      )}
+
       <View style={styles.referenceContainer}>
         <Text style={[styles.referenceText, { color: colors.textSecondary }]}>Ref: OMNI-8X92-K4F1</Text>
+        <Text style={[styles.referenceText, { color: colors.textSecondary, marginTop: 4, fontSize: 10 }]}>Idempotency-Key: req_9x12nf821ms</Text>
         <Pressable style={styles.supportButton}>
-          <Text style={[styles.supportText, { color: colors.accent }]}>Need help?</Text>
+          <Text style={[styles.supportText, { color: colors.accent }]}>Need help? Open Dispute</Text>
         </Pressable>
       </View>
 
       {currentStep === 3 && (
         <Pressable 
-          style={[styles.doneButton, { backgroundColor: colors.backgroundElement }]}
+          style={[styles.doneButton, { backgroundColor: isFailed ? colors.accent : colors.backgroundElement }]}
           onPress={() => router.navigate('/')}
         >
-          <Text style={[styles.doneButtonText, { color: colors.text }]}>Done</Text>
+          <Text style={[styles.doneButtonText, { color: isFailed ? '#FFF' : colors.text }]}>
+            {isFailed ? 'Return Home' : 'Done'}
+          </Text>
         </Pressable>
       )}
     </SafeAreaView>
@@ -184,20 +214,36 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontVariant: ['tabular-nums'],
   },
+  errorBox: {
+    padding: Spacing.four,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: Spacing.four,
+  },
+  errorTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  errorDesc: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
   referenceContainer: {
     alignItems: 'center',
-    gap: Spacing.two,
+    gap: 4,
+    marginTop: 8,
   },
   referenceText: {
     fontSize: 12,
     fontVariant: ['tabular-nums'],
   },
   supportButton: {
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   supportText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   doneButton: {
     paddingVertical: 16,
