@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable, Dimensions, ScrollView, TextInput, Modal } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
@@ -7,7 +7,6 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
 
 const ALL_WORLD_CURRENCIES = [
   { code: 'USD', symbol: '$', name: 'US Dollar', rateToRwf: 1305, flag: '🇺🇸' },

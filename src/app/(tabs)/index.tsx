@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';

@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, Platform, useColorScheme } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const scheme = useColorScheme();
