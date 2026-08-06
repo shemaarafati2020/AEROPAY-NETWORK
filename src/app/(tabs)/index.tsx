@@ -23,9 +23,9 @@ const ACCOUNTS = [
 
 const QUICK_ACTIONS = [
   { id: '1', title: 'Transact', icon: 'swap-horizontal', route: '/(tabs)/send' },
-  { id: '2', title: 'Account\ninformation', icon: 'document-text', route: '/(tabs)/activity' },
-  { id: '3', title: 'Stop\npayment', icon: 'close-circle', route: '/(tabs)/fund' },
-  { id: '4', title: 'Manage\ncards', icon: 'card', route: '/(tabs)/fund' },
+  { id: '2', title: 'Account Info', icon: 'document-text', route: '/(tabs)/activity' },
+  { id: '3', title: 'Stop Pay', icon: 'close-circle', route: '/(tabs)/fund' },
+  { id: '4', title: 'Cards', icon: 'card', route: '/(tabs)/fund' },
 ];
 
 const TRANSACTIONS = [
@@ -45,7 +45,7 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
   }));
 
   return (
-    <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
+    <Animated.View entering={FadeInDown.delay(index * 100).springify()} style={styles.actionItemWrapper}>
       <AnimatedPressable 
         style={[styles.actionItem, animatedStyle]}
         onPressIn={() => (scale.value = withSpring(0.9))}
@@ -66,7 +66,9 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
         ]}>
           <Ionicons name={action.icon as any} size={22} color={colors.accent} />
         </View>
-        <Text style={[styles.actionTitle, { color: colors.textSecondary }]} numberOfLines={2}>{action.title}</Text>
+        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>
+          {action.title}
+        </Text>
       </AnimatedPressable>
     </Animated.View>
   );
@@ -463,9 +465,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.five,
     paddingHorizontal: Spacing.half,
   },
+  actionItemWrapper: {
+    width: '23%',
+    alignItems: 'center',
+  },
   actionItem: {
     alignItems: 'center',
-    width: '23%',
+    width: '100%',
   },
   actionIconCircle: {
     width: 56,
@@ -473,13 +479,14 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   actionTitle: {
-    fontSize: 11,
+    fontSize: 11.5,
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '700',
     lineHeight: 14,
+    width: '100%',
   },
   divider: {
     height: 1,
