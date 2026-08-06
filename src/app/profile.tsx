@@ -11,7 +11,6 @@ import {
   Image, 
   KeyboardAvoidingView, 
   ScrollView, 
-  Alert,
   Modal 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -114,6 +113,11 @@ export default function ProfileScreen() {
   const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
 
   // Edit Temp Form State
   const [editName, setEditName] = useState(name);
@@ -187,23 +191,7 @@ export default function ProfileScreen() {
     showToast('Transfer PIN updated successfully!', 'success');
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out of Aeropay Network?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Log Out', 
-          style: 'destructive', 
-          onPress: () => {
-            showToast('Logged out of Aeropay Network', 'info');
-            router.replace('/(tabs)');
-          } 
-        }
-      ]
-    );
-  };
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -580,6 +568,48 @@ export default function ProfileScreen() {
             >
               <Text style={[styles.saveBtnText, { color: colors.error }]}>Log Out of All Other Devices</Text>
             </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      <Modal
+        visible={isLogoutModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsLogoutModalOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsLogoutModalOpen(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF' }]} onPress={() => {}}>
+            <View style={{ alignItems: 'center', marginVertical: 12 }}>
+              <View style={[styles.iconBox, { backgroundColor: colors.error + '15', width: 56, height: 56, borderRadius: 28, marginBottom: 12, alignItems: 'center', justifyContent: 'center' }]}>
+                <Ionicons name="log-out-outline" size={28} color={colors.error} />
+              </View>
+              <Text style={[styles.kycStatusTitle, { color: colors.text, textAlign: 'center' }]}>Log Out of Aeropay?</Text>
+              <Text style={[styles.kycStatusSub, { color: colors.textSecondary, textAlign: 'center', marginTop: 6 }]}>
+                Are you sure you want to sign out of your account on this device?
+              </Text>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: isDark ? '#2C2C35' : '#E2E8F0', marginTop: 0 }]}
+                onPress={() => setIsLogoutModalOpen(false)}
+              >
+                <Text style={[styles.saveBtnText, { color: colors.text }]}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.saveBtn, { flex: 1, backgroundColor: colors.error, marginTop: 0 }]}
+                onPress={() => {
+                  setIsLogoutModalOpen(false);
+                  showToast('Logged out of Aeropay Network', 'info');
+                  router.replace('/(tabs)');
+                }}
+              >
+                <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>Log Out</Text>
+              </Pressable>
+            </View>
           </Pressable>
         </Pressable>
       </Modal>

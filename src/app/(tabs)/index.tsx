@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Modal, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
@@ -110,6 +110,13 @@ export default function HomeScreen() {
   const [isFilterActive, setIsFilterActive] = useState(true);
 
   // Modals
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState([
+    { id: '1', title: 'Salary Deposit Received', desc: '+120,000 KES deposited into your Savings Account', time: '10 min ago', unread: true, type: 'credit' },
+    { id: '2', title: 'Remittance Rate Locked', desc: 'USD → RWF rate guaranteed at $1 = 1,305.00 RWF', time: '1 hour ago', unread: true, type: 'info' },
+    { id: '3', title: 'Security Alert', desc: 'New login detected from Web Browser (Nairobi, Kenya)', time: 'Yesterday', unread: false, type: 'warning' },
+    { id: '4', title: 'Card Freeze Status', desc: 'Aeropay Gold Credit card status updated', time: '2 days ago', unread: false, type: 'info' },
+  ]);
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
   const [statementRange, setStatementRange] = useState<'3' | '6' | '12' | 'custom'>('3');
   const [customFromDate, setCustomFromDate] = useState('2026-02-01');
@@ -300,9 +307,11 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             <View style={styles.headerRight}>
-              <Pressable onPress={() => Alert.alert('Notifications', 'You have no new unread notifications.')} style={styles.iconPadding}>
+              <Pressable onPress={() => setIsNotificationModalOpen(true)} style={styles.iconPadding}>
                 <Ionicons name="notifications-outline" size={26} color={colors.text} />
-                <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
+                {notificationsList.some(n => n.unread) && (
+                  <View style={[styles.notificationBadge, { backgroundColor: colors.accent }]} />
+                )}
               </Pressable>
             </View>
           </Animated.View>
@@ -649,6 +658,79 @@ export default function HomeScreen() {
               <Ionicons name="add-circle-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
               <Text style={[styles.secondaryModalBtnText, { color: colors.accent }]}>Link New Card or Bank</Text>
             </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* NOTIFICATION CENTER MODAL */}
+      <Modal
+        visible={isNotificationModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsNotificationModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: isDark ? '#1E1E24' : '#FFFFFF', borderColor: colors.divider, maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>Notification Center</Text>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  {notificationsList.filter(n => n.unread).length} unread alerts
+                </Text>
+              </View>
+              <Pressable onPress={() => setIsNotificationModalOpen(false)} style={styles.modalCloseBtn}>
+                <Ionicons name="close" size={22} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
+              {notificationsList.map((item) => (
+                <View 
+                  key={item.id} 
+                  style={[
+                    styles.notificationItemCard, 
+                    { 
+                      backgroundColor: isDark ? '#2C2C35' : '#F8FAFC',
+                      borderColor: item.unread ? colors.accent : colors.divider,
+                      borderWidth: item.unread ? 1.5 : 1,
+                    }
+                  ]}
+                >
+                  <View style={styles.notificationHeaderRow}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                      <Ionicons 
+                        name={item.type === 'credit' ? "cash-outline" : item.type === 'warning' ? "warning-outline" : "information-circle-outline"} 
+                        size={18} 
+                        color={item.type === 'credit' ? colors.success : item.type === 'warning' ? colors.error : colors.accent} 
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text style={[styles.notificationTitle, { color: colors.text, fontWeight: item.unread ? '700' : '600' }]}>{item.title}</Text>
+                    </View>
+                    <Text style={[styles.notificationTime, { color: colors.textSecondary }]}>{item.time}</Text>
+                  </View>
+
+                  <Text style={[styles.notificationDesc, { color: colors.textSecondary }]}>{item.desc}</Text>
+                </View>
+              ))}
+            </ScrollView>
+
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => {
+                  setNotificationsList(prev => prev.map(n => ({ ...n, unread: false })));
+                  showToast('All notifications marked as read', 'success');
+                }}
+                style={[styles.secondaryModalBtn, { flex: 1, borderColor: colors.divider }]}
+              >
+                <Text style={[styles.secondaryModalBtnText, { color: colors.text }]}>Mark All Read</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setIsNotificationModalOpen(false)}
+                style={[styles.primaryModalBtn, { flex: 1, backgroundColor: colors.accent }]}
+              >
+                <Text style={styles.primaryModalBtnText}>Close</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1132,5 +1214,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
+  },
+  notificationItemCard: {
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+  },
+  notificationHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  notificationTitle: {
+    fontSize: 14,
+  },
+  notificationTime: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  notificationDesc: {
+    fontSize: 12,
+    lineHeight: 16,
+    marginLeft: 26,
   },
 });

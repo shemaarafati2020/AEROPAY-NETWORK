@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { useToast } from '@/context/ToastContext';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -14,6 +15,7 @@ export default function SendConfirmScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
+  const { showToast } = useToast();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const scale = useSharedValue(1);
@@ -37,7 +39,7 @@ export default function SendConfirmScreen() {
         });
 
         if (!result.success) {
-          Alert.alert('Authentication Failed', 'Please verify your identity to proceed.');
+          showToast('Authentication Failed: Please verify your identity', 'error');
           setIsSubmitting(false);
           return;
         }
