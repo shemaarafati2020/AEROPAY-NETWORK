@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, Dimensions, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
@@ -60,8 +60,15 @@ function ActionButton({ action, colors, index }: { action: any; colors: any; ind
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => router.push(action.route)}
       >
-        <Ionicons name={action.icon as any} size={18} color={colors.accent} style={{ marginRight: 6 }} />
-        <Text style={[styles.actionTitle, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+        <View style={[styles.actionIconContainer, { backgroundColor: colors.accent + '15' }]}>
+          <Ionicons name={action.icon as any} size={20} color={colors.accent} />
+        </View>
+        <Text 
+          style={[styles.actionTitle, { color: colors.text }]} 
+          numberOfLines={1} 
+          adjustsFontSizeToFit 
+          minimumFontScale={0.75}
+        >
           {action.title}
         </Text>
       </AnimatedPressable>
@@ -149,16 +156,15 @@ export default function HomeScreen() {
                 <Ionicons name="wifi-outline" size={22} color="#FFF" style={{ opacity: 0.8 }} />
               </View>
 
-              <View style={styles.chipContainer}>
+              <View style={styles.cardMiddleRow}>
                 <Ionicons name="hardware-chip-outline" size={32} color="#FFD700" />
+                <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
               </View>
               
-              <View style={styles.cardCenter}>
-                <Text style={styles.cardAccountType}>{activeAccount.type}</Text>
+              <View style={styles.cardBottomRow}>
+                <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
                 <Text style={styles.cardAccountNumber}>{activeAccount.number}</Text>
               </View>
-
-              <Text style={styles.cardHolder}>{activeAccount.cardHolder}</Text>
             </Pressable>
             
             {/* Interactive Pagination Dots */}
@@ -371,11 +377,9 @@ const styles = StyleSheet.create({
   },
   bankCard: {
     borderRadius: 20,
-    padding: 24,
-    height: 200,
+    padding: 22,
+    height: 195,
     justifyContent: 'space-between',
-    position: 'relative',
-    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -389,38 +393,44 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
-  chipContainer: {
-    marginTop: 12,
-  },
-  cardCenter: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    alignItems: 'flex-end',
+  cardMiddleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
   },
   cardAccountType: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: '600',
+    opacity: 0.9,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
-  cardAccountNumber: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 1,
+  cardBottomRow: {
+    marginTop: 'auto',
   },
   cardHolder: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 1.5,
-    marginTop: 24,
-    opacity: 0.9,
+    opacity: 0.85,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  cardAccountNumber: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '700',
+    letterSpacing: 1.5,
   },
   paginationDots: {
     flexDirection: 'row',
@@ -464,15 +474,15 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.five,
   },
   actionItemWrapper: {
-    width: '23.5%',
+    width: '23%',
   },
   actionItem: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 4,
-    borderRadius: 22,
+    borderRadius: 20,
     width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -480,10 +490,19 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  actionIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
   actionTitle: {
     fontSize: 11,
     fontWeight: '700',
     fontFamily: 'Inter',
+    textAlign: 'center',
   },
   divider: {
     height: 1,

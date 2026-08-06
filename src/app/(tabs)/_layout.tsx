@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, Platform, useColorScheme } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const scheme = useColorScheme();
@@ -49,7 +49,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               style={[
                 styles.tabItem,
                 isFocused && {
-                  backgroundColor: isDark ? colors.accent + '28' : colors.accent + '15',
+                  backgroundColor: isDark ? colors.accent + '25' : colors.accent + '15',
                   borderColor: colors.accent,
                   borderWidth: 1,
                 }
@@ -57,7 +57,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             >
               <Ionicons 
                 name={iconName as any} 
-                size={18} 
+                size={20} 
                 color={isFocused ? colors.accent : colors.textSecondary} 
               />
               <Text 
@@ -108,10 +108,10 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    borderRadius: 30,
+    justifyContent: 'space-around',
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    borderRadius: 28,
     borderWidth: 1.5,
     maxWidth: 540,
     width: '100%',
@@ -123,18 +123,19 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    borderRadius: 20,
-    marginHorizontal: 2,
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+    borderRadius: 18,
+    marginHorizontal: 1,
   },
   tabLabel: {
     fontFamily: 'Inter',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
-    marginLeft: 5,
+    marginTop: 3,
+    textAlign: 'center',
   },
 });

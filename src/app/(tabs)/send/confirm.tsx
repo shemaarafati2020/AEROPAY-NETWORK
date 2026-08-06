@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import { router } from 'expo-router';
-import { useState } from 'react';
+
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert } from 'react-native';
 
@@ -11,8 +11,7 @@ export default function SendConfirmScreen() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   
-  // Slide to Send state
-  const [slideProgress, setSlideProgress] = useState(0);
+  // Slide to Send action
 
   const handleSlideComplete = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
