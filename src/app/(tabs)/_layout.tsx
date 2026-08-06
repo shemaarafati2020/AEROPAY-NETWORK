@@ -41,7 +41,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           else if (route.name === 'fund') iconName = isFocused ? 'wallet' : 'wallet-outline';
           else if (route.name === 'send')
             iconName = isFocused ? 'paper-plane' : 'paper-plane-outline';
-          else if (route.name === 'recipients') iconName = isFocused ? 'people' : 'people-outline';
+          else if (route.name === 'vaults')
+            iconName = isFocused ? 'shield-checkmark' : 'shield-checkmark-outline';
           else if (route.name === 'activity') iconName = isFocused ? 'time' : 'time-outline';
 
           return (
@@ -93,7 +94,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="fund" options={{ title: 'Fund' }} />
       <Tabs.Screen name="send" options={{ title: 'Send' }} />
-      <Tabs.Screen name="recipients" options={{ title: 'Contacts' }} />
+      <Tabs.Screen name="vaults" options={{ title: 'Vaults' }} />
       <Tabs.Screen name="activity" options={{ title: 'Activity' }} />
     </Tabs>
   );
