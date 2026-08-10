@@ -13,10 +13,13 @@
     "build:frontend": "npm --workspace=frontend run build:web",
     "lint": "npm --workspace=frontend run lint",
     "type-check": "npm --workspace=frontend run type-check",
+    "backend:build": "cd backend && mvn clean package -DskipTests",
+    "backend:test": "cd backend && mvn clean test",
+    "backend:run": "cd backend && mvn spring-boot:run",
+    "compose:up": "docker compose up --build -d",
+    "compose:down": "docker compose down",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "docker:build": "docker build -t aeropay-frontend ./frontend",
-    "docker:run": "docker run -p 8080:80 aeropay-frontend",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -9,3 +9,7 @@ web-build
 *.log
 android
 frontend/android
+target
+backend/target
+*.jar
+*.class

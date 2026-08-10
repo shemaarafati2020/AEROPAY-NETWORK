@@ -43,3 +43,11 @@ example
 /android
 frontend/ios
 frontend/android
+
+# Java / Maven build output
+target/
+**/target/
+*.class
+.mvn/
+*.jar
+*.war

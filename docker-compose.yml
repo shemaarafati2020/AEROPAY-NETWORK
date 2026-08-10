@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aeropay-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aeropay_db
+      POSTGRES_USER: aeropay_user
+      POSTGRES_PASSWORD: aeropay_secret_2026
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aeropay_user -d aeropay_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aeropay-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aeropay-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aeropay_db
+      SPRING_DATASOURCE_USERNAME: aeropay_user
+      SPRING_DATASOURCE_PASSWORD: aeropay_secret_2026
+      CORS_ALLOWED_ORIGINS: http://localhost:80,http://localhost:8080,http://localhost:8081,http://localhost:3000
+    ports:
+      - '8080:8080'
+    networks:
+      - aeropay-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aeropay-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '80:80'
+    networks:
+      - aeropay-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  aeropay-network:
+    driver: bridge
