@@ -2,9 +2,9 @@ name: CI Workflow
 
 on:
   push:
-    branches: [main, designUI]
+    branches: [main, Main, designUI]
   pull_request:
-    branches: [main, designUI]
+    branches: [main, Main, designUI]
 
 jobs:
   lint-and-typecheck:
