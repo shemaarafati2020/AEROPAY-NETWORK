@@ -89,9 +89,10 @@ export default function SendStatusScreen() {
   const isFailed = params.failed === 'true';
   const recipientName = params.recipientName || 'John Doe';
   const recipientPhone = params.recipientPhone || '+250 788 123 456';
-  const amountUsd = params.amountUsd || '100';
+  const numericAmountUsd = parseFloat(params.amountUsd || '100');
   const currency = params.currency || 'RWF';
-  const receiveAmount = currency === 'RWF' ? '130,500' : '12,950';
+  const exchangeRate = currency === 'RWF' ? 1420 : 129.5;
+  const receiveAmount = Math.round(numericAmountUsd * exchangeRate).toLocaleString('en-US');
   const refId = 'AP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
   const idempotencyKey = params.idempotencyKey || 'ap-idemp-default-9812';
 
@@ -123,14 +124,14 @@ export default function SendStatusScreen() {
         <html>
           <head>
             <style>
-              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #111; }
-              .header { border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-              .brand { font-size: 28px; font-weight: 800; color: #0066FF; }
-              .title { font-size: 20px; font-weight: 700; margin-top: 10px; }
-              .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
-              .label { color: #666; font-size: 14px; }
-              .value { font-weight: 600; font-size: 14px; }
-              .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #999; }
+              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #0F172A; }
+              .header { border-bottom: 3px solid #A51C24; padding-bottom: 20px; margin-bottom: 30px; }
+              .brand { font-size: 28px; font-weight: 800; color: #A51C24; }
+              .title { font-size: 20px; font-weight: 700; margin-top: 10px; color: #334155; }
+              .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E2E8F0; }
+              .label { color: #64748B; font-size: 14px; font-weight: 500; }
+              .value { font-weight: 700; font-size: 14px; color: #0F172A; }
+              .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #94A3B8; }
             </style>
           </head>
           <body>
@@ -143,7 +144,7 @@ export default function SendStatusScreen() {
             <div class="row"><span class="label">Status</span><span class="value">${isFailed ? 'FAILED (Refunded)' : 'DELIVERED'}</span></div>
             <div class="row"><span class="label">Sender</span><span class="value">Shema Arafati</span></div>
             <div class="row"><span class="label">Recipient</span><span class="value">${recipientName} (${recipientPhone})</span></div>
-            <div class="row"><span class="label">Amount Sent</span><span class="value">$${amountUsd}.00 USD</span></div>
+            <div class="row"><span class="label">Amount Sent</span><span class="value">$${numericAmountUsd.toFixed(2)} USD</span></div>
             <div class="row"><span class="label">Amount Delivered</span><span class="value">${receiveAmount} ${currency}</span></div>
             <div class="row"><span class="label">Settlement Rail</span><span class="value">Stellar / USDC Anchor</span></div>
             <div class="footer">
@@ -255,8 +256,8 @@ export default function SendStatusScreen() {
                 Transfer Failed & Auto-Refunded
               </Text>
               <Text style={[styles.errorDesc, { color: colors.text }]}>
-                MTN Gateway experienced a temporary timeout. Funds ($${amountUsd}.00 USDC) have been
-                safely returned to your wallet.
+                MTN Gateway experienced a temporary timeout. Funds (${numericAmountUsd.toFixed(2)}{' '}
+                USDC) have been safely returned to your wallet.
               </Text>
             </View>
           )}

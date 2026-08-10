@@ -205,9 +205,15 @@ export default function AssistantScreen() {
                             params: {
                               recipientName: msg.draftAction.params.recipientName,
                               recipientPhone: msg.draftAction.params.recipientPhone,
-                              sendAmountUsd: msg.draftAction.params.amountUsd,
+                              sendAmountUsd: msg.draftAction.params.amountUsd?.toString(),
                             },
                           });
+                        } else if (msg.draftAction?.type === 'vault_deposit') {
+                          showToast(
+                            `$${msg.draftAction.params.amountUsd} deposited to ${msg.draftAction.params.vaultName}!`,
+                            'success'
+                          );
+                          router.push('/(tabs)/vaults');
                         } else if (msg.draftAction?.type === 'support_ticket') {
                           showToast('Priority security ticket SUP-2291 created.', 'success');
                         } else if (msg.draftAction?.type === 'screen_navigation') {

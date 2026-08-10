@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import QRScannerModal from '@/components/QRScannerModal';
@@ -80,9 +80,31 @@ export default function SendRecipientScreen() {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
 
+  const params = useLocalSearchParams<{
+    sendAmountUsd?: string;
+    currency?: string;
+    currencySymbol?: string;
+    exchangeRate?: string;
+  }>();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+
+  const navigateToConfirm = (recipient: Recipient) => {
+    router.push({
+      pathname: '/(tabs)/send/confirm',
+      params: {
+        sendAmountUsd: params.sendAmountUsd || '100',
+        currency: params.currency || 'RWF',
+        currencySymbol: params.currencySymbol || 'FRw',
+        exchangeRate: params.exchangeRate || '1420',
+        recipientName: recipient.name,
+        recipientPhone: recipient.phone,
+        recipientProvider: recipient.provider,
+      },
+    });
+  };
 
   // Filter saved contacts based on search query
   const filteredRecipients = useMemo(() => {
@@ -345,9 +367,15 @@ export default function SendRecipientScreen() {
             disabled={!isResolved}
             style={[
               styles.nextButton,
-              { backgroundColor: isResolved ? colors.accent : isDark ? '#333338' : '#E0E0E5' },
+              {
+                backgroundColor: isResolved
+                  ? colors.accent
+                  : isDark
+                    ? 'rgba(32, 38, 54, 0.7)'
+                    : '#E0E0E5',
+              },
             ]}
-            onPress={() => router.push('/(tabs)/send/confirm')}
+            onPress={() => selectedRecipient && navigateToConfirm(selectedRecipient)}
           >
             <Text
               style={[

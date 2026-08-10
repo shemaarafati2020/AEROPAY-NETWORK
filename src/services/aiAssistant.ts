@@ -4,7 +4,7 @@ export interface AssistantMessage {
   text: string;
   timestamp: number;
   draftAction?: {
-    type: 'transfer_proposal' | 'support_ticket' | 'screen_navigation';
+    type: 'transfer_proposal' | 'support_ticket' | 'screen_navigation' | 'vault_deposit';
     title: string;
     params: {
       recipientName?: string;
@@ -13,6 +13,8 @@ export interface AssistantMessage {
       currency?: string;
       refId?: string;
       targetScreen?: string;
+      vaultName?: string;
+      vaultId?: string;
     };
   };
   toolsUsed?: string[];
@@ -39,6 +41,7 @@ export interface IntentClassificationResult {
     | 'STATUS_CHECK'
     | 'FX_RATES'
     | 'DRAFT_TRANSFER'
+    | 'VAULT_ACTION'
     | 'DISPUTE_FRAUD'
     | 'PROACTIVE_SUGGESTION'
     | 'GENERAL_HELP';
@@ -68,6 +71,12 @@ export function getProactiveSuggestions(
       category: 'transfer',
     },
     {
+      id: 'sug-savings-boost',
+      label: '🛡️ Deposit $25 to Emergency Fund Vault',
+      actionPrompt: 'Deposit $25 to my Emergency Fund vault',
+      category: 'analytics',
+    },
+    {
       id: 'sug-fx-check',
       label: `📈 Check live RWF & KES rates ($1 = ${context.exchangeRateUsdToRwf.toLocaleString()} RWF)`,
       actionPrompt: 'What are the current exchange rates and fees today?',
@@ -79,18 +88,12 @@ export function getProactiveSuggestions(
       actionPrompt: 'Where is my recent transfer status AP-8F2K?',
       category: 'support',
     },
-    {
-      id: 'sug-savings-boost',
-      label: '🛡️ Check my savings vaults and auto-roundup rules',
-      actionPrompt: 'How much have I saved in my emergency and rent vaults?',
-      category: 'analytics',
-    },
   ];
 }
 
 /**
  * Natural language intent classifier with support for East African multilingual vocabularies:
- * English, Kinyarwanda (amafaranga, oherereza), Swahili (tuma pesa, salio), and French (envoyer, solde).
+ * English, Kinyarwanda (amafaranga, oherereza, bika), Swahili (tuma pesa, salio, akiba), and French (envoyer, solde, coffre).
  */
 export function classifyUserIntent(query: string): IntentClassificationResult {
   const queryLower = query.toLowerCase().trim();
@@ -102,6 +105,7 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     queryLower.includes('oherereza') ||
     queryLower.includes('kigali') ||
     queryLower.includes('kwishyura') ||
+    queryLower.includes('bika') ||
     queryLower.includes('ubufasha')
   ) {
     detectedLanguage = 'rw';
@@ -110,6 +114,8 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     queryLower.includes('salio') ||
     queryLower.includes('pesa') ||
     queryLower.includes('shilingi') ||
+    queryLower.includes('akiba') ||
+    queryLower.includes('weka') ||
     queryLower.includes('msaada')
   ) {
     detectedLanguage = 'sw';
@@ -118,6 +124,8 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     queryLower.includes('taux') ||
     queryLower.includes('solde') ||
     queryLower.includes('argent') ||
+    queryLower.includes('coffre') ||
+    queryLower.includes('epargne') ||
     queryLower.includes('aide')
   ) {
     detectedLanguage = 'fr';
@@ -135,7 +143,22 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     return { intent: 'DISPUTE_FRAUD', confidence: 0.95, detectedLanguage };
   }
 
-  // 2. Draft Transfer Intent
+  // 2. Vault / Savings Intent
+  if (
+    queryLower.includes('vault') ||
+    queryLower.includes('saving') ||
+    queryLower.includes('emergency') ||
+    queryLower.includes('roundup') ||
+    queryLower.includes('round-up') ||
+    queryLower.includes('bika') ||
+    queryLower.includes('akiba') ||
+    queryLower.includes('coffre') ||
+    queryLower.includes('epargne')
+  ) {
+    return { intent: 'VAULT_ACTION', confidence: 0.92, detectedLanguage };
+  }
+
+  // 3. Draft Transfer Intent
   if (
     queryLower.includes('send') ||
     queryLower.includes('transfer') ||
@@ -148,7 +171,7 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     return { intent: 'DRAFT_TRANSFER', confidence: 0.9, detectedLanguage };
   }
 
-  // 3. Status Check / Query
+  // 4. Status Check / Query
   if (
     queryLower.includes('status') ||
     queryLower.includes('where is') ||
@@ -162,7 +185,7 @@ export function classifyUserIntent(query: string): IntentClassificationResult {
     return { intent: 'STATUS_CHECK', confidence: 0.88, detectedLanguage };
   }
 
-  // 4. FX Rates / Fee Explainer
+  // 5. FX Rates / Fee Explainer
   if (
     queryLower.includes('fee') ||
     queryLower.includes('rate') ||
@@ -269,7 +292,37 @@ export function processAssistantQuery(
     };
   }
 
-  // 4. Dispute / Fraud Alert
+  // 4. Savings Vault Intent ("deposit 25 to emergency vault")
+  if (intent === 'VAULT_ACTION') {
+    const match = userQuery.match(/\$?(\d+(\.\d+)?)/);
+    const amountUsd = match ? parseFloat(match[1]) : 25;
+    const isEmergency = queryLower.includes('emergency') || queryLower.includes('security');
+    const isRent = queryLower.includes('rent') || queryLower.includes('inzu');
+    const targetVault = isEmergency
+      ? 'Emergency Fund'
+      : isRent
+        ? 'Quarterly Rent'
+        : 'General Savings';
+
+    return {
+      id: 'msg-' + timestamp,
+      sender: 'assistant',
+      text: `I've prepared a savings deposit of $${amountUsd.toFixed(2)} USDC to your "${targetVault}" vault. AeroPay vaults are inflation-hedged in USDC with auto-roundup sweeps active. Please authorize below:`,
+      timestamp,
+      detectedLanguage,
+      toolsUsed: ['get_vault_balances', 'draft_vault_deposit'],
+      draftAction: {
+        type: 'vault_deposit',
+        title: `Confirm Deposit: $${amountUsd.toFixed(2)} to ${targetVault}`,
+        params: {
+          vaultName: targetVault,
+          amountUsd,
+        },
+      },
+    };
+  }
+
+  // 5. Dispute / Fraud Alert
   if (intent === 'DISPUTE_FRAUD') {
     return {
       id: 'msg-' + timestamp,
@@ -277,24 +330,33 @@ export function processAssistantQuery(
       text: '⚠️ Account Security Alert triggered. I have flagged your account for priority review and opened a security ticket (Ref SUP-2291). Would you like to temporarily lock your account card now?',
       timestamp,
       detectedLanguage,
-      toolsUsed: ['create_support_ticket', 'open_screen'],
+      toolsUsed: ['lock_account_card', 'open_security_ticket'],
       draftAction: {
-        type: 'screen_navigation',
-        title: 'Lock Account & Review Security',
+        type: 'support_ticket',
+        title: 'Lock Card & Escalate to Security Team',
         params: {
-          targetScreen: '/profile',
+          refId: 'SUP-2291',
         },
       },
     };
   }
 
-  // 5. Default General Response (Multilingual Support)
+  // 6. General Multilingual Fallback
+  const fallbackGreeting =
+    detectedLanguage === 'rw'
+      ? 'Muraho! Ndi umufasha wawe muri AeroPay. Nshobora kugufasha kohereza amafaranga, kureba ibiciro bya FX, cyangwa kubika muri Vault.'
+      : detectedLanguage === 'sw'
+        ? 'Habari! Mimi ni msaidizi wako wa AeroPay. Naweza kukusaidia kutuma pesa, kuangalia viwango vya FX, au kuweka akiba kwenye Vaults.'
+        : detectedLanguage === 'fr'
+          ? "Bonjour! Je suis votre assistant AeroPay. Je peux vous aider à envoyer de l'argent, vérifier les taux de change ou gérer vos coffres d'épargne."
+          : 'Hello Shema! I can assist you with tracking transfers, drafting remittance proposals, explaining FX rates, or managing your USDC savings vaults.';
+
   return {
     id: 'msg-' + timestamp,
     sender: 'assistant',
-    text: `Hello! I'm your AeroPay Assistant. I can help you check live transaction status, explain FX rates and fees, summarize your monthly spending, or prepare a transfer for you to confirm.\n\nHow can I assist you today?`,
+    text: fallbackGreeting,
     timestamp,
     detectedLanguage,
-    toolsUsed: ['get_balance'],
+    toolsUsed: ['general_knowledge_base'],
   };
 }

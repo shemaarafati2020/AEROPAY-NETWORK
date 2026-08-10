@@ -332,9 +332,19 @@ export default function SendAmountScreen() {
             disabled={!isValid}
             style={[
               styles.nextButton,
-              { backgroundColor: isValid ? colors.accent : isDark ? '#333' : '#E0E0E0' },
+              { backgroundColor: isValid ? colors.accent : isDark ? '#222838' : '#E0E0E0' },
             ]}
-            onPress={() => router.push('/(tabs)/send/recipient')}
+            onPress={() =>
+              router.push({
+                pathname: '/(tabs)/send/recipient',
+                params: {
+                  sendAmountUsd: numericAmount.toString(),
+                  currency: selectedCurrency.code,
+                  currencySymbol: selectedCurrency.symbol,
+                  exchangeRate: selectedCurrency.rateToRwf.toString(),
+                },
+              })
+            }
           >
             <Text
               style={[styles.nextButtonText, { color: isValid ? '#FFFFFF' : colors.textSecondary }]}

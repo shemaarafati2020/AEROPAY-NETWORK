@@ -27,15 +27,21 @@ export default function SendConfirmScreen() {
   const params = useLocalSearchParams<{
     recipientName?: string;
     recipientPhone?: string;
+    recipientProvider?: string;
     sendAmountUsd?: string;
     currency?: string;
+    exchangeRate?: string;
   }>();
 
   const recipientName = params.recipientName || 'John Doe';
   const recipientPhone = params.recipientPhone || '+250 788 123 456';
   const sendAmountUsd = params.sendAmountUsd ? parseFloat(params.sendAmountUsd) : 100;
   const currency = (params.currency as 'KES' | 'RWF') || 'RWF';
-  const exchangeRate = currency === 'RWF' ? 1305 : 129.5;
+  const exchangeRate = params.exchangeRate
+    ? parseFloat(params.exchangeRate)
+    : currency === 'RWF'
+      ? 1420
+      : 129.5;
   const receiveAmountLocal = Math.round(sendAmountUsd * exchangeRate);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -131,7 +137,7 @@ export default function SendConfirmScreen() {
           >
             <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>YOU SEND</Text>
             <Text style={[styles.summaryValue, { color: colors.text }]}>
-              $100.00 <Text style={styles.currency}>USD</Text>
+              ${sendAmountUsd.toFixed(2)} <Text style={styles.currency}>USD</Text>
             </Text>
 
             <View style={[styles.divider, { backgroundColor: colors.divider }]} />
@@ -140,7 +146,8 @@ export default function SendConfirmScreen() {
               RECIPIENT GETS
             </Text>
             <Text style={[styles.summaryValue, { color: colors.accent }]}>
-              130,500 <Text style={[styles.currency, { color: colors.accent }]}>RWF</Text>
+              {receiveAmountLocal.toLocaleString()}{' '}
+              <Text style={[styles.currency, { color: colors.accent }]}>{currency}</Text>
             </Text>
 
             <View style={[styles.divider, { backgroundColor: colors.divider }]} />
@@ -148,9 +155,9 @@ export default function SendConfirmScreen() {
             <View style={styles.row}>
               <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>Recipient</Text>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={[styles.rowValue, { color: colors.text }]}>John Doe</Text>
+                <Text style={[styles.rowValue, { color: colors.text }]}>{recipientName}</Text>
                 <Text style={[styles.rowSubValue, { color: colors.textSecondary }]}>
-                  MTN MoMo • +250 788 123 456
+                  {params.recipientProvider || 'Mobile Money'} • {recipientPhone}
                 </Text>
               </View>
             </View>
@@ -161,7 +168,9 @@ export default function SendConfirmScreen() {
               <Text style={[styles.rowLabel, { color: colors.textSecondary }]}>
                 Guaranteed Exchange Rate
               </Text>
-              <Text style={[styles.rowValue, { color: colors.text }]}>$1 = 1,305.00 RWF</Text>
+              <Text style={[styles.rowValue, { color: colors.text }]}>
+                1 USD = {exchangeRate.toLocaleString()} {currency}
+              </Text>
             </View>
 
             <View style={[styles.divider, { backgroundColor: colors.divider }]} />
@@ -178,7 +187,7 @@ export default function SendConfirmScreen() {
                   style={{ marginRight: 4 }}
                 />
                 <Text style={[styles.feeBadgeText, { color: colors.success }]}>
-                  Zero Fee (Free)
+                  Zero Fee (Sponsored)
                 </Text>
               </View>
             </View>
