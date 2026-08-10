@@ -26,6 +26,7 @@ import { useState, useMemo, useEffect } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import {
   subscribeOutboxQueue,
   startAutoSyncPoller,
@@ -143,20 +144,31 @@ function ActionButton({
   onPress: () => void;
 }) {
   const scale = useSharedValue(1);
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   return (
-    <Animated.View entering={FadeInDown.delay(index * 100).springify()} className="w-[23%]">
+    <Animated.View entering={FadeInDown.delay(index * 100).springify()} style={{ width: '23%' }}>
       <AnimatedPressable
-        className="w-full flex-col items-center justify-center py-3 px-1 rounded-2xl shadow-sm"
         style={[
           {
-            backgroundColor: colors.backgroundElement,
-            borderColor: colors.divider,
+            backgroundColor: isDark ? 'rgba(20, 24, 38, 0.75)' : 'rgba(255, 255, 255, 0.88)',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.07)',
             borderWidth: 1.5,
+            borderRadius: 20,
+            paddingVertical: 14,
+            paddingHorizontal: 4,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: isDark ? '#000' : '#64748B',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: isDark ? 0.3 : 0.06,
+            shadowRadius: 10,
+            elevation: 3,
           },
           animatedStyle,
         ]}
@@ -165,14 +177,28 @@ function ActionButton({
         onPress={onPress}
       >
         <View
-          className="w-11 h-11 rounded-full items-center justify-center mb-2"
-          style={{ backgroundColor: colors.accent + '15' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 8,
+            backgroundColor: isDark ? 'rgba(197, 34, 43, 0.2)' : 'rgba(165, 28, 36, 0.12)',
+            borderWidth: 1,
+            borderColor: isDark ? 'rgba(225, 29, 72, 0.35)' : 'rgba(165, 28, 36, 0.2)',
+          }}
         >
           <Ionicons name={action.icon as any} size={20} color={colors.accent} />
         </View>
         <Text
-          className="text-[11px] font-bold text-center font-sans"
-          style={{ color: colors.text }}
+          style={{
+            color: colors.text,
+            fontSize: 11,
+            fontWeight: '700',
+            textAlign: 'center',
+            fontFamily: 'Inter',
+          }}
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.75}
@@ -189,6 +215,7 @@ export default function HomeScreen() {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
   const isDark = scheme === 'dark';
   const { showToast } = useToast();
+  const { currentUser, isAdmin, broadcastsList } = useAuth();
 
   // Interactive States
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
@@ -199,7 +226,8 @@ export default function HomeScreen() {
 
   // Modals
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState([
+  const [readBroadcastIds, setReadBroadcastIds] = useState<string[]>([]);
+  const [baseNotificationsList, setBaseNotificationsList] = useState([
     {
       id: '1',
       title: 'Salary Deposit Received',
@@ -243,6 +271,18 @@ export default function HomeScreen() {
   const [frozenCards, setFrozenCards] = useState<{ [key: string]: boolean }>({});
   const [outboxQueue, setOutboxQueue] = useState<OutboxItem[]>([]);
   const [isSyncingOutbox, setIsSyncingOutbox] = useState(false);
+
+  const notificationsList = useMemo(() => {
+    const broadcastItems = (broadcastsList || []).map((bc) => ({
+      id: bc.id,
+      title: `[GLOBAL] ${bc.title}`,
+      desc: bc.message,
+      time: new Date(bc.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      unread: !readBroadcastIds.includes(bc.id),
+      type: bc.category === 'critical' ? 'warning' : bc.category === 'promo' ? 'credit' : 'info',
+    }));
+    return [...broadcastItems, ...baseNotificationsList];
+  }, [broadcastsList, readBroadcastIds, baseNotificationsList]);
 
   useEffect(() => {
     startAutoSyncPoller();
@@ -441,16 +481,71 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.responsiveWrapper}>
+          {/* Admin Supervisor Quick Jump Banner */}
+          {isAdmin && (
+            <Animated.View
+              entering={FadeInDown.duration(400)}
+              style={[
+                styles.adminDashboardBanner,
+                {
+                  backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EEF2FF',
+                  borderColor: '#6366F1',
+                },
+              ]}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                <Ionicons name="shield-checkmark" size={18} color="#6366F1" />
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: '800',
+                      color: isDark ? '#A5B4FC' : '#4338CA',
+                    }}
+                  >
+                    Root Admin Session Active
+                  </Text>
+                  <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                    Review user accounts, KYC verifications & FX controls
+                  </Text>
+                </View>
+              </View>
+
+              <Pressable onPress={() => router.push('/admin')} style={styles.adminBannerJumpBtn}>
+                <Text style={styles.adminBannerJumpText}>Operations Hub</Text>
+                <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+              </Pressable>
+            </Animated.View>
+          )}
+
           {/* Header Section */}
           <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.header}>
             <View style={styles.headerLeft}>
               <Pressable onPress={() => router.push('/profile')}>
                 <View
-                  style={[styles.profileCircle, { backgroundColor: isDark ? '#333' : '#E8E8E8' }]}
+                  style={[
+                    styles.profileCircle,
+                    { backgroundColor: currentUser?.avatarColor || (isDark ? '#333' : '#E8E8E8') },
+                  ]}
                 >
-                  <Ionicons name="person" size={22} color={isDark ? '#CCC' : '#888'} />
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 14 }}>
+                    {(currentUser?.name || 'Shema')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </Text>
                 </View>
               </Pressable>
+              <View style={{ marginLeft: 10 }}>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, fontWeight: '600' }}>
+                  Welcome back,
+                </Text>
+                <Text style={{ fontSize: 16, color: colors.text, fontWeight: '800' }}>
+                  {currentUser?.name || 'Shema Arafati'}
+                </Text>
+              </View>
             </View>
             <View style={styles.headerRight}>
               <Pressable
@@ -469,7 +564,7 @@ export default function HomeScreen() {
             entering={FadeInDown.delay(100).duration(500)}
             style={[styles.greeting, { color: colors.text }]}
           >
-            Manage your accounts and cards, all in one place
+            Manage your multi-currency accounts, vault and cards
           </Animated.Text>
 
           {/* Account Tab Switcher */}
@@ -1182,7 +1277,8 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Pressable
                 onPress={() => {
-                  setNotificationsList((prev) => prev.map((n) => ({ ...n, unread: false })));
+                  setBaseNotificationsList((prev) => prev.map((n) => ({ ...n, unread: false })));
+                  setReadBroadcastIds((broadcastsList || []).map((bc) => bc.id));
                   showToast('All notifications marked as read', 'success');
                 }}
                 style={[styles.secondaryModalBtn, { flex: 1, borderColor: colors.divider }]}
@@ -1266,18 +1362,20 @@ const styles = StyleSheet.create({
   },
   accountsTabText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   bankCard: {
-    borderRadius: 20,
-    padding: 22,
-    height: 195,
+    borderRadius: 24,
+    padding: 24,
+    height: 200,
     justifyContent: 'space-between',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.28,
+    shadowRadius: 20,
+    elevation: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -1286,35 +1384,37 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
   cardMiddleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 12,
   },
   cardAccountType: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
-    opacity: 0.9,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: '700',
+    opacity: 0.95,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   cardBottomRow: {
     marginTop: 'auto',
   },
   cardHolder: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 1.5,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.8,
     opacity: 0.85,
     marginBottom: 4,
     textTransform: 'uppercase',
@@ -1704,5 +1804,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     marginLeft: 26,
+  },
+  adminDashboardBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    marginBottom: 14,
+    gap: 8,
+  },
+  adminBannerJumpBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#6366F1',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  adminBannerJumpText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
 });

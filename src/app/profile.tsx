@@ -26,6 +26,7 @@ import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import QRCode from 'react-native-qrcode-svg';
 import * as Sharing from 'expo-sharing';
 
@@ -112,11 +113,12 @@ export default function ProfileScreen() {
   const isDark = scheme === 'dark';
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { showToast } = useToast();
+  const { currentUser, isAdmin, logout } = useAuth();
 
   // User Profile State
-  const [name, setName] = useState('Shema Arafati');
-  const [email, setEmail] = useState('shema.arafati@example.com');
-  const [phone, setPhone] = useState('+250 788 123 456');
+  const [name, setName] = useState(currentUser?.name || 'Shema Arafati');
+  const [email, setEmail] = useState(currentUser?.email || 'shema@aeropay.network');
+  const [phone, setPhone] = useState(currentUser?.phone || '+250 788 123 456');
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   // Settings State
@@ -303,6 +305,44 @@ export default function ProfileScreen() {
                 </Text>
               </Pressable>
             </Animated.View>
+
+            {/* Admin Console Launch Banner (If Admin) */}
+            {isAdmin && (
+              <Animated.View
+                entering={FadeInDown.duration(400)}
+                style={[
+                  styles.adminHeroBanner,
+                  {
+                    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EEF2FF',
+                    borderColor: '#6366F1',
+                  },
+                ]}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={styles.adminBannerIcon}>
+                    <Ionicons name="shield-checkmark" size={20} color="#6366F1" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={[styles.adminBannerTitle, { color: isDark ? '#A5B4FC' : '#4F46E5' }]}
+                    >
+                      Administrator Access Active
+                    </Text>
+                    <Text style={[styles.adminBannerSub, { color: colors.textSecondary }]}>
+                      Full user directory management, KYC controls & FX liquidity pool
+                    </Text>
+                  </View>
+                </View>
+
+                <Pressable
+                  style={[styles.adminBannerBtn, { backgroundColor: '#6366F1' }]}
+                  onPress={() => router.push('/admin')}
+                >
+                  <Text style={styles.adminBannerBtnText}>Launch Admin Operations Hub</Text>
+                  <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+                </Pressable>
+              </Animated.View>
+            )}
 
             {/* Account Stats Bar */}
             <Animated.View
@@ -871,10 +911,11 @@ export default function ProfileScreen() {
 
               <Pressable
                 style={[styles.saveBtn, { flex: 1, backgroundColor: colors.error, marginTop: 0 }]}
-                onPress={() => {
+                onPress={async () => {
                   setIsLogoutModalOpen(false);
-                  showToast('Logged out of Aeropay Network', 'info');
-                  router.replace('/(tabs)');
+                  await logout();
+                  showToast('Logged out of AeroPay Network', 'info');
+                  router.replace('/login');
                 }}
               >
                 <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>Log Out</Text>
@@ -1745,5 +1786,41 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     marginBottom: 10,
+  },
+  adminHeroBanner: {
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    marginBottom: 16,
+  },
+  adminBannerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#6366F125',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adminBannerTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  adminBannerSub: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  adminBannerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 44,
+    borderRadius: 22,
+    marginTop: 14,
+  },
+  adminBannerBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
   },
 });
