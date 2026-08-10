@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Backend API & Settlement Engine
+  aeropay-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aeropay-backend
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - JWT_SECRET=aeropay-super-secret-jwt-key-change-in-production
+      - CORS_ORIGIN=*
+      - STELLAR_NETWORK=testnet
+      - STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+      - SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
+    depends_on:
+      - redis
+    networks:
+      - aeropay-network
+
+  # Frontend Expo Web Client
+  aeropay-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aeropay-frontend
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - aeropay-backend
+    networks:
+      - aeropay-network
+
+  # Redis for Caching and Real-time Pub/Sub
+  redis:
+    image: redis:7-alpine
+    container_name: aeropay-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - aeropay-network
+
+networks:
+  aeropay-network:
+    driver: bridge
+
+volumes:
+  redis-data:
