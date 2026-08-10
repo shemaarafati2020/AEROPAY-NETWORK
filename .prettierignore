@@ -1,7 +1,11 @@
 node_modules
 .expo
-.next
+.git
+.github
 dist
-build
-package-lock.json
-*.min.js
+web-build
+.vscode
+.DS_Store
+*.log
+android
+frontend/android

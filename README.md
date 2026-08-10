@@ -1,63 +1,46 @@
 # AeroPay Network (Monorepo)
 
-Production-grade cross-border remittance settlement platform and operations console built with **React Native / Expo** (Frontend), **Node.js / Express / TypeScript** (Backend), and **Stellar Soroban Smart Contracts**.
+Production-grade cross-border remittance settlement platform and operations console.
 
 ```
 AEROPAY NETWORK (Monorepo)
-├── frontend/             # React Native / Expo Web & Mobile App
+├── frontend/             # React Native / Expo Web & Mobile App (Docker ready)
 │   ├── src/              # Application screens, context, hooks, & UI
 │   ├── Dockerfile        # Multi-stage Expo Web + Nginx build
-│   └── nginx.conf        # Production SPA server config
+│   ├── nginx.conf        # Production SPA server config
+│   └── package.json      # Frontend client dependencies
 │
-├── backend/              # Node.js & TypeScript Settlement Engine
-│   ├── src/              # REST & WebSocket APIs, Stellar Paymasters, & Rails
-│   ├── Dockerfile        # Production container build
-│   └── .env.example      # Environment variables schema
-│
-├── docker-compose.yml    # Full-stack orchestration (Frontend + Backend + Redis)
-└── package.json          # Monorepo workspaces coordinator
+└── backend/              # Spring Boot Java Backend (Reserved for custom implementation)
 ```
 
 ---
 
-## ⚡ Quick Start
-
-### 1. Monorepo Setup & Local Development
+## ⚡ Frontend Quick Start
 
 ```bash
-# Install dependencies across all workspaces
+# Install dependencies
 npm install
 
-# Start Backend API & WebSocket server (port 5000)
-npm run dev:backend
+# Start Frontend Expo Client
+npm run start
 
-# In a new terminal, start Frontend Expo Client (port 8081 / Web)
-npm run dev:frontend
+# Start Expo Web
+npm run web
 ```
 
 ---
 
-## 🐳 Docker Deployment
-
-Run the entire full-stack stack (Frontend + Backend + Redis) with a single command:
+## 🐳 Frontend Docker Deployment
 
 ```bash
-# Build and launch all containers in background
-docker compose up -d --build
+# Build frontend docker image
+docker build -t aeropay-frontend ./frontend
 
-# View container logs
-docker compose logs -f
-
-# Shut down containers
-docker compose down
+# Run frontend container
+docker run -p 8080:80 aeropay-frontend
 ```
 
-### Container Endpoints:
-
 - **Frontend Web App**: `http://localhost:8080`
-- **Backend REST API**: `http://localhost:5000/api`
-- **WebSocket Stream**: `ws://localhost:5000/ws`
-- **Health Check**: `http://localhost:5000/health`
 
 ---
 
@@ -73,7 +56,7 @@ docker compose down
 ## 🧪 Quality & CI Workflows
 
 ```bash
-# Type check both frontend and backend
+# Type check frontend
 npm run type-check
 
 # Lint checks
