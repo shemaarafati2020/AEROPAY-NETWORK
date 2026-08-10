@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/aeropay_db}
+    username: ${SPRING_DATASOURCE_USERNAME:aeropay_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:aeropay_secret_2026}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
