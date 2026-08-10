@@ -9,26 +9,40 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#1A1A1A',
-    background: '#F5F5F5',
-    backgroundElement: '#FFFFFF',
-    backgroundSelected: '#EAEAEA',
-    textSecondary: '#757575',
+    text: '#0F172A',
+    background: '#F8FAFC',
+    backgroundElement: 'rgba(255, 255, 255, 0.85)',
+    backgroundSelected: 'rgba(241, 245, 249, 0.9)',
+    textSecondary: '#64748B',
     accent: '#A51C24', // Equity Burgundy Red
-    success: '#2E7D32',
-    error: '#D32F2F',
-    divider: '#E0E0E0',
+    accentLight: '#C5222B',
+    accentGlow: 'rgba(165, 28, 36, 0.15)',
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    divider: 'rgba(226, 232, 240, 0.8)',
+    glassBackground: 'rgba(255, 255, 255, 0.82)',
+    glassBorder: 'rgba(255, 255, 255, 0.7)',
+    glassBorderSubtle: 'rgba(0, 0, 0, 0.06)',
+    cardShadow: 'rgba(0, 0, 0, 0.05)',
   },
   dark: {
-    text: '#F5F5F5',
-    background: '#121212',
-    backgroundElement: '#1E1E1E',
-    backgroundSelected: '#2C2C2C',
-    textSecondary: '#A0A0A0',
-    accent: '#A51C24', // Equity Burgundy Red
-    success: '#388E3C',
-    error: '#EF5350',
-    divider: '#333333',
+    text: '#FFFFFF',
+    background: '#0B0D14', // Deep midnight Apple-style OLED background
+    backgroundElement: 'rgba(20, 24, 36, 0.85)', // Frosted glass surface
+    backgroundSelected: 'rgba(32, 38, 54, 0.9)',
+    textSecondary: '#94A3B8',
+    accent: '#C5222B', // Luminous Burgundy Red
+    accentLight: '#E11D48',
+    accentGlow: 'rgba(197, 34, 43, 0.25)',
+    success: '#10B981',
+    error: '#F87171',
+    warning: '#FBBF24',
+    divider: 'rgba(255, 255, 255, 0.08)',
+    glassBackground: 'rgba(20, 24, 38, 0.72)', // iPhone-style frosted glass
+    glassBorder: 'rgba(255, 255, 255, 0.14)', // Crisp glass highlight edge
+    glassBorderSubtle: 'rgba(255, 255, 255, 0.07)',
+    cardShadow: 'rgba(0, 0, 0, 0.35)',
   },
 } as const;
 

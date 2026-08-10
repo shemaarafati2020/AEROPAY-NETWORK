@@ -14,8 +14,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         style={[
           styles.tabBarContainer,
           {
-            backgroundColor: isDark ? 'rgba(18, 18, 22, 0.95)' : 'rgba(255, 255, 255, 0.96)',
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+            backgroundColor: isDark ? 'rgba(14, 18, 28, 0.78)' : 'rgba(255, 255, 255, 0.84)',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.8)',
+            shadowColor: isDark ? '#000000' : '#64748B',
           },
         ]}
       >
@@ -52,8 +53,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               style={[
                 styles.tabItem,
                 isFocused && {
-                  backgroundColor: isDark ? colors.accent + '25' : colors.accent + '15',
-                  borderColor: colors.accent,
+                  backgroundColor: isDark ? 'rgba(197, 34, 43, 0.22)' : 'rgba(165, 28, 36, 0.12)',
+                  borderColor: isDark ? 'rgba(225, 29, 72, 0.4)' : 'rgba(165, 28, 36, 0.3)',
                   borderWidth: 1,
                 },
               ]}
@@ -112,27 +113,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 6,
-    paddingVertical: 6,
-    borderRadius: 28,
+    paddingHorizontal: 8,
+    paddingVertical: 7,
+    borderRadius: 32,
     borderWidth: 1.5,
     maxWidth: 540,
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 14,
   },
   tabItem: {
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
+    paddingVertical: 7,
     paddingHorizontal: 2,
-    borderRadius: 18,
-    marginHorizontal: 1,
+    borderRadius: 20,
+    marginHorizontal: 2,
   },
   tabLabel: {
     fontFamily: 'Inter',
